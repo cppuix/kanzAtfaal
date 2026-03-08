@@ -2,21 +2,22 @@
   "name": "منتقى كنز الأطفال",
   "short_name": "منتقى",
   "description": "٣٠٨ سؤالاً في العقيدة للأطفال والمبتدئين",
-  "start_url": "/",
+  "start_url": "/kanzAtfaal/",
   "display": "standalone",
   "background_color": "#0f1f18",
   "theme_color": "#1a3a2a",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "icon-192.jpg",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/jpg"
     },
     {
-      "src": "icon-512.png",
+      "src": "icon-512.jpg",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/jpg"
     }
-  ]
+  ],
+  "scope": "/kanzAtfaal/"
 }
