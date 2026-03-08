@@ -200,29 +200,75 @@ function getFiltered() {
   return scored.map(x => x.qa);
 }
 
-// ===== RENDER BROWSE =====
+// ===== RENDER BROWSE (paginated) =====
+const PAGE_SIZE = 30;
+let browseFiltered = [];
+let browsePage = 0;
+let browseObserver = null;
+
 function renderBrowse() {
-  const filtered = getFiltered();
+  browseFiltered = getFiltered();
+  browsePage = 0;
+
   const list = document.getElementById('cardList');
   const noResults = document.getElementById('noResults');
   const sectionLabel = document.getElementById('currentSectionLabel');
   const counter = document.getElementById('counterPill');
 
+  // Disconnect old observer
+  if (browseObserver) { browseObserver.disconnect(); browseObserver = null; }
   list.innerHTML = '';
-  if (filtered.length === 0) {
+
+  if (browseFiltered.length === 0) {
     noResults.classList.remove('hidden');
     list.classList.add('hidden');
   } else {
     noResults.classList.add('hidden');
     list.classList.remove('hidden');
-    filtered.forEach((qa, i) => {
-      const card = makeCard(qa, i * 30, state.search);
-      list.appendChild(card);
-    });
+    renderNextPage();
   }
 
   sectionLabel.textContent = state.section === 'all' ? 'جميع الأسئلة' : state.section;
-  counter.textContent = `${toArabic(filtered.length)} سؤال`;
+  counter.textContent = `${toArabic(browseFiltered.length)} سؤال`;
+}
+
+function renderNextPage() {
+  const list = document.getElementById('cardList');
+  const start = browsePage * PAGE_SIZE;
+  const end = Math.min(start + PAGE_SIZE, browseFiltered.length);
+  // Use DocumentFragment to batch DOM inserts
+  const frag = document.createDocumentFragment();
+  for (let i = start; i < end; i++) {
+    frag.appendChild(makeCard(browseFiltered[i], (i - start) * 20, state.search));
+  }
+  list.appendChild(frag);
+  browsePage++;
+
+  // Set up sentinel for next page if more remain
+  if (end < browseFiltered.length) {
+    attachBrowseSentinel(list);
+  }
+}
+
+function attachBrowseSentinel(list) {
+  // Remove old sentinel
+  const old = list.querySelector('.browse-sentinel');
+  if (old) old.remove();
+
+  const sentinel = document.createElement('div');
+  sentinel.className = 'browse-sentinel';
+  list.appendChild(sentinel);
+
+  browseObserver = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) {
+      browseObserver.disconnect();
+      browseObserver = null;
+      sentinel.remove();
+      renderNextPage();
+    }
+  }, { rootMargin: '200px' });
+
+  browseObserver.observe(sentinel);
 }
 
 const CHEST_SVG = `<svg class="chest-icon" viewBox="0 0 28 21" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -616,6 +662,10 @@ function closeDrawer() {
 function closeAbout() {
   document.getElementById('aboutOverlay').classList.add('hidden');
   document.body.style.overflow = '';
+  // Re-activate the current view in case the overlay broke it
+  const viewMap = { browse: 'viewBrowse', favorites: 'viewFavorites', quiz: 'viewQuiz' };
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(viewMap[state.view])?.classList.add('active');
 }
 
 // ===== TOAST =====
@@ -784,7 +834,9 @@ function init() {
 
   // Drawer nav
   document.querySelectorAll('.nav-pill').forEach(btn => {
-    btn.addEventListener('click', () => { switchView(btn.dataset.view); closeDrawer(); });
+    btn.addEventListener('click', () => {
+      if (btn.dataset.view) { switchView(btn.dataset.view); closeDrawer(); }
+    });
   });
 
   // Quiz controls
