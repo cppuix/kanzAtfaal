@@ -297,64 +297,47 @@ const STOP_SVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentC
 
 // ===== AUDIO PLAYER =====
 let currentAudio = null;
-let currentPlayBtn = null;
+let currentWrapper = null; // track wrapper so we can reset ALL play btns in it
 
-function playAudio(id, btn) {
+function playAudio(id, btn, wrapper) {
   // Stop any currently playing audio
   if (currentAudio) {
     currentAudio.pause();
     currentAudio.currentTime = 0;
-    if (currentPlayBtn) resetPlayBtn(currentPlayBtn);
-    // If tapping the same button, just stop
-    if (currentPlayBtn === btn) {
+    if (currentWrapper) resetAllPlayBtns(currentWrapper);
+    // If tapping the same card, just stop
+    if (currentWrapper === wrapper) {
       currentAudio = null;
-      currentPlayBtn = null;
+      currentWrapper = null;
       return;
     }
   }
 
   const audio = new Audio(`audios/${id}.opus`);
   currentAudio = audio;
-  currentPlayBtn = btn;
+  currentWrapper = wrapper;
 
-  btn.innerHTML = STOP_SVG;
-  btn.classList.add('playing');
-
-  audio.addEventListener('ended', () => {
-    resetPlayBtn(btn);
-    currentAudio = null;
-    currentPlayBtn = null;
-  });
-  audio.addEventListener('error', () => {
-    resetPlayBtn(btn);
-    currentAudio = null;
-    currentPlayBtn = null;
-  });
-
-  audio.play().catch(() => {
-    resetPlayBtn(btn);
-    currentAudio = null;
-    currentPlayBtn = null;
-  });
-}
-
-function resetPlayBtn(btn) {
-  btn.innerHTML = PLAY_SVG;
-  btn.classList.remove('playing');
-}
-
-function syncPlayBtns(wrapper, activeBtn) {
-  // Mirror playing state to the other face's play button
+  // Set all play btns in this card to "playing"
   wrapper.querySelectorAll('.play-btn').forEach(b => {
-    if (b !== activeBtn) {
-      if (activeBtn.classList.contains('playing')) {
-        b.innerHTML = STOP_SVG;
-        b.classList.add('playing');
-      } else {
-        b.innerHTML = PLAY_SVG;
-        b.classList.remove('playing');
-      }
-    }
+    b.innerHTML = STOP_SVG;
+    b.classList.add('playing');
+  });
+
+  function onDone() {
+    resetAllPlayBtns(wrapper);
+    currentAudio = null;
+    currentWrapper = null;
+  }
+
+  audio.addEventListener('ended', onDone);
+  audio.addEventListener('error', onDone);
+  audio.play().catch(onDone);
+}
+
+function resetAllPlayBtns(wrapper) {
+  wrapper.querySelectorAll('.play-btn').forEach(b => {
+    b.innerHTML = PLAY_SVG;
+    b.classList.remove('playing');
   });
 }
 
@@ -364,9 +347,9 @@ function stopAllAudio() {
     currentAudio.pause();
     currentAudio = null;
   }
-  if (currentPlayBtn) {
-    resetPlayBtn(currentPlayBtn);
-    currentPlayBtn = null;
+  if (currentWrapper) {
+    resetAllPlayBtns(currentWrapper);
+    currentWrapper = null;
   }
 }
 
@@ -427,9 +410,7 @@ function makeCard(qa, delay = 0, hlQuery = '') {
   wrapper.querySelectorAll('.play-btn').forEach(btn => {
     btn.addEventListener('click', e => {
       e.stopPropagation();
-      playAudio(qa.id, btn);
-      // Sync sibling play btn after state is updated
-      requestAnimationFrame(() => syncPlayBtns(wrapper, btn));
+      playAudio(qa.id, btn, wrapper);
     });
   });
 
