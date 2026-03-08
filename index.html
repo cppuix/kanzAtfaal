@@ -2,9 +2,14 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#1a3a2a" />
   <meta name="description" content="منتقى كنز الأطفال - تعلم العقيدة بطريقة ممتعة" />
+  <!-- iOS PWA -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="منتقى" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
   <title>منتقى كنز الأطفال</title>
   <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="fonts/fonts.css" />
@@ -142,6 +147,7 @@
         <p>اختر البابَ وعدادَ الأسئلة</p>
         <select id="quizSection" class="quiz-select">
           <option value="all">جميع الأبواب</option>
+          <option value="__weak__" id="weakOption" style="display:none">نقاط الضعف ⚠</option>
         </select>
         <div class="quiz-count-row">
           <label>عدد الأسئلة:</label>
@@ -149,6 +155,27 @@
             <button class="count-btn active" data-count="5">٥</button>
             <button class="count-btn" data-count="10">١٠</button>
             <button class="count-btn" data-count="20">٢٠</button>
+          </div>
+        </div>
+        <div class="quiz-mode-row">
+          <label>نوع الاختبار:</label>
+          <div class="mode-btns">
+            <button class="mode-btn active" data-mode="mcq" title="اختر الجواب الصحيح">
+              <span class="mode-icon">؟</span>
+              <span class="mode-label">اختيار</span>
+            </button>
+            <button class="mode-btn" data-mode="build" title="رتّب كلمات الجواب">
+              <span class="mode-icon">⧉</span>
+              <span class="mode-label">ترتيب</span>
+            </button>
+            <button class="mode-btn" data-mode="blank" title="أكمل الكلمة الناقصة">
+              <span class="mode-icon">_</span>
+              <span class="mode-label">تكميل</span>
+            </button>
+            <button class="mode-btn" data-mode="listen" title="استمع واختر السؤال">
+              <span class="mode-icon">♪</span>
+              <span class="mode-label">استماع</span>
+            </button>
           </div>
         </div>
         <button id="startQuiz" class="start-btn">ابدأ الاختبار</button>
@@ -164,6 +191,30 @@
           <div class="quiz-q-num" id="quizQNum">س ١</div>
           <div class="quiz-q-text" id="quizQText"></div>
           <div id="quizChoices" class="quiz-choices"></div>
+
+          <!-- BUILD MODE -->
+          <div id="buildZone" class="build-zone hidden">
+            <div id="buildAnswer" class="build-answer"></div>
+            <div class="build-divider"></div>
+            <div id="buildPool" class="build-pool"></div>
+            <button id="buildCheck" class="build-check-btn hidden">تحقق ✓</button>
+          </div>
+
+          <!-- BLANK MODE -->
+          <div id="blankZone" class="blank-zone hidden">
+            <div id="blankText" class="blank-text"></div>
+            <div id="blankChoices" class="blank-choices"></div>
+          </div>
+
+          <!-- LISTEN MODE -->
+          <div id="listenZone" class="listen-zone hidden">
+            <button id="listenPlay" class="listen-play-btn">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <span>استمع</span>
+            </button>
+            <div id="listenChoices" class="listen-choices"></div>
+          </div>
+
           <div id="quizFeedback" class="quiz-feedback hidden"></div>
         </div>
         <button id="nextQuizBtn" class="next-btn hidden">التالي ←</button>
