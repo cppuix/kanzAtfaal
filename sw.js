@@ -1,6 +1,7 @@
 const CACHE_NAME = 'muntaqaa-v5';
+const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
-const STATIC_ASSETS = [
+const SHELL_ASSETS = [
   './',
   './index.html',
   './style.css',
@@ -8,369 +9,165 @@ const STATIC_ASSETS = [
   './data.js',
   './manifest.json',
   './fonts/fonts.css',
-  // Individual font woff2 files are cached on-fetch automatically
 ];
 
 const AUDIO_ASSETS = [
-  './audios/1.opus',
-  './audios/2.opus',
-  './audios/3.opus',
-  './audios/4.opus',
-  './audios/5.opus',
-  './audios/6.opus',
-  './audios/7.opus',
-  './audios/8.opus',
-  './audios/9.opus',
-  './audios/10.opus',
-  './audios/11.opus',
-  './audios/12.opus',
-  './audios/13.opus',
-  './audios/14.opus',
-  './audios/15.opus',
-  './audios/16.opus',
-  './audios/17.opus',
-  './audios/18.opus',
-  './audios/19.opus',
-  './audios/20.opus',
-  './audios/21.opus',
-  './audios/22.opus',
-  './audios/23.opus',
-  './audios/24.opus',
-  './audios/25.opus',
-  './audios/26.opus',
-  './audios/27.opus',
-  './audios/28.opus',
-  './audios/29.opus',
-  './audios/30.opus',
-  './audios/31.opus',
-  './audios/32.opus',
-  './audios/33.opus',
-  './audios/34.opus',
-  './audios/35.opus',
-  './audios/36.opus',
-  './audios/37.opus',
-  './audios/38.opus',
-  './audios/39.opus',
-  './audios/40.opus',
-  './audios/41.opus',
-  './audios/42.opus',
-  './audios/43.opus',
-  './audios/44.opus',
-  './audios/45.opus',
-  './audios/46.opus',
-  './audios/47.opus',
-  './audios/48.opus',
-  './audios/49.opus',
-  './audios/50.opus',
-  './audios/51.opus',
-  './audios/52.opus',
-  './audios/53.opus',
-  './audios/54.opus',
-  './audios/55.opus',
-  './audios/56.opus',
-  './audios/57.opus',
-  './audios/58.opus',
-  './audios/59.opus',
-  './audios/60.opus',
-  './audios/61.opus',
-  './audios/62.opus',
-  './audios/63.opus',
-  './audios/64.opus',
-  './audios/65.opus',
-  './audios/66.opus',
-  './audios/67.opus',
-  './audios/68.opus',
-  './audios/69.opus',
-  './audios/70.opus',
-  './audios/71.opus',
-  './audios/72.opus',
-  './audios/73.opus',
-  './audios/74.opus',
-  './audios/75.opus',
-  './audios/76.opus',
-  './audios/77.opus',
-  './audios/78.opus',
-  './audios/79.opus',
-  './audios/80.opus',
-  './audios/81.opus',
-  './audios/82.opus',
-  './audios/83.opus',
-  './audios/84.opus',
-  './audios/85.opus',
-  './audios/86.opus',
-  './audios/87.opus',
-  './audios/88.opus',
-  './audios/89.opus',
-  './audios/90.opus',
-  './audios/91.opus',
-  './audios/92.opus',
-  './audios/93.opus',
-  './audios/94.opus',
-  './audios/95.opus',
-  './audios/96.opus',
-  './audios/97.opus',
-  './audios/98.opus',
-  './audios/99.opus',
-  './audios/100.opus',
-  './audios/101.opus',
-  './audios/102.opus',
-  './audios/103.opus',
-  './audios/104.opus',
-  './audios/105.opus',
-  './audios/106.opus',
-  './audios/107.opus',
-  './audios/108.opus',
-  './audios/109.opus',
-  './audios/110.opus',
-  './audios/111.opus',
-  './audios/112.opus',
-  './audios/113.opus',
-  './audios/114.opus',
-  './audios/115.opus',
-  './audios/116.opus',
-  './audios/117.opus',
-  './audios/118.opus',
-  './audios/119.opus',
-  './audios/120.opus',
-  './audios/121.opus',
-  './audios/122.opus',
-  './audios/123.opus',
-  './audios/124.opus',
-  './audios/125.opus',
-  './audios/126.opus',
-  './audios/127.opus',
-  './audios/128.opus',
-  './audios/129.opus',
-  './audios/130.opus',
-  './audios/131.opus',
-  './audios/132.opus',
-  './audios/133.opus',
-  './audios/134.opus',
-  './audios/135.opus',
-  './audios/136.opus',
-  './audios/137.opus',
-  './audios/138.opus',
-  './audios/139.opus',
-  './audios/140.opus',
-  './audios/141.opus',
-  './audios/142.opus',
-  './audios/143.opus',
-  './audios/144.opus',
-  './audios/145.opus',
-  './audios/146.opus',
-  './audios/147.opus',
-  './audios/148.opus',
-  './audios/149.opus',
-  './audios/150.opus',
-  './audios/151.opus',
-  './audios/152.opus',
-  './audios/153.opus',
-  './audios/154.opus',
-  './audios/155.opus',
-  './audios/156.opus',
-  './audios/157.opus',
-  './audios/158.opus',
-  './audios/159.opus',
-  './audios/160.opus',
-  './audios/161.opus',
-  './audios/162.opus',
-  './audios/163.opus',
-  './audios/164.opus',
-  './audios/165.opus',
-  './audios/166.opus',
-  './audios/167.opus',
-  './audios/168.opus',
-  './audios/169.opus',
-  './audios/170.opus',
-  './audios/171.opus',
-  './audios/172.opus',
-  './audios/173.opus',
-  './audios/174.opus',
-  './audios/175.opus',
-  './audios/176.opus',
-  './audios/177.opus',
-  './audios/178.opus',
-  './audios/179.opus',
-  './audios/180.opus',
-  './audios/181.opus',
-  './audios/182.opus',
-  './audios/183.opus',
-  './audios/184.opus',
-  './audios/185.opus',
-  './audios/186.opus',
-  './audios/187.opus',
-  './audios/188.opus',
-  './audios/189.opus',
-  './audios/190.opus',
-  './audios/191.opus',
-  './audios/192.opus',
-  './audios/193.opus',
-  './audios/194.opus',
-  './audios/195.opus',
-  './audios/196.opus',
-  './audios/197.opus',
-  './audios/198.opus',
-  './audios/199.opus',
-  './audios/200.opus',
-  './audios/201.opus',
-  './audios/202.opus',
-  './audios/203.opus',
-  './audios/204.opus',
-  './audios/205.opus',
-  './audios/206.opus',
-  './audios/207.opus',
-  './audios/208.opus',
-  './audios/209.opus',
-  './audios/210.opus',
-  './audios/211.opus',
-  './audios/212.opus',
-  './audios/213.opus',
-  './audios/214.opus',
-  './audios/215.opus',
-  './audios/216.opus',
-  './audios/217.opus',
-  './audios/218.opus',
-  './audios/219.opus',
-  './audios/220.opus',
-  './audios/221.opus',
-  './audios/222.opus',
-  './audios/223.opus',
-  './audios/224.opus',
-  './audios/225.opus',
-  './audios/226.opus',
-  './audios/227.opus',
-  './audios/228.opus',
-  './audios/229.opus',
-  './audios/230.opus',
-  './audios/231.opus',
-  './audios/232.opus',
-  './audios/233.opus',
-  './audios/234.opus',
-  './audios/235.opus',
-  './audios/236.opus',
-  './audios/237.opus',
-  './audios/238.opus',
-  './audios/239.opus',
-  './audios/240.opus',
-  './audios/241.opus',
-  './audios/242.opus',
-  './audios/243.opus',
-  './audios/244.opus',
-  './audios/245.opus',
-  './audios/246.opus',
-  './audios/247.opus',
-  './audios/248.opus',
-  './audios/249.opus',
-  './audios/250.opus',
-  './audios/251.opus',
-  './audios/252.opus',
-  './audios/253.opus',
-  './audios/254.opus',
-  './audios/255.opus',
-  './audios/256.opus',
-  './audios/257.opus',
-  './audios/258.opus',
-  './audios/259.opus',
-  './audios/260.opus',
-  './audios/261.opus',
-  './audios/262.opus',
-  './audios/263.opus',
-  './audios/264.opus',
-  './audios/265.opus',
-  './audios/266.opus',
-  './audios/267.opus',
-  './audios/268.opus',
-  './audios/269.opus',
-  './audios/270.opus',
-  './audios/271.opus',
-  './audios/272.opus',
-  './audios/273.opus',
-  './audios/274.opus',
-  './audios/275.opus',
-  './audios/276.opus',
-  './audios/277.opus',
-  './audios/278.opus',
-  './audios/279.opus',
-  './audios/280.opus',
-  './audios/281.opus',
-  './audios/282.opus',
-  './audios/283.opus',
-  './audios/284.opus',
-  './audios/285.opus',
-  './audios/286.opus',
-  './audios/287.opus',
-  './audios/288.opus',
-  './audios/289.opus',
-  './audios/290.opus',
-  './audios/291.opus',
-  './audios/292.opus',
-  './audios/293.opus',
-  './audios/294.opus',
-  './audios/295.opus',
-  './audios/296.opus',
-  './audios/297.opus',
-  './audios/298.opus',
-  './audios/299.opus',
-  './audios/300.opus',
-  './audios/301.opus',
-  './audios/302.opus',
-  './audios/303.opus',
-  './audios/304.opus',
-  './audios/305.opus',
-  './audios/306.opus',
-  './audios/307.opus',
-  './audios/308.opus'
+  './audios/1.opus','./audios/2.opus','./audios/3.opus','./audios/4.opus','./audios/5.opus',
+  './audios/6.opus','./audios/7.opus','./audios/8.opus','./audios/9.opus','./audios/10.opus',
+  './audios/11.opus','./audios/12.opus','./audios/13.opus','./audios/14.opus','./audios/15.opus',
+  './audios/16.opus','./audios/17.opus','./audios/18.opus','./audios/19.opus','./audios/20.opus',
+  './audios/21.opus','./audios/22.opus','./audios/23.opus','./audios/24.opus','./audios/25.opus',
+  './audios/26.opus','./audios/27.opus','./audios/28.opus','./audios/29.opus','./audios/30.opus',
+  './audios/31.opus','./audios/32.opus','./audios/33.opus','./audios/34.opus','./audios/35.opus',
+  './audios/36.opus','./audios/37.opus','./audios/38.opus','./audios/39.opus','./audios/40.opus',
+  './audios/41.opus','./audios/42.opus','./audios/43.opus','./audios/44.opus','./audios/45.opus',
+  './audios/46.opus','./audios/47.opus','./audios/48.opus','./audios/49.opus','./audios/50.opus',
+  './audios/51.opus','./audios/52.opus','./audios/53.opus','./audios/54.opus','./audios/55.opus',
+  './audios/56.opus','./audios/57.opus','./audios/58.opus','./audios/59.opus','./audios/60.opus',
+  './audios/61.opus','./audios/62.opus','./audios/63.opus','./audios/64.opus','./audios/65.opus',
+  './audios/66.opus','./audios/67.opus','./audios/68.opus','./audios/69.opus','./audios/70.opus',
+  './audios/71.opus','./audios/72.opus','./audios/73.opus','./audios/74.opus','./audios/75.opus',
+  './audios/76.opus','./audios/77.opus','./audios/78.opus','./audios/79.opus','./audios/80.opus',
+  './audios/81.opus','./audios/82.opus','./audios/83.opus','./audios/84.opus','./audios/85.opus',
+  './audios/86.opus','./audios/87.opus','./audios/88.opus','./audios/89.opus','./audios/90.opus',
+  './audios/91.opus','./audios/92.opus','./audios/93.opus','./audios/94.opus','./audios/95.opus',
+  './audios/96.opus','./audios/97.opus','./audios/98.opus','./audios/99.opus','./audios/100.opus',
+  './audios/101.opus','./audios/102.opus','./audios/103.opus','./audios/104.opus','./audios/105.opus',
+  './audios/106.opus','./audios/107.opus','./audios/108.opus','./audios/109.opus','./audios/110.opus',
+  './audios/111.opus','./audios/112.opus','./audios/113.opus','./audios/114.opus','./audios/115.opus',
+  './audios/116.opus','./audios/117.opus','./audios/118.opus','./audios/119.opus','./audios/120.opus',
+  './audios/121.opus','./audios/122.opus','./audios/123.opus','./audios/124.opus','./audios/125.opus',
+  './audios/126.opus','./audios/127.opus','./audios/128.opus','./audios/129.opus','./audios/130.opus',
+  './audios/131.opus','./audios/132.opus','./audios/133.opus','./audios/134.opus','./audios/135.opus',
+  './audios/136.opus','./audios/137.opus','./audios/138.opus','./audios/139.opus','./audios/140.opus',
+  './audios/141.opus','./audios/142.opus','./audios/143.opus','./audios/144.opus','./audios/145.opus',
+  './audios/146.opus','./audios/147.opus','./audios/148.opus','./audios/149.opus','./audios/150.opus',
+  './audios/151.opus','./audios/152.opus','./audios/153.opus','./audios/154.opus','./audios/155.opus',
+  './audios/156.opus','./audios/157.opus','./audios/158.opus','./audios/159.opus','./audios/160.opus',
+  './audios/161.opus','./audios/162.opus','./audios/163.opus','./audios/164.opus','./audios/165.opus',
+  './audios/166.opus','./audios/167.opus','./audios/168.opus','./audios/169.opus','./audios/170.opus',
+  './audios/171.opus','./audios/172.opus','./audios/173.opus','./audios/174.opus','./audios/175.opus',
+  './audios/176.opus','./audios/177.opus','./audios/178.opus','./audios/179.opus','./audios/180.opus',
+  './audios/181.opus','./audios/182.opus','./audios/183.opus','./audios/184.opus','./audios/185.opus',
+  './audios/186.opus','./audios/187.opus','./audios/188.opus','./audios/189.opus','./audios/190.opus',
+  './audios/191.opus','./audios/192.opus','./audios/193.opus','./audios/194.opus','./audios/195.opus',
+  './audios/196.opus','./audios/197.opus','./audios/198.opus','./audios/199.opus','./audios/200.opus',
+  './audios/201.opus','./audios/202.opus','./audios/203.opus','./audios/204.opus','./audios/205.opus',
+  './audios/206.opus','./audios/207.opus','./audios/208.opus','./audios/209.opus','./audios/210.opus',
+  './audios/211.opus','./audios/212.opus','./audios/213.opus','./audios/214.opus','./audios/215.opus',
+  './audios/216.opus','./audios/217.opus','./audios/218.opus','./audios/219.opus','./audios/220.opus',
+  './audios/221.opus','./audios/222.opus','./audios/223.opus','./audios/224.opus','./audios/225.opus',
+  './audios/226.opus','./audios/227.opus','./audios/228.opus','./audios/229.opus','./audios/230.opus',
+  './audios/231.opus','./audios/232.opus','./audios/233.opus','./audios/234.opus','./audios/235.opus',
+  './audios/236.opus','./audios/237.opus','./audios/238.opus','./audios/239.opus','./audios/240.opus',
+  './audios/241.opus','./audios/242.opus','./audios/243.opus','./audios/244.opus','./audios/245.opus',
+  './audios/246.opus','./audios/247.opus','./audios/248.opus','./audios/249.opus','./audios/250.opus',
+  './audios/251.opus','./audios/252.opus','./audios/253.opus','./audios/254.opus','./audios/255.opus',
+  './audios/256.opus','./audios/257.opus','./audios/258.opus','./audios/259.opus','./audios/260.opus',
+  './audios/261.opus','./audios/262.opus','./audios/263.opus','./audios/264.opus','./audios/265.opus',
+  './audios/266.opus','./audios/267.opus','./audios/268.opus','./audios/269.opus','./audios/270.opus',
+  './audios/271.opus','./audios/272.opus','./audios/273.opus','./audios/274.opus','./audios/275.opus',
+  './audios/276.opus','./audios/277.opus','./audios/278.opus','./audios/279.opus','./audios/280.opus',
+  './audios/281.opus','./audios/282.opus','./audios/283.opus','./audios/284.opus','./audios/285.opus',
+  './audios/286.opus','./audios/287.opus','./audios/288.opus','./audios/289.opus','./audios/290.opus',
+  './audios/291.opus','./audios/292.opus','./audios/293.opus','./audios/294.opus','./audios/295.opus',
+  './audios/296.opus','./audios/297.opus','./audios/298.opus','./audios/299.opus','./audios/300.opus',
+  './audios/301.opus','./audios/302.opus','./audios/303.opus','./audios/304.opus','./audios/305.opus',
+  './audios/306.opus','./audios/307.opus','./audios/308.opus'
 ];
 
-// Cache static assets immediately on install
+const SHELL_SET = new Set(SHELL_ASSETS.map(u => new URL(u, self.location).href));
+
+// ── Install: cache shell immediately ─────────────────────────────────
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(STATIC_ASSETS))
+    caches.open(CACHE_NAME).then(cache => cache.addAll(SHELL_ASSETS))
   );
   self.skipWaiting();
 });
 
-// Clean old caches on activate
+// ── Activate: delete old shell caches, keep audio cache ──────────────
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
+      Promise.all(
+        keys
+          .filter(k => k !== CACHE_NAME && k !== AUDIO_CACHE)
+          .map(k => caches.delete(k))
+      )
     )
   );
   self.clients.claim();
-  // Cache audio files in background after activation (non-blocking)
   cacheAudioInBackground();
 });
 
-async function cacheAudioInBackground() {
+// ── Fetch ─────────────────────────────────────────────────────────────
+self.addEventListener('fetch', e => {
+  if (e.request.method !== 'GET') return;
+
+  const url = new URL(e.request.url);
+
+  // Audio: cache-first (files never change)
+  if (url.pathname.includes('/audios/')) {
+    e.respondWith(cacheFirst(e.request, AUDIO_CACHE));
+    return;
+  }
+
+  // Fonts: cache-first (files never change)
+  if (url.pathname.includes('/fonts/')) {
+    e.respondWith(cacheFirst(e.request, CACHE_NAME));
+    return;
+  }
+
+  // App shell + navigation: network-first so updates land immediately
+  if (SHELL_SET.has(url.href) || e.request.mode === 'navigate') {
+    e.respondWith(networkFirst(e.request));
+    return;
+  }
+
+  // Everything else: cache-first
+  e.respondWith(cacheFirst(e.request, CACHE_NAME));
+});
+
+// ── Strategies ────────────────────────────────────────────────────────
+
+async function networkFirst(request) {
   const cache = await caches.open(CACHE_NAME);
-  // Batch in groups of 20 to avoid hammering the server
-  for (let i = 0; i < AUDIO_ASSETS.length; i += 20) {
-    const batch = AUDIO_ASSETS.slice(i, i + 20);
-    await Promise.allSettled(batch.map(url =>
-      cache.match(url).then(hit => hit ? null : fetch(url).then(r => r.ok ? cache.put(url, r) : null).catch(() => null))
-    ));
+  try {
+    const response = await fetch(request);
+    if (response.ok) cache.put(request, response.clone());
+    return response;
+  } catch {
+    const cached = await cache.match(request);
+    if (cached) return cached;
+    if (request.mode === 'navigate') return cache.match('./index.html');
   }
 }
 
-// Serve from cache, fall back to network, cache new responses
-self.addEventListener('fetch', e => {
-  e.respondWith(
-    caches.match(e.request).then(cached => {
-      if (cached) return cached;
-      return fetch(e.request).then(response => {
-        // Cache successful GET responses for our origin
-        if (response.ok && e.request.method === 'GET') {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
-        }
-        return response;
-      }).catch(() => {
-        // Offline fallback for navigation requests
-        if (e.request.mode === 'navigate') {
-          return caches.match('./index.html');
-        }
-      });
-    })
-  );
-});
+async function cacheFirst(request, cacheName) {
+  const cache = await caches.open(cacheName);
+  const cached = await cache.match(request);
+  if (cached) return cached;
+  try {
+    const response = await fetch(request);
+    if (response.ok) cache.put(request, response.clone());
+    return response;
+  } catch {
+    return new Response('', { status: 408 });
+  }
+}
+
+// ── Background audio caching ──────────────────────────────────────────
+async function cacheAudioInBackground() {
+  const cache = await caches.open(AUDIO_CACHE);
+  for (let i = 0; i < AUDIO_ASSETS.length; i += 20) {
+    const batch = AUDIO_ASSETS.slice(i, i + 20);
+    await Promise.allSettled(
+      batch.map(url =>
+        cache.match(url).then(hit =>
+          hit ? null : fetch(url).then(r => r.ok ? cache.put(url, r) : null).catch(() => null)
+        )
+      )
+    );
+  }
+}
