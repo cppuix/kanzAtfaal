@@ -686,6 +686,21 @@ mark {
   color: var(--gold2); border-radius: 8px; padding: 4px 10px;
   font-size: 14px; font-family: var(--font-display);
 }
+.build-placed-tile.removable {
+  cursor: pointer; transition: all 0.15s;
+  position: relative;
+}
+.build-placed-tile.removable:hover {
+  background: rgba(180, 40, 40, 0.2);
+  border-color: rgba(220, 80, 80, 0.5);
+  color: #f08080;
+  transform: translateY(-1px);
+}
+.build-placed-tile.removable:hover::after {
+  content: ' ×';
+  font-size: 12px;
+  opacity: 0.8;
+}
 .build-divider { height: 1px; background: linear-gradient(90deg, transparent, var(--gold-mid), transparent); }
 .build-pool { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; padding: 4px 0; }
 .build-tile {

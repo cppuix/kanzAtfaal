@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v4';
+const CACHE_NAME = 'muntaqaa-v5';
 
 const STATIC_ASSETS = [
   './',

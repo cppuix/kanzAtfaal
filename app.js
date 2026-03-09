@@ -681,9 +681,19 @@ function updateBuildAnswer(correctWords) {
     checkBtn.classList.add('hidden');
     return;
   }
-  answerEl.innerHTML = buildPlaced.map(p =>
-    `<span class="build-placed-tile">${escHtml(p.word)}</span>`
-  ).join('');
+  answerEl.innerHTML = '';
+  buildPlaced.forEach((p, i) => {
+    const span = document.createElement('span');
+    span.className = 'build-placed-tile removable';
+    span.textContent = p.word;
+    span.addEventListener('click', () => {
+      if (quizAnswered) return;
+      p.tileEl.classList.remove('placed');
+      buildPlaced.splice(i, 1);
+      updateBuildAnswer(correctWords);
+    });
+    answerEl.appendChild(span);
+  });
 
   if (buildPlaced.length === correctWords.length) {
     checkBtn.classList.remove('hidden');
@@ -815,8 +825,8 @@ function renderListen(qa) {
   choices.forEach(choice => {
     const btn = document.createElement('button');
     btn.className = 'choice-btn listen-q-choice';
-    btn.textContent = choice.q;
-    btn.addEventListener('click', () => answerListen(choice.id === qa.id, btn, qa.q));
+    btn.textContent = choice.a;
+    btn.addEventListener('click', () => answerListen(choice.id === qa.id, btn, qa.a));
     choicesEl.appendChild(btn);
   });
 }
@@ -854,7 +864,7 @@ function answerListen(correct, btn, correctQ) {
   stopListenAudio();
   document.querySelectorAll('.listen-q-choice').forEach(b => {
     b.disabled = true;
-    if (b.textContent === correctQ) b.classList.add('correct');
+    if (b.textContent === correctQ) b.classList.add('correct');  // correctQ is now an answer
   });
   const feedback = document.getElementById('quizFeedback');
   recordAnswer(quizQuestions[quizCurrent].id, correct);
@@ -862,12 +872,12 @@ function answerListen(correct, btn, correctQ) {
     quizScore++;
     btn.classList.add('correct');
     feedback.className = 'quiz-feedback correct';
-    feedback.textContent = 'أحسنت! السؤال الصحيح';
+    feedback.textContent = 'أحسنت! الجواب الصحيح';
     spawnSparkles(btn, true);
   } else {
     btn.classList.add('wrong');
     feedback.className = 'quiz-feedback wrong';
-    feedback.innerHTML = `السؤال الصحيح: <strong>${escHtml(correctQ)}</strong>`;
+    feedback.innerHTML = `الجواب الصحيح: <strong>${escHtml(correctQ)}</strong>`;
   }
   document.getElementById('quizScoreBadge').textContent = `النقاط: ${toArabic(quizScore)}`;
   document.getElementById('nextQuizBtn').classList.remove('hidden');
