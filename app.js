@@ -644,6 +644,8 @@ function renderBuild(qa) {
   const poolEl   = document.getElementById('buildPool');
   const checkBtn = document.getElementById('buildCheck');
   answerEl.innerHTML = '<span class="build-placeholder">اضغط على الكلمات لترتيبها...</span>';
+  answerEl.classList.remove('build-correct', 'build-wrong');
+  checkBtn.disabled = false;
   poolEl.innerHTML = '';
   checkBtn.classList.add('hidden');
 
@@ -686,10 +688,14 @@ function updateBuildAnswer(correctWords) {
     const span = document.createElement('span');
     span.className = 'build-placed-tile removable';
     span.textContent = p.word;
+    span.dataset.placedIdx = i;
     span.addEventListener('click', () => {
       if (quizAnswered) return;
+      // Re-read current index from DOM attribute to avoid stale closure
+      const currentIdx = buildPlaced.indexOf(p);
+      if (currentIdx === -1) return;
       p.tileEl.classList.remove('placed');
-      buildPlaced.splice(i, 1);
+      buildPlaced.splice(currentIdx, 1);
       updateBuildAnswer(correctWords);
     });
     answerEl.appendChild(span);
