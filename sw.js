@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v5';
+const CACHE_NAME = 'muntaqaa-v6';
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [
