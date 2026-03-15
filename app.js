@@ -1,3 +1,17 @@
+// ===== CONTENT REGISTRY =====
+// Add new content files here — they appear automatically in the picker
+const CONTENT_FILES = [
+  { file: 'content.ar.json',      label: 'منتقى عربي' },
+  { file: 'content.kanz-ar.json', label: 'كنز عربي' },
+  { file: 'content.kanz-en.json', label: 'Kanz EN' },
+];
+let activeContent = CONTENT_FILES[0].file;
+
+// ===== CONFIG & DATA (set by loadContent) =====
+let CFG = {};       // meta + ui strings from content JSON
+let QA_DATA = [];   // items array from content JSON
+let SECTIONS = [];  // derived from QA_DATA
+
 // ===== STATE =====
 let state = {
   view: 'browse',
@@ -19,22 +33,23 @@ let state = {
 
 // ===== ARABIC NUMERALS =====
 function toArabic(n) {
-  return String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+  if (CFG.meta && CFG.meta.numerals === 'arabic') {
+    return String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+  }
+  return String(n);
 }
 
-// ===== SECTIONS =====
-const SECTIONS = [...new Set(QA_DATA.map(q => q.section))];
 function getSectionIcon(s) { return ''; }
 
 // ===== LOAD STORAGE =====
 function loadStorage() {
   try {
-    const favs = JSON.parse(localStorage.getItem('muntaqaa_favs') || '[]');
+    const favs = JSON.parse(localStorage.getItem('favs_' + (CFG.meta && CFG.meta.id || 'default')) || '[]');
     state.favorites = new Set(favs);
   } catch(e) {}
 }
 function saveFavorites() {
-  localStorage.setItem('muntaqaa_favs', JSON.stringify([...state.favorites]));
+  localStorage.setItem('favs_' + (CFG.meta && CFG.meta.id || 'default'), JSON.stringify([...state.favorites]));
 }
 
 // ===== QUIZ HISTORY =====
@@ -43,7 +58,7 @@ let quizHistory = {};
 
 function loadQuizHistory() {
   try {
-    quizHistory = JSON.parse(localStorage.getItem('muntaqaa_history') || '{}');
+    quizHistory = JSON.parse(localStorage.getItem('hist_' + (CFG.meta && CFG.meta.id || 'default')) || '{}');
   } catch(e) { quizHistory = {}; }
   updateWeakOption();
 }
@@ -53,7 +68,7 @@ function updateWeakOption() {
   const weakCount = getWeakIds().length;
   if (weakCount > 0) {
     opt.style.display = '';
-    opt.textContent = `نقاط الضعف (${toArabic(weakCount)} سؤال) ⚠`;
+    opt.textContent = CFG.ui.weakSpotsLabel.replace("{n}", toArabic(weakCount));
   } else {
     opt.style.display = 'none';
     // Reset to 'all' if currently selected
@@ -62,7 +77,7 @@ function updateWeakOption() {
   }
 }
 function saveQuizHistory() {
-  localStorage.setItem('muntaqaa_history', JSON.stringify(quizHistory));
+  localStorage.setItem('hist_' + (CFG.meta && CFG.meta.id || 'default'), JSON.stringify(quizHistory));
   updateWeakOption();
 }
 function recordAnswer(id, correct) {
@@ -98,10 +113,14 @@ function hideSplash() {
 // ===== BUILD SECTION LIST =====
 function buildSectionList() {
   const list = document.getElementById('sectionList');
+  list.innerHTML = '';
+  // Also reset quiz section select
+  const quizSel = document.getElementById('quizSection');
+  while (quizSel.options.length > 2) quizSel.remove(2);  // keep 'all' and '__weak__'
   // All item
   const allItem = document.createElement('li');
   allItem.className = 'section-item' + (state.section === 'all' ? ' active' : '');
-  allItem.innerHTML = `<span>جميع الأسئلة</span><span class="count">${toArabic(QA_DATA.length)}</span>`;
+  allItem.innerHTML = `<span>${CFG.ui.allSections}</span><span class="count">${toArabic(QA_DATA.length)}</span>`;
   allItem.addEventListener('click', () => { setSection('all'); closeDrawer(); });
   list.appendChild(allItem);
 
@@ -116,7 +135,6 @@ function buildSectionList() {
   });
 
   // Build quiz section select
-  const quizSel = document.getElementById('quizSection');
   SECTIONS.forEach(sec => {
     const opt = document.createElement('option');
     opt.value = sec;
@@ -278,8 +296,8 @@ function renderBrowse() {
     renderNextPage();
   }
 
-  sectionLabel.textContent = state.section === 'all' ? 'جميع الأسئلة' : state.section;
-  counter.textContent = `${toArabic(browseFiltered.length)} سؤال`;
+  sectionLabel.textContent = state.section === 'all' ? CFG.ui.allSections : state.section;
+  counter.textContent = `${toArabic(browseFiltered.length)} ${CFG.ui.counterSuffix}`;
   // browseFiltered is now [{qa, matchIn}] — update section label based on search
 }
 
@@ -365,7 +383,7 @@ function playAudio(id, btn, wrapper) {
     }
   }
 
-  const audio = new Audio(`audios/${id}.opus`);
+  const audio = new Audio(CFG.meta.audioPath.replace('{id}', id));
   currentAudio = audio;
   currentWrapper = wrapper;
 
@@ -417,23 +435,23 @@ function makeCard(qa, delay = 0, hlQuery = '', autoFlip = false) {
     <div class="qa-card-flipper">
       <div class="qa-face qa-face-front">
         <div class="qa-card-header">
-          <span class="qa-num">س ${toArabic(qa.id)}</span>
+          <span class="qa-num">${CFG.ui.questionNum.replace("{n}", toArabic(qa.id))}</span>
           <span class="qa-question">${hlQuery ? buildHighlight(qa.q, hlQuery) : escHtml(qa.q)}</span>
-          <button class="qa-toggle" aria-label="إظهار الجواب">${CHEST_SVG}</button>
+          <button class="qa-toggle" aria-label=CFG.ui.showAnswer>${CHEST_SVG}</button>
         </div>
         <div class="qa-footer">
           <span class="qa-section-tag">${qa.section}</span>
           <div class="card-actions">
-            <button class="play-btn" aria-label="استمع" data-id="${qa.id}">${PLAY_SVG}</button>
-            <button class="fav-btn ${isFav ? 'active' : ''}" aria-label="حفظ" data-id="${qa.id}">${favStarSVG(isFav)}</button>
+            <button class="play-btn" aria-label=CFG.ui.listen data-id="${qa.id}">${PLAY_SVG}</button>
+            <button class="fav-btn ${isFav ? 'active' : ''}" aria-label=CFG.ui.save data-id="${qa.id}">${favStarSVG(isFav)}</button>
           </div>
         </div>
       </div>
       <div class="qa-face qa-face-back">
         <div class="qa-back-header">
-          <span class="qa-num">س ${toArabic(qa.id)}</span>
-          <span class="qa-back-label">الجواب</span>
-          <button class="qa-toggle qa-toggle-back" aria-label="إغلاق">${CHEST_SVG}</button>
+          <span class="qa-num">${CFG.ui.questionNum.replace("{n}", toArabic(qa.id))}</span>
+          <span class="qa-back-label">${CFG.ui.answerLabel}</span>
+          <button class="qa-toggle qa-toggle-back" aria-label=CFG.ui.close>${CHEST_SVG}</button>
         </div>
         <div class="qa-back-divider"></div>
         <div class="qa-answer-body">
@@ -442,8 +460,10 @@ function makeCard(qa, delay = 0, hlQuery = '', autoFlip = false) {
         <div class="qa-footer">
           <span class="qa-section-tag">${qa.section}</span>
           <div class="card-actions">
-            <button class="play-btn" aria-label="استمع" data-id="${qa.id}">${PLAY_SVG}</button>
-            <button class="fav-btn ${isFav ? 'active' : ''}" aria-label="حفظ" data-id="${qa.id}">${favStarSVG(isFav)}</button>
+            ${CFG.meta.audio ? `<button class="play-btn" aria-label="${CFG.ui.listen}" data-id="${qa.id}">${PLAY_SVG}</button>` : ""}
+            <button class="fav-btn ${isFav ? 'active' : ''}" aria-label="${CFG.ui.save}" data-id="${qa.id}">${favStarSVG(isFav)}</button>
+            <button class="copy-btn" aria-label="${CFG.ui.copyText}" data-id="${qa.id}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button>
+            <button class="share-img-btn" aria-label="${CFG.ui.shareImage}" data-id="${qa.id}"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
           </div>
         </div>
       </div>
@@ -456,6 +476,12 @@ function makeCard(qa, delay = 0, hlQuery = '', autoFlip = false) {
   wrapper.querySelector('.qa-toggle-back').addEventListener('click', e => { e.stopPropagation(); toggleCard(wrapper, qa.id); });
   wrapper.querySelectorAll('.fav-btn').forEach(btn => {
     btn.addEventListener('click', e => { e.stopPropagation(); toggleFav(qa.id, wrapper); });
+  });
+  wrapper.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); copyQA(qa); });
+  });
+  wrapper.querySelectorAll('.share-img-btn').forEach(btn => {
+    btn.addEventListener('click', e => { e.stopPropagation(); shareAsImage(qa); });
   });
 
   // Sync play buttons across both faces — when one updates, mirror to the other
@@ -487,10 +513,10 @@ function toggleFav(id, wrapper) {
   const isFav = state.favorites.has(id);
   if (isFav) {
     state.favorites.delete(id);
-    showToast('تمت الإزالة من المحفوظات');
+    showToast(CFG.ui.unsaved);
   } else {
     state.favorites.add(id);
-    showToast('تمت الإضافة إلى المحفوظات');
+    showToast(CFG.ui.saved);
   }
   // update all fav buttons in this wrapper
   wrapper.querySelectorAll('.fav-btn').forEach(btn => {
@@ -562,13 +588,13 @@ function initQuiz() {
 
   // Filter pool by mode requirements
   if (quizMode === 'build') {
-    pool = pool.filter(q => q.a.trim().split(/\s+/).length >= 4);
+    pool = pool.filter(q => q.a.trim().split(/\s+/).length >= (CFG.meta.buildMinWords || 4));
   } else if (quizMode === 'blank') {
-    pool = pool.filter(q => q.a.trim().split(/\s+/).length >= 3);
+    pool = pool.filter(q => q.a.trim().split(/\s+/).length >= (CFG.meta.blankMinWords || 3));
   }
 
   if (pool.length === 0) {
-    showToast('لا توجد أسئلة كافية لهذا النوع في هذا الباب');
+    showToast(CFG.ui.notEnoughQuestions);
     return;
   }
 
@@ -597,7 +623,7 @@ function renderQuizQuestion() {
 
   document.getElementById('quizProgressFill').style.width = `${(quizCurrent / total) * 100}%`;
   document.getElementById('quizProgressText').textContent = `${toArabic(quizCurrent + 1)} / ${toArabic(total)}`;
-  document.getElementById('quizScoreBadge').textContent = `النقاط: ${toArabic(quizScore)}`;
+  document.getElementById('quizScoreBadge').textContent = `${CFG.ui.score}: ${toArabic(quizScore)}`;
   document.getElementById('quizFeedback').className = 'quiz-feedback hidden';
   document.getElementById('nextQuizBtn').classList.add('hidden');
   quizAnswered = false;
@@ -612,7 +638,7 @@ function renderQuizQuestion() {
 
 // ── MCQ mode ──────────────────────────────────────────────
 function renderMCQ(qa) {
-  document.getElementById('quizQNum').textContent = `س ${toArabic(qa.id)}`;
+  document.getElementById('quizQNum').textContent = CFG.ui.questionNum.replace("{n}", toArabic(qa.id));
   document.getElementById('quizQText').textContent = qa.q;
   const choicesEl = document.getElementById('quizChoices');
   choicesEl.classList.remove('hidden');
@@ -630,7 +656,7 @@ function renderMCQ(qa) {
 
 // ── BUILD mode ────────────────────────────────────────────
 function renderBuild(qa) {
-  document.getElementById('quizQNum').textContent = `س ${toArabic(qa.id)}`;
+  document.getElementById('quizQNum').textContent = CFG.ui.questionNum.replace("{n}", toArabic(qa.id));
   document.getElementById('quizQText').textContent = qa.q;
   const zone = document.getElementById('buildZone');
   zone.classList.remove('hidden');
@@ -643,7 +669,7 @@ function renderBuild(qa) {
   const answerEl = document.getElementById('buildAnswer');
   const poolEl   = document.getElementById('buildPool');
   const checkBtn = document.getElementById('buildCheck');
-  answerEl.innerHTML = '<span class="build-placeholder">اضغط على الكلمات لترتيبها...</span>';
+  answerEl.innerHTML = '<span class="build-placeholder">' + CFG.ui.placeTilesHint + '</span>';
   answerEl.classList.remove('build-correct', 'build-wrong');
   checkBtn.disabled = false;
   poolEl.innerHTML = '';
@@ -679,7 +705,7 @@ function updateBuildAnswer(correctWords) {
   const answerEl = document.getElementById('buildAnswer');
   const checkBtn = document.getElementById('buildCheck');
   if (buildPlaced.length === 0) {
-    answerEl.innerHTML = '<span class="build-placeholder">اضغط على الكلمات لترتيبها...</span>';
+    answerEl.innerHTML = '<span class="build-placeholder">' + CFG.ui.placeTilesHint + '</span>';
     checkBtn.classList.add('hidden');
     return;
   }
@@ -722,12 +748,12 @@ function checkBuildAnswer(qa) {
     quizScore++;
     document.getElementById('buildAnswer').classList.add('build-correct');
     feedback.className = 'quiz-feedback correct';
-    feedback.textContent = 'أحسنت! ترتيب صحيح';
+    feedback.textContent = CFG.ui.correctFeedback;
     spawnSparkles(document.getElementById('buildAnswer'), true);
   } else {
     document.getElementById('buildAnswer').classList.add('build-wrong');
     feedback.className = 'quiz-feedback wrong';
-    feedback.innerHTML = `الترتيب الصحيح: <strong>${escHtml(qa.a)}</strong>`;
+    feedback.innerHTML = `${CFG.ui.wrongOrderFeedback} <strong>${escHtml(qa.a)}</strong>`;
   }
   document.getElementById('quizScoreBadge').textContent = `النقاط: ${toArabic(quizScore)}`;
   document.getElementById('nextQuizBtn').classList.remove('hidden');
@@ -735,13 +761,13 @@ function checkBuildAnswer(qa) {
 
 // ── BLANK mode ────────────────────────────────────────────
 function renderBlank(qa) {
-  document.getElementById('quizQNum').textContent = `س ${toArabic(qa.id)}`;
+  document.getElementById('quizQNum').textContent = CFG.ui.questionNum.replace("{n}", toArabic(qa.id));
   document.getElementById('quizQText').textContent = qa.q;
   const zone = document.getElementById('blankZone');
   zone.classList.remove('hidden');
 
   // Pick the key word: longest word not in a stop-list
-  const stopWords = new Set(['من','في','على','إلى','عن','مع','هو','هي','هم','أن','إن','كان','كانت','وهو','وهي','التي','الذي','ما','لا','أو','و','ال']);
+  const stopWords = new Set(CFG.meta.stopWords || []);
   const words = qa.a.trim().split(/\s+/);
   let keyIdx = 0, keyLen = 0;
   words.forEach((w, i) => {
@@ -799,12 +825,12 @@ function answerBlank(correct, btn, keyWord, blankEl, keyIdx, words) {
     quizScore++;
     btn.classList.add('correct');
     feedback.className = 'quiz-feedback correct';
-    feedback.textContent = 'أحسنت! الكلمة صحيحة';
+    feedback.textContent = CFG.ui.correctBlankFeedback;
     spawnSparkles(btn, true);
   } else {
     btn.classList.add('wrong');
     feedback.className = 'quiz-feedback wrong';
-    feedback.innerHTML = `الكلمة الصحيحة: <strong>${escHtml(keyWord)}</strong>`;
+    feedback.innerHTML = `${CFG.ui.wrongBlankFeedback} <strong>${escHtml(keyWord)}</strong>`;
   }
   document.getElementById('quizScoreBadge').textContent = `النقاط: ${toArabic(quizScore)}`;
   document.getElementById('nextQuizBtn').classList.remove('hidden');
@@ -820,7 +846,7 @@ function renderListen(qa) {
 
   const playBtn = document.getElementById('listenPlay');
   playBtn.classList.remove('playing');
-  playBtn.querySelector('span').textContent = 'استمع';
+  playBtn.querySelector('span').textContent = CFG.ui.listen;
   playBtn.onclick = () => playListenAudio(qa.id, playBtn);
 
   // 4 question choices
@@ -839,22 +865,22 @@ function renderListen(qa) {
 
 function playListenAudio(id, btn) {
   stopListenAudio();
-  listenAudio = new Audio(`audios/${id}.opus`);
+  listenAudio = new Audio(CFG.meta.audioPath.replace('{id}', id));
   btn.classList.add('playing');
-  btn.querySelector('span').textContent = 'يُشغَّل...';
+  btn.querySelector('span').textContent = CFG.ui.listen + '...';
   listenAudio.addEventListener('ended', () => {
     btn.classList.remove('playing');
-    btn.querySelector('span').textContent = 'إعادة ↺';
+    btn.querySelector('span').textContent = CFG.ui.replay;
   });
   listenAudio.addEventListener('error', () => {
     btn.classList.remove('playing');
-    btn.querySelector('span').textContent = 'تعذّر التشغيل';
+    btn.querySelector('span').textContent = CFG.ui.audioError;
     btn.disabled = true;
     btn.style.opacity = '0.5';
   });
   listenAudio.play().catch(() => {
     btn.classList.remove('playing');
-    btn.querySelector('span').textContent = 'تعذّر التشغيل';
+    btn.querySelector('span').textContent = CFG.ui.audioError;
     btn.disabled = true;
     btn.style.opacity = '0.5';
   });
@@ -878,12 +904,12 @@ function answerListen(correct, btn, correctQ) {
     quizScore++;
     btn.classList.add('correct');
     feedback.className = 'quiz-feedback correct';
-    feedback.textContent = 'أحسنت! الجواب الصحيح';
+    feedback.textContent = CFG.ui.correctListenFeedback;
     spawnSparkles(btn, true);
   } else {
     btn.classList.add('wrong');
     feedback.className = 'quiz-feedback wrong';
-    feedback.innerHTML = `الجواب الصحيح: <strong>${escHtml(correctQ)}</strong>`;
+    feedback.innerHTML = `${CFG.ui.wrongListenFeedback} <strong>${escHtml(correctQ)}</strong>`;
   }
   document.getElementById('quizScoreBadge').textContent = `النقاط: ${toArabic(quizScore)}`;
   document.getElementById('nextQuizBtn').classList.remove('hidden');
@@ -905,12 +931,12 @@ function answerQuiz(correct, btn, correctText) {
     quizScore++;
     btn.classList.add('correct');
     feedback.className = 'quiz-feedback correct';
-    feedback.textContent = 'أحسنت! إجابة صحيحة';
+    feedback.textContent = CFG.ui.correctMCQFeedback;
     spawnSparkles(btn, true); // big burst
   } else {
     btn.classList.add('wrong');
     feedback.className = 'quiz-feedback wrong';
-    feedback.innerHTML = `الإجابة الصحيحة: <strong>${correctText}</strong>`;
+    feedback.innerHTML = `${CFG.ui.wrongMCQFeedback} <strong>${correctText}</strong>`;
   }
   document.getElementById('quizScoreBadge').textContent = `النقاط: ${toArabic(quizScore)}`;
   document.getElementById('nextQuizBtn').classList.remove('hidden');
@@ -932,12 +958,12 @@ function showQuizResult() {
 
   const total = quizQuestions.length;
   const pct = Math.round((quizScore / total) * 100);
-  let title = 'ممتاز!', msg = 'أداء رائع جداً! استمر هكذا.';
+  let title = CFG.ui.resultGreat, msg = CFG.ui.resultGreatMsg;
 
-  if (pct < 40) { title = 'حاول مجدداً!'; msg = 'لا بأس، المثابرة طريق النجاح.'; }
-  else if (pct < 70) { title = 'جيد!'; msg = 'تقدم جيد، واصل المذاكرة.'; }
-  else if (pct < 100) { title = 'ممتاز!'; msg = 'أداء رائع جداً! استمر هكذا.'; }
-  else { title = 'مثالي!'; msg = '١٠٠٪ صحيح! أنت نجم!'; }
+  if (pct < 40) { title = CFG.ui.resultTryAgain; msg = CFG.ui.resultTryAgainMsg; }
+  else if (pct < 70) { title = CFG.ui.resultGood; msg = CFG.ui.resultGoodMsg; }
+  else if (pct < 100) { title = CFG.ui.resultGreat; msg = CFG.ui.resultGreatMsg; }
+  else { title = CFG.ui.resultPerfect; msg = CFG.ui.resultPerfectMsg; }
 
   document.getElementById('resultEmoji').innerHTML = `
     <svg class="result-chest" viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1038,7 +1064,7 @@ function buildSearchFilters() {
   const allBtn = document.createElement('button');
   allBtn.className = 'filter-pill' + (state.searchSection === 'all' ? ' active' : '');
   allBtn.dataset.section = 'all';
-  allBtn.textContent = 'الكل';
+  allBtn.textContent = CFG.ui.allSectionsShort;
   allBtn.addEventListener('click', () => setSearchSection('all'));
   bar.appendChild(allBtn);
 
@@ -1112,16 +1138,155 @@ function spawnSparkles(sourceEl, big = false) {
   }
 }
 
-// ===== INIT =====
-function init() {
+// ===== CONTENT SWITCHER =====
+function buildContentPicker() {
+  const picker = document.getElementById('contentPicker');
+  if (!picker) return;
+  picker.innerHTML = '';
+  CONTENT_FILES.forEach(({ file, label }) => {
+    const btn = document.createElement('button');
+    btn.className = 'content-btn' + (file === activeContent ? ' active' : '');
+    btn.textContent = label;
+    btn.addEventListener('click', () => switchContent(file));
+    picker.appendChild(btn);
+  });
+}
+
+async function switchContent(file) {
+  if (file === activeContent) { closeDrawer(); return; }
+  activeContent = file;
+
+  // Reset all transient state
+  state.section = 'all';
+  state.search = '';
+  state.searchScope = 'both';
+  state.searchSection = 'all';
+  state.openCards.clear();
+  quizQuestions = [];
+  quizCurrent = 0;
+  quizScore = 0;
+  quizAnswered = false;
+  buildPlaced = [];
+  stopAllAudio();
+  stopListenAudio();
+
+  // Close search bar if open
+  document.getElementById('searchBar').classList.add('hidden');
+  document.getElementById('searchFilters').classList.add('hidden');
+
+  await loadContent(file);
   loadStorage();
   loadQuizHistory();
-  hideSplash();
   buildSectionList();
-  renderBrowse();
+  switchView('browse');
+  closeDrawer();
+}
+
+// ===== LOAD CONTENT =====
+async function loadContent(jsonPath) {
+  const res = await fetch(jsonPath);
+  const json = await res.json();
+  CFG = { meta: json.meta, ui: json.ui, about: json.about || null };
+  QA_DATA = json.items || [];
+  SECTIONS = [...new Set(QA_DATA.map(q => q.section))];
+
+  // Apply direction and lang to document
+  document.documentElement.dir = CFG.meta.dir || 'rtl';
+  document.documentElement.lang = CFG.meta.lang || 'ar';
+
+  // Apply font class
+  document.body.dataset.fonts = (CFG.meta.fonts || []).join(',').toLowerCase();
+
+  // Update static UI strings that are in the HTML
+  const q = id => document.getElementById(id);
+  const setTxt = (id, val) => { const el = q(id); if (el && val) el.textContent = val; };
+  const setAttr = (id, attr, val) => { const el = q(id); if (el && val) el.setAttribute(attr, val); };
+
+  setTxt('appTitleEl', CFG.ui.appTitle);
+  setAttr('searchInput', 'placeholder', CFG.ui.searchPlaceholder);
+  setTxt('allSectionsFilter', CFG.ui.scopeAll || CFG.ui.allSectionsShort);
+  setTxt('scopeQBtn', CFG.ui.scopeQ);
+  setTxt('scopeABtn', CFG.ui.scopeA);
+  setTxt('currentSectionLabel', CFG.ui.allSections);
+  setTxt('navBrowseLabel', CFG.ui.browseNav);
+  setTxt('navFavsLabel', CFG.ui.favsNav);
+  setTxt('navQuizLabel', CFG.ui.quizNav);
+  setTxt('noFavsTitle', CFG.ui.noFavsTitle);
+  setTxt('noFavsHint', CFG.ui.noFavsHint);
+  setTxt('startQuiz', CFG.ui.startQuiz);
+  setTxt('nextQuizBtn', CFG.ui.next);
+  setTxt('retryQuiz', CFG.ui.retry);
+  setTxt('quizScoreBadge', `${CFG.ui.score}: ${toArabic(0)}`);
+  setTxt('allChaptersOpt', CFG.ui.allChapters);
+  setTxt('questionCountLabel', CFG.ui.questionCount);
+  setTxt('quizTypeLabel', CFG.ui.quizType);
+  setTxt('modeMCQLabel', CFG.ui.modeMCQ);
+  setTxt('modeBuildLabel', CFG.ui.modeBuild);
+  setTxt('modeBlankLabel', CFG.ui.modeBlank);
+  setTxt('modeListenLabel', CFG.ui.modeListen);
+  setTxt('favSectionLabel', CFG.ui.favoritesTitle);
+  setTxt('drawerSectionsTitle', CFG.ui.allSectionsShort);
+  setTxt('navBrowseDrawerLabel', CFG.ui.browseNav);
+  setTxt('navFavsDrawerLabel', CFG.ui.favsNav);
+  setTxt('navQuizDrawerLabel', CFG.ui.quizNav);
+  setTxt('navAboutLabel', CFG.ui.aboutBtn);
+  setTxt('settingsTitleEl', CFG.ui.settingsTitle);
+
+  // Render about modal content from JSON
+  const aboutTitleEl = document.getElementById('aboutTitle');
+  const aboutBodyEl = document.getElementById('aboutBody');
+  if (aboutTitleEl && CFG.about) {
+    aboutTitleEl.textContent = CFG.about.title;
+    let html = CFG.about.body.map(p => `<p>${p}</p>`).join('');
+    if (CFG.about.contactTitle && CFG.about.contacts) {
+      html += '<div class="about-divider"></div>'
+        + `<h2 class="about-contact-title">${CFG.about.contactTitle}</h2>`
+        + '<ul class="about-contact">'
+        + CFG.about.contacts.map(c =>
+            `<li><span class="about-contact-label">${c.label}</span>`
+            + `<a href="${c.href}">${c.value}</a></li>`
+          ).join('')
+        + '</ul>';
+    }
+    aboutBodyEl.innerHTML = html;
+  }
+
+  // Rebuild content picker to reflect active file
+  buildContentPicker();
+  buildSettingsPanel();
+
+  // Keep listen button label in sync — updated on play/replay/error in playListenAudio
+  const listenLbl = document.getElementById('listenBtnLabel');
+  if (listenLbl) listenLbl.textContent = CFG.ui.listen;
+
+  // Hide audio-dependent UI if content has no audio
+  const listenModeBtn = document.querySelector('.mode-btn[data-mode="listen"]');
+  if (listenModeBtn) listenModeBtn.style.display = CFG.meta.audio ? '' : 'none';
+
+  // Hide audio controls if no audio in this content
+  document.querySelectorAll('.play-btn').forEach(b => {
+    b.style.display = CFG.meta.audio ? '' : 'none';
+  });
+}
+
+// ===== INIT =====
+function init() {
+  applyDeepLink();
+  loadContent(activeContent).then(() => {
+    loadStorage();
+    loadQuizHistory();
+    applyFontSize(currentFontSize);
+    applyContrast(highContrast);
+    hideSplash();
+    buildSectionList();
+    renderBrowse();
+  });
 
   // Event listeners
   document.getElementById('menuToggle').addEventListener('click', openDrawer);
+  document.getElementById('settingsToggle').addEventListener('click', openSettings);
+  document.getElementById('settingsClose').addEventListener('click', closeSettings);
+  document.getElementById('settingsOverlay').addEventListener('click', e => { if (e.target === document.getElementById('settingsOverlay')) closeSettings(); });
 
   // About modal
   document.getElementById('navAbout').addEventListener('click', () => {
@@ -1203,4 +1368,281 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js').catch(() => {});
   });
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// ===== FEATURE: DEEP LINKS =====
+// ═══════════════════════════════════════════════════════════════════
+function applyDeepLink() {
+  const params = new URLSearchParams(location.search);
+  const content = params.get('content');
+  const section = params.get('section');
+  if (content && CONTENT_FILES.some(f => f.file === content)) {
+    activeContent = content;
+  }
+  if (section) {
+    state.section = section;
+  }
+}
+
+function buildDeepLink() {
+  const url = new URL(location.href);
+  url.search = '';
+  url.searchParams.set('content', activeContent);
+  if (state.section !== 'all') url.searchParams.set('section', state.section);
+  return url.toString();
+}
+
+async function shareDeepLink() {
+  const url = buildDeepLink();
+  if (navigator.share) {
+    await navigator.share({ title: CFG.ui.appTitle, url }).catch(() => {});
+  } else {
+    await navigator.clipboard.writeText(url);
+    showToast(CFG.ui.deepLinkCopied);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// ===== FEATURE: COPY TEXT =====
+// ═══════════════════════════════════════════════════════════════════
+async function copyQA(qa) {
+  const text = `${qa.q}\n${qa.a}`;
+  await navigator.clipboard.writeText(text);
+  showToast(CFG.ui.copied);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// ===== FEATURE: SHARE AS IMAGE =====
+// ═══════════════════════════════════════════════════════════════════
+async function shareAsImage(qa) {
+  // Ensure page fonts are ready (Amiri/Tajawal already loaded by CSS)
+  await document.fonts.ready;
+
+  const canvas = document.createElement('canvas');
+  const W = 1080, H = 1080;
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  const isRTL = document.documentElement.dir === 'rtl';
+  const FONT = isRTL ? 'Amiri, serif' : 'Georgia, serif';
+
+  // Background
+  ctx.fillStyle = '#0c1a12';
+  ctx.fillRect(0, 0, W, H);
+
+  // Subtle radial glow
+  const grd = ctx.createRadialGradient(W/2, H*0.3, 0, W/2, H*0.3, W*0.7);
+  grd.addColorStop(0, 'rgba(40,80,30,0.5)');
+  grd.addColorStop(1, 'transparent');
+  ctx.fillStyle = grd;
+  ctx.fillRect(0, 0, W, H);
+
+  // Card background
+  ctx.fillStyle = '#172a1e';
+  roundRect(ctx, 60, 60, W-120, H-120, 32);
+  ctx.fill();
+
+  // Gold border
+  ctx.strokeStyle = 'rgba(201,152,42,0.4)';
+  ctx.lineWidth = 2;
+  roundRect(ctx, 60, 60, W-120, H-120, 32);
+  ctx.stroke();
+
+  // Top accent line
+  const grad = ctx.createLinearGradient(60, 0, W-60, 0);
+  grad.addColorStop(0, 'transparent');
+  grad.addColorStop(0.5, '#c9982a');
+  grad.addColorStop(1, 'transparent');
+  ctx.strokeStyle = grad;
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(60, 92); ctx.lineTo(W-60, 92); ctx.stroke();
+
+  const X      = isRTL ? W-100 : 100;   // text anchor x
+  const ALIGN  = isRTL ? 'right' : 'left';
+
+  // ── Q number pill ──
+  const numText = CFG.ui.questionNum.replace('{n}', qa.id);
+  ctx.font = `bold 26px ${FONT}`;
+  const pillTextW = ctx.measureText(numText).width;
+  const pillPad = 28, pillH = 46, pillY = 95;
+  const pillW = pillTextW + pillPad * 2;
+  const pillX = isRTL ? W - 100 - pillW : 100;
+  ctx.fillStyle = 'rgba(201,152,42,0.18)';
+  ctx.beginPath(); ctx.roundRect(pillX, pillY, pillW, pillH, 23); ctx.fill();
+  ctx.strokeStyle = 'rgba(201,152,42,0.4)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.roundRect(pillX, pillY, pillW, pillH, 23); ctx.stroke();
+  ctx.fillStyle = '#e8bf5a';
+  ctx.textAlign = 'center';
+  ctx.fillText(numText, pillX + pillW / 2, pillY + 31);
+
+  // ── Section tag — clearly below pill with breathing room ──
+  ctx.fillStyle = '#7a6a50';
+  ctx.font = `22px ${FONT}`;
+  ctx.textAlign = ALIGN;
+  ctx.fillText(qa.section, X, 178);
+
+  // ── Top divider ──
+  ctx.strokeStyle = 'rgba(201,152,42,0.2)';
+  ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(100, 198); ctx.lineTo(W-100, 198); ctx.stroke();
+
+  // ── Question text ──
+  ctx.fillStyle = '#ecdec4';
+  wrapText(ctx, qa.q, X, 258, W-200, 50, ALIGN, `38px ${FONT}`);
+
+  // ── Answer divider ──
+  const midY = 530;
+  const grd2 = ctx.createLinearGradient(100, 0, W-100, 0);
+  grd2.addColorStop(0, 'transparent');
+  grd2.addColorStop(0.5, 'rgba(201,152,42,0.5)');
+  grd2.addColorStop(1, 'transparent');
+  ctx.strokeStyle = grd2;
+  ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(100, midY); ctx.lineTo(W-100, midY); ctx.stroke();
+
+  // ── Answer label ──
+  ctx.fillStyle = '#c9982a';
+  ctx.font = `bold 26px ${FONT}`;
+  ctx.textAlign = ALIGN;
+  ctx.fillText(CFG.ui.answerLabel, X, midY + 52);
+
+  // ── Answer text ──
+  ctx.fillStyle = '#f5d98a';
+  wrapText(ctx, qa.a, X, midY + 108, W-200, 46, ALIGN, `36px ${FONT}`);
+
+  // ── Watermark ──
+  ctx.fillStyle = 'rgba(110,96,72,0.6)';
+  ctx.font = '20px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('cppuix.github.io/kanzAtfaal', W/2, H-82);
+
+  // ── Corner ornaments ──
+  ctx.fillStyle = 'rgba(201,152,42,0.25)';
+  ctx.font = `44px ${FONT}`;
+  ctx.textAlign = 'left';  ctx.fillText('✦', 82, 114);
+  ctx.textAlign = 'right'; ctx.fillText('✦', W-82, 114);
+  ctx.textAlign = 'left';  ctx.fillText('❖', 82, H-82);
+  ctx.textAlign = 'right'; ctx.fillText('❖', W-82, H-82);
+
+  // Share or download
+  canvas.toBlob(async blob => {
+    const file = new File([blob], `qa-${qa.id}.png`, { type: 'image/png' });
+    if (navigator.share && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: CFG.ui.appTitle }).catch(() => {});
+    } else {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `qa-${qa.id}.png`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+  }, 'image/png');
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.arcTo(x + w, y, x + w, y + r, r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+  ctx.lineTo(x + r, y + h);
+  ctx.arcTo(x, y + h, x, y + h - r, r);
+  ctx.lineTo(x, y + r);
+  ctx.arcTo(x, y, x + r, y, r);
+  ctx.closePath();
+}
+
+function wrapText(ctx, text, x, y, maxW, lineH, align, font) {
+  ctx.font = font;
+  ctx.textAlign = align;
+  const words = text.split(' ');
+  let line = '';
+  let cy = y;
+  for (let i = 0; i < words.length; i++) {
+    const test = line ? line + ' ' + words[i] : words[i];
+    if (ctx.measureText(test).width > maxW && line) {
+      ctx.fillText(line, x, cy);
+      line = words[i];
+      cy += lineH;
+      if (cy > 980) { ctx.fillText('…', x, cy); break; }
+    } else {
+      line = test;
+    }
+  }
+  if (line) ctx.fillText(line, x, cy);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// ===== FEATURE: FONT SIZE =====
+// ═══════════════════════════════════════════════════════════════════
+const FONT_SCALES = { sm: '0.75', md: '1', lg: '1.5' };
+let currentFontSize = localStorage.getItem('muntaqaa_font') || 'md';
+
+function applyFontSize(size) {
+  currentFontSize = size;
+  document.documentElement.style.setProperty('--font-scale', FONT_SCALES[size]);
+  localStorage.setItem('muntaqaa_font', size);
+  document.querySelectorAll('.font-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.size === size)
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// ===== FEATURE: HIGH CONTRAST =====
+// ═══════════════════════════════════════════════════════════════════
+let highContrast = localStorage.getItem('muntaqaa_contrast') === 'true';
+
+function applyContrast(on) {
+  highContrast = on;
+  document.documentElement.classList.toggle('high-contrast', on);
+  localStorage.setItem('muntaqaa_contrast', on);
+  const btn = document.getElementById('contrastToggle');
+  if (btn) btn.classList.toggle('active', on);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// ===== SETTINGS PANEL =====
+// ═══════════════════════════════════════════════════════════════════
+function buildSettingsPanel() {
+  const panel = document.getElementById('settingsPanel');
+  if (!panel) return;
+  panel.innerHTML = `
+    <div class="settings-row">
+      <span class="settings-label">${CFG.ui.fontSizeLabel}</span>
+      <div class="settings-btns">
+        <button class="font-btn${currentFontSize==='sm'?' active':''}" data-size="sm">A</button>
+        <button class="font-btn${currentFontSize==='md'?' active':''}" data-size="md">A</button>
+        <button class="font-btn${currentFontSize==='lg'?' active':''}" data-size="lg">A</button>
+      </div>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">${CFG.ui.contrastLabel}</span>
+      <button class="settings-toggle${highContrast?' active':''}" id="contrastToggle">
+        <span class="toggle-knob"></span>
+      </button>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">${CFG.ui.shareAppUrl}</span>
+      <button class="settings-action-btn" id="shareUrlBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      </button>
+    </div>
+  `;
+  panel.querySelectorAll('.font-btn').forEach(btn =>
+    btn.addEventListener('click', () => applyFontSize(btn.dataset.size))
+  );
+  document.getElementById('contrastToggle').addEventListener('click', () => applyContrast(!highContrast));
+  document.getElementById('shareUrlBtn').addEventListener('click', shareDeepLink);
+}
+
+function openSettings() {
+  buildSettingsPanel();
+  document.getElementById('settingsOverlay').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+function closeSettings() {
+  document.getElementById('settingsOverlay').classList.add('hidden');
+  document.body.style.overflow = '';
 }

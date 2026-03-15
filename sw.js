@@ -9,6 +9,10 @@ const SHELL_ASSETS = [
   './data.js',
   './manifest.json',
   './fonts/fonts.css',
+  './content.ar.json',
+  './content.en.json',
+  './content.kanz-ar.json',
+  './content.kanz-en.json',
 ];
 
 const AUDIO_ASSETS = [
