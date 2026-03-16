@@ -442,7 +442,7 @@ function makeCard(qa, delay = 0, hlQuery = '', autoFlip = false) {
         <div class="qa-footer">
           <span class="qa-section-tag">${qa.section}</span>
           <div class="card-actions">
-            <button class="play-btn" aria-label=CFG.ui.listen data-id="${qa.id}">${PLAY_SVG}</button>
+            ${CFG.meta.audio ? `<button class="play-btn" aria-label="${CFG.ui.listen}" data-id="${qa.id}">${PLAY_SVG}</button>` : ""}
             <button class="fav-btn ${isFav ? 'active' : ''}" aria-label=CFG.ui.save data-id="${qa.id}">${favStarSVG(isFav)}</button>
           </div>
         </div>
@@ -1577,7 +1577,7 @@ function wrapText(ctx, text, x, y, maxW, lineH, align, font) {
 // ═══════════════════════════════════════════════════════════════════
 // ===== FEATURE: FONT SIZE =====
 // ═══════════════════════════════════════════════════════════════════
-const FONT_SCALES = { sm: '0.75', md: '1', lg: '1.5' };
+const FONT_SCALES = { sm: '0.82', md: '1', lg: '1.35' };
 let currentFontSize = localStorage.getItem('muntaqaa_font') || 'md';
 
 function applyFontSize(size) {
