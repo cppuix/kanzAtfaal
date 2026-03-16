@@ -46,6 +46,8 @@
     "weakSpots": "نقاط الضعف",
     "weakSpotsLabel": "نقاط الضعف ({n} سؤال) ⚠",
     "questionCount": "عدد الأسئلة:",
+    "quizHeader": "اختبر نفسك!",
+    "quizSubHeader": "اختر البابَ وعدَدَ الأسئلة.",
     "quizType": "نوع الاختبار:",
     "startQuiz": "ابدأ الاختبار",
     "next": "التالي",

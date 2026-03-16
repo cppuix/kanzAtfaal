@@ -72,6 +72,8 @@
     "allChapters": "All Chapters",
     "weakSpots": "Weak Spots",
     "weakSpotsLabel": "Weak Spots ({n} questions) ⚠",
+    "quizHeader": "Test yourself!",
+    "quizSubHeader": "Choose the chapter and number of questions.",
     "questionCount": "Number of questions:",
     "quizType": "Quiz type:",
     "startQuiz": "Start Quiz",

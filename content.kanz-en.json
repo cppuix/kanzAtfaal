@@ -73,6 +73,8 @@
     "weakSpots": "Weak Spots",
     "weakSpotsLabel": "Weak Spots ({n} questions) ⚠",
     "questionCount": "Number of questions:",
+    "quizHeader": "Test yourself!",
+    "quizSubHeader": "Choose the chapter and number of questions.",
     "quizType": "Quiz type:",
     "startQuiz": "Start Quiz",
     "next": "Next",

@@ -1219,6 +1219,8 @@ async function loadContent(jsonPath) {
   setTxt('quizScoreBadge', `${CFG.ui.score}: ${toArabic(0)}`);
   setTxt('allChaptersOpt', CFG.ui.allChapters);
   setTxt('questionCountLabel', CFG.ui.questionCount);
+  setTxt('quizHeaderLabel', CFG.ui.quizHeader);
+  setTxt('quizSubHeaderLabel', CFG.ui.quizSubHeader);
   setTxt('quizTypeLabel', CFG.ui.quizType);
   setTxt('modeMCQLabel', CFG.ui.modeMCQ);
   setTxt('modeBuildLabel', CFG.ui.modeBuild);
