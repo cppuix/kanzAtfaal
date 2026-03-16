@@ -33,9 +33,6 @@ body {
   color: var(--text);
   min-height: 100vh;
   overflow-x: hidden;
-  background-image:
-    radial-gradient(ellipse at 60% 0%, rgba(80,50,10,0.18) 0%, transparent 60%),
-    radial-gradient(ellipse at 0% 80%, rgba(20,60,30,0.25) 0%, transparent 55%);
 }
 
 .hidden { display: none !important; }
@@ -92,7 +89,6 @@ body {
   border-bottom: 1px solid var(--gold-mid);
   display: flex; align-items: center; justify-content: space-between;
   padding: 12px 16px;
-  backdrop-filter: blur(12px);
   box-shadow: 0 1px 0 rgba(201,152,42,0.1), 0 2px 12px rgba(0,0,0,0.3);
   position: relative;
 }
@@ -128,9 +124,10 @@ body {
 .search-bar button:hover { color: var(--gold); }
 
 /* DRAWER */
-.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 199; backdrop-filter: blur(4px); }
+.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 199; }
 .overlay.hidden { display: none !important; }
 .drawer {
+  will-change: transform;
   position: fixed; top: 0; right: -300px; width: 280px; height: 100vh;
   background: var(--bg2); z-index: 200;
   transition: right 0.3s cubic-bezier(0.4,0,0.2,1);
@@ -152,7 +149,7 @@ body {
 .section-list::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--gold), var(--gold-dim)); border-radius: 4px; }
 .section-item {
   padding: 12px 16px; cursor: pointer; font-size: 14px; color: var(--text2);
-  transition: all var(--transition); display: flex; justify-content: space-between; align-items: center;
+  transition: background var(--transition), color var(--transition); display: flex; justify-content: space-between; align-items: center;
   border-bottom: 1px solid rgba(255,255,255,0.03); position: relative;
 }
 .section-item:hover { background: var(--bg3); color: var(--text); }
@@ -164,7 +161,7 @@ body {
 .nav-pill {
   background: var(--bg3); border: 1px solid rgba(255,255,255,0.06); border-radius: 9px;
   padding: 10px 14px; color: var(--text2); font-family: var(--font-main); font-size: 14px;
-  cursor: pointer; text-align: right; transition: all var(--transition);
+  cursor: pointer; text-align: right; transition: background var(--transition), color var(--transition), border-color var(--transition);
 }
 .nav-pill:hover { background: var(--card); color: var(--text); border-color: var(--gold-mid); }
 .nav-pill.active { background: var(--gold-dim); color: var(--gold2); border-color: var(--gold-mid); }
@@ -182,14 +179,15 @@ main { flex: 1; padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
 
 /* ===== FLIP CARD SYSTEM ===== */
 .qa-card-wrap {
+  contain: layout style;
   perspective: 900px;
-  animation: cardIn 0.3s ease both;
+  animation: cardIn 0.18s ease both;
   /* height set dynamically via JS — uses auto on front, but flipper needs it */
   position: relative;
 }
 @keyframes cardIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .qa-card-flipper {
@@ -197,6 +195,7 @@ main { flex: 1; padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
      so the wrapper height = max(front height, back height) automatically */
   display: grid;
   grid-template-columns: 1fr;
+  will-change: transform;
   transform-style: preserve-3d;
   transition: transform 0.52s cubic-bezier(0.45, 0.05, 0.2, 1.0);
 }
@@ -303,11 +302,11 @@ main { flex: 1; padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
 .play-btn.playing {
   color: var(--gold2);
   background: var(--gold-dim);
-  animation: audioRipple 1.4s ease-in-out infinite;
+  animation: audioRipple 1s ease-in-out infinite;
 }
 @keyframes audioRipple {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(201,152,42,0.4); }
-  50%       { box-shadow: 0 0 0 7px rgba(201,152,42,0); }
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
 }
 
 /* FAV BUTTON */
@@ -416,7 +415,7 @@ main { flex: 1; padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
 .quiz-result p { color: var(--text2); font-size: 16px; max-width: 260px; line-height: 1.6; }
 
 /* BOTTOM NAV */
-.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg2); border-top: 1px solid var(--gold-mid); display: flex; height: calc(62px + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); z-index: 100; backdrop-filter: blur(12px); box-shadow: 0 -2px 14px rgba(0,0,0,0.35); }
+.bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg2); border-top: 1px solid var(--gold-mid); display: flex; height: calc(62px + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); z-index: 100; box-shadow: 0 -2px 14px rgba(0,0,0,0.35); }
 .bnav-btn { flex: 1; background: none; border: none; color: var(--text3); cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-family: var(--font-main); font-size: 11px; transition: color var(--transition); padding: 8px 4px; position: relative; }
 .bnav-btn::after { content: ''; position: absolute; bottom: 0; left: 22%; right: 22%; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), transparent); transform: scaleX(0); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); border-radius: 1px; }
 .bnav-btn.active::after { transform: scaleX(1); }
@@ -449,8 +448,7 @@ main { flex: 1; padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
 /* ===== ABOUT MODAL ===== */
 .about-overlay {
   position: fixed; inset: 0; z-index: 300;
-  background: rgba(0,0,0,0.72);
-  backdrop-filter: blur(6px);
+  background: rgba(0,0,0,0.82);
   display: flex; align-items: flex-end; justify-content: center;
   padding: 0;
   transition: opacity 0.3s;
@@ -761,7 +759,7 @@ mark {
 .listen-play-btn:hover { background: var(--gold); color: var(--bg); }
 .listen-play-btn.playing {
   background: var(--gold-dim);
-  animation: audioRipple 1.4s ease-in-out infinite;
+  animation: audioRipple 1s ease-in-out infinite;
 }
 .listen-choices { width: 100%; display: flex; flex-direction: column; gap: 8px; }
 .listen-q-choice { text-align: right; font-family: var(--font-display); font-size: 14px; line-height: 1.7; }
@@ -885,7 +883,6 @@ body { font-size: calc(var(--font-size-base) * var(--font-scale)); }
   position: fixed; inset: 0; z-index: 500;
   background: rgba(0,0,0,0.7);
   display: flex; align-items: flex-end; justify-content: center;
-  backdrop-filter: blur(4px);
 }
 .settings-overlay.hidden { display: none !important; }
 .settings-modal {
