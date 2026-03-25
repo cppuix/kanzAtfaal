@@ -3,7 +3,7 @@
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "io.github.cppuix.kanzatfaal",
+      "package_name": "org.alqaddaaree.kanzatfaal",
       "sha256_cert_fingerprints":
       [
         "91:59:ED:DF:7C:52:4A:2A:9E:C6:9C:95:AC:1D:71:71:25:F8:6C:24:6C:B1:D8:3B:DD:B1:26:44:16:A6:DC:A4"
