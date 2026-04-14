@@ -1,13 +1,9 @@
-[
-  {
-    "relation": ["delegate_permission/common.handle_all_urls"],
-    "target": {
-      "namespace": "android_app",
-      "package_name": "org.alqaddaaree.kanzatfaal",
-      "sha256_cert_fingerprints":
-      [
-        "F1:97:0D:69:D1:B9:61:87:DC:3B:11:21:BD:E9:EB:10:63:F7:9E:9B:29:33:97:6C:63:4E:2F:7D:9A:1C:59:80"
-      ]
-    }
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "org.abuhurayrah.kanzatfaal",
+    "sha256_cert_fingerprints": ["6C:AA:92:10:1F:7F:99:B5:A3:57:8F:F8:E2:BE:29:62:D7:E0:1A:8F:8D:CF:C2:FE:24:47:91:C3:E9:31:B0:A6
+"]
   }
-]
+}]
