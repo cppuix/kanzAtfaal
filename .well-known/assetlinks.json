@@ -1,8 +1,13 @@
-[{
-  "relation": ["delegate_permission/common.handle_all_urls"],
-  "target": {
-    "namespace": "android_app",
-    "package_name": "org.abuhurayrah.kanzatfaal",
-    "sha256_cert_fingerprints": ["6C:AA:92:10:1F:7F:99:B5:A3:57:8F:F8:E2:BE:29:62:D7:E0:1A:8F:8D:CF:C2:FE:24:47:91:C3:E9:31:B0:A6"]
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "org.markazabuhurayrah.kanzatfaal",
+      "sha256_cert_fingerprints": [
+        "6C:AA:92:10:1F:7F:99:B5:A3:57:8F:F8:E2:BE:29:62:D7:E0:1A:8F:8D:CF:C2:FE:24:47:91:C3:E9:31:B0:A6",
+        "85:8A:9A:C6:35:B2:F5:1C:36:E1:D6:E5:8E:B7:52:5D:58:1F:0E:E6:DF:B8:FA:59:98:CF:62:5B:76:78:8E:3E"
+      ]
+    }
   }
-}]
+]
