@@ -52,6 +52,20 @@ function saveFavorites() {
   localStorage.setItem('favs_' + (CFG.meta && CFG.meta.id || 'default'), JSON.stringify([...state.favorites]));
 }
 
+function loadSavedContent() {
+  try {
+    const saved = localStorage.getItem('activeContent');
+    if (saved && CONTENT_FILES.some(f => f.file === saved)) {
+      activeContent = saved;
+    }
+  } catch (e) {}
+}
+function saveContentChoice() {
+  try {
+    localStorage.setItem('activeContent', activeContent);
+  } catch (e) {}
+}
+
 // ===== QUIZ HISTORY =====
 // quizHistory: { [id]: { correct: n, wrong: n } }
 let quizHistory = {};
@@ -1139,22 +1153,83 @@ function spawnSparkles(sourceEl, big = false) {
 }
 
 // ===== CONTENT SWITCHER =====
-function buildContentPicker() {
-  const picker = document.getElementById('contentPicker');
-  if (!picker) return;
-  picker.innerHTML = '';
+function buildContentMenu() {
+  const popup = document.getElementById('contentPopup');
+  if (!popup) return;
+  popup.innerHTML = '';
   CONTENT_FILES.forEach(({ file, label }) => {
     const btn = document.createElement('button');
-    btn.className = 'content-btn' + (file === activeContent ? ' active' : '');
+    btn.type = 'button';
+    btn.className = 'content-option-btn' + (file === activeContent ? ' active' : '');
     btn.textContent = label;
-    btn.addEventListener('click', () => switchContent(file));
-    picker.appendChild(btn);
+    btn.dataset.file = file;
+    btn.addEventListener('click', () => {
+      closeContentMenu();
+      switchContent(file);
+    });
+    popup.appendChild(btn);
   });
+}
+
+function positionContentMenu() {
+  const popup = document.getElementById('contentPopup');
+  const toggle = document.getElementById('contentToggle');
+  if (!popup || !toggle || popup.classList.contains('hidden')) return;
+
+  const rect = toggle.getBoundingClientRect();
+  const padding = 12;
+  const maxWidth = Math.min(260, window.innerWidth - padding * 2);
+  popup.style.width = `${maxWidth}px`;
+
+  const prevDisplay = popup.style.display;
+  const prevVisibility = popup.style.visibility;
+  popup.style.visibility = 'hidden';
+  popup.style.display = 'flex';
+  const popupWidth = popup.offsetWidth;
+  const popupHeight = popup.offsetHeight;
+  popup.style.display = prevDisplay;
+  popup.style.visibility = prevVisibility;
+
+  const dir = document.documentElement.dir || 'rtl';
+  let left = dir === 'rtl' ? rect.right - popupWidth : rect.left;
+  left = Math.min(Math.max(left, padding), window.innerWidth - popupWidth - padding);
+
+  let top = rect.bottom + 8;
+  if (top + popupHeight > window.innerHeight - padding) {
+    top = rect.top - popupHeight - 8;
+  }
+  if (top < padding) top = padding;
+
+  popup.style.left = `${left}px`;
+  popup.style.top = `${top}px`;
+
+  const arrowCenter = rect.left + rect.width / 2;
+  const arrowLeft = Math.min(Math.max(arrowCenter - left - 7, 12), popupWidth - 26);
+  popup.style.setProperty('--arrow-left', `${arrowLeft}px`);
+}
+
+function toggleContentMenu() {
+  const popup = document.getElementById('contentPopup');
+  const toggle = document.getElementById('contentToggle');
+  if (!popup) return;
+  popup.classList.toggle('hidden');
+  const expanded = !popup.classList.contains('hidden');
+  if (toggle) toggle.setAttribute('aria-expanded', expanded);
+  if (expanded) positionContentMenu();
+}
+
+function closeContentMenu() {
+  const popup = document.getElementById('contentPopup');
+  const toggle = document.getElementById('contentToggle');
+  if (!popup || popup.classList.contains('hidden')) return;
+  popup.classList.add('hidden');
+  if (toggle) toggle.setAttribute('aria-expanded', 'false');
 }
 
 async function switchContent(file) {
   if (file === activeContent) { closeDrawer(); return; }
   activeContent = file;
+  saveContentChoice();
 
   // Reset all transient state
   state.section = 'all';
@@ -1253,8 +1328,8 @@ async function loadContent(jsonPath) {
     aboutBodyEl.innerHTML = html;
   }
 
-  // Rebuild content picker to reflect active file
-  buildContentPicker();
+  // Rebuild content menu to reflect active file
+  buildContentMenu();
   buildSettingsPanel();
 
   // Keep listen button label in sync — updated on play/replay/error in playListenAudio
@@ -1273,6 +1348,7 @@ async function loadContent(jsonPath) {
 
 // ===== INIT =====
 function init() {
+  loadSavedContent();
   applyDeepLink();
   loadContent(activeContent).then(() => {
     loadStorage();
@@ -1286,6 +1362,21 @@ function init() {
 
   // Event listeners
   document.getElementById('menuToggle').addEventListener('click', openDrawer);
+  document.getElementById('contentToggle').addEventListener('click', (e) => {
+    e.stopPropagation();
+    toggleContentMenu();
+  });
+  document.addEventListener('click', (e) => {
+    const popup = document.getElementById('contentPopup');
+    const toggle = document.getElementById('contentToggle');
+    if (!popup || popup.classList.contains('hidden')) return;
+    if (popup.contains(e.target) || (toggle && toggle.contains(e.target))) return;
+    closeContentMenu();
+  });
+  window.addEventListener('resize', () => {
+    const popup = document.getElementById('contentPopup');
+    if (popup && !popup.classList.contains('hidden')) positionContentMenu();
+  });
   document.getElementById('settingsToggle').addEventListener('click', openSettings);
   document.getElementById('settingsClose').addEventListener('click', closeSettings);
   document.getElementById('settingsOverlay').addEventListener('click', e => { if (e.target === document.getElementById('settingsOverlay')) closeSettings(); });
@@ -1390,8 +1481,7 @@ function applyDeepLink() {
 function buildDeepLink() {
   const url = new URL(location.href);
   url.search = '';
-  url.searchParams.set('content', activeContent);
-  if (state.section !== 'all') url.searchParams.set('section', state.section);
+  url.hash = '';
   return url.toString();
 }
 

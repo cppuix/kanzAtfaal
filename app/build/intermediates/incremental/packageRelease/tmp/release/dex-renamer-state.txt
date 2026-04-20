@@ -1,0 +1,4 @@
+#Wed Apr 15 11:14:24 CET 2026
+base.0=/home/abderrahmene-mhb/Desktop/al-qaddaaree/Resourcess/العلم الشرعي/أعلام القرن الخامس عشر/فيصل بن مسفر الوادعي/تطبيقات/muntaqaa/app/build/intermediates/dex/release/minifyReleaseWithR8/classes.dex
+renamed.0=classes.dex
+path.0=classes.dex

@@ -81,6 +81,7 @@ const AUDIO_ASSETS = [
 ];
 
 const SHELL_SET = new Set(SHELL_ASSETS.map(u => new URL(u, self.location).href));
+const INDEX_URL = new URL('./index.html', self.location).href;
 
 // ── Install: cache shell immediately ─────────────────────────────────
 self.addEventListener('install', e => {
@@ -123,8 +124,14 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // App shell + navigation: network-first so updates land immediately
-  if (SHELL_SET.has(url.href) || e.request.mode === 'navigate') {
+  // App shell: stale-while-revalidate so startup reads cache first, but updates are fetched in the background.
+  if (SHELL_SET.has(url.href)) {
+    e.respondWith(staleWhileRevalidate(e.request, CACHE_NAME));
+    return;
+  }
+
+  // Navigation requests should still try the network first so the app can update and detect 404s.
+  if (e.request.mode === 'navigate') {
     e.respondWith(networkFirst(e.request));
     return;
   }
@@ -144,8 +151,20 @@ async function networkFirst(request) {
   } catch {
     const cached = await cache.match(request);
     if (cached) return cached;
-    if (request.mode === 'navigate') return cache.match('./index.html');
+    if (request.mode === 'navigate') return cache.match(INDEX_URL);
   }
+}
+
+async function staleWhileRevalidate(request, cacheName) {
+  const cache = await caches.open(cacheName);
+  const cached = await cache.match(request);
+
+  const fetchAndCache = fetch(request).then(response => {
+    if (response.ok) cache.put(request, response.clone());
+    return response;
+  }).catch(() => null);
+
+  return cached || fetchAndCache;
 }
 
 async function cacheFirst(request, cacheName) {

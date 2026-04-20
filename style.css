@@ -105,6 +105,56 @@ body {
 }
 .icon-btn:hover { color: var(--gold2); background: var(--gold-dim); }
 
+.content-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: min(260px, calc(100vw - 32px));
+  background: var(--bg2);
+  border: 1px solid var(--gold-mid);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 150;
+  --arrow-left: 16px;
+}
+.content-popup.hidden { display: none !important; }
+.content-popup::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: var(--arrow-left);
+  width: 14px;
+  height: 14px;
+  background: var(--bg2);
+  transform: rotate(45deg);
+  border-top: 1px solid var(--gold-mid);
+  border-left: 1px solid var(--gold-mid);
+}
+.content-option-btn {
+  background: var(--bg3);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+  color: var(--text);
+  font-size: 14px;
+  text-align: right;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+.content-option-btn:hover {
+  background: var(--card);
+  border-color: var(--gold-mid);
+}
+.content-option-btn.active {
+  background: var(--gold-dim);
+  border-color: var(--gold);
+  color: var(--gold2);
+}
+
 /* SEARCH BAR */
 .search-bar {
   position: sticky; top: 57px; z-index: 99;
