@@ -1454,7 +1454,16 @@ function init() {
   });
 }
 
-document.addEventListener('DOMContentLoaded', init);
+
+document.addEventListener('DOMContentLoaded', () => {
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.ready.then(() => {
+      init();
+    });
+  } else {
+    init();
+  }
+});
 
 // ===== PWA SERVICE WORKER =====
 if ('serviceWorker' in navigator) {
