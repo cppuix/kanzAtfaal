@@ -57,6 +57,16 @@ function loadSavedContent() {
     const saved = localStorage.getItem('activeContent');
     if (saved && CONTENT_FILES.some(f => f.file === saved)) {
       activeContent = saved;
+    } else {
+      // Auto-select content based on browser language
+      const userLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
+      if (userLang.startsWith('en')) {
+        activeContent = 'content.kanz-en.json';
+        saveContentChoice();
+      } else if (userLang.startsWith('ar')) {
+        activeContent = 'content.kanz-ar.json';
+        saveContentChoice();
+      }
     }
   } catch (e) {}
 }
