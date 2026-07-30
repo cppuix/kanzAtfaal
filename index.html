@@ -93,7 +93,10 @@
     <button id="searchClose" @click="$store.app.toggleSearch()">✕</button>
   </div>
   <div id="searchFilters" class="search-filters" :class="{ 'hidden': !$store.app.searchOpen }">
-    <button class="filter-pill active" data-section="all">الكل</button>
+    <button class="filter-pill" :class="{ active: $store.app.searchSection === 'all' }" @click="$store.app.setSearchSection('all')">الكل</button>
+    <template x-for="sec in $store.app.SECTIONS" :key="sec">
+      <button class="filter-pill" :class="{ active: $store.app.searchSection === sec }" @click="$store.app.setSearchSection(sec)" x-text="sec"></button>
+    </template>
   </div>
 
   <!-- SIDE DRAWER -->
@@ -102,7 +105,18 @@
     <div class="drawer-header">
       <span id="drawerSectionsTitle">الأبواب</span>
     </div>
-    <ul id="sectionList" class="section-list"></ul>
+    <ul id="sectionList" class="section-list">
+      <li class="section-item" :class="{ active: $store.app.section === 'all' }" @click="$store.app.setSection('all')">
+        <span x-text="$store.app.CFG.ui?.allSections || 'الكل'"></span>
+        <span class="count" x-text="$store.app.toArabic($store.app.QA_DATA.length)"></span>
+      </li>
+      <template x-for="sec in $store.app.SECTIONS" :key="sec">
+        <li class="section-item" :class="{ active: $store.app.section === sec }" @click="$store.app.setSection(sec)">
+          <span x-text="sec"></span>
+          <span class="count" x-text="$store.app.toArabic($store.app.QA_DATA.filter(q => q.section === sec).length)"></span>
+        </li>
+      </template>
+    </ul>
     <div class="drawer-footer">
     <button class="nav-pill" :class="{ 'active': $store.app.view === 'browse' }" @click="$store.app.switchView('browse')" data-view="browse" id="navBrowse"><span id="navBrowseDrawerLabel">تصفح</span></button>
       <button class="nav-pill" :class="{ 'active': $store.app.view === 'favorites' }" @click="$store.app.switchView('favorites')" data-view="favorites" id="navFavs"><span id="navFavsDrawerLabel">المحفوظات</span></button>

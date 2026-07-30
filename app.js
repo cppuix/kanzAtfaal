@@ -1939,9 +1939,11 @@ document.addEventListener('alpine:init', () => {
 
     setSearchScope(scope) {
       this.searchScope = scope;
+      this.resetPagination();
     },
     setSearchSection(sec) {
       this.searchSection = sec;
+      this.resetPagination();
     },
 
     toggleFav(id) {
