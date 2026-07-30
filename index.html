@@ -346,7 +346,7 @@
             <div id="buildAnswer" class="build-answer"></div>
             <div class="build-divider"></div>
             <div id="buildPool" class="build-pool"></div>
-            <button id="buildCheck" class="build-check-btn hidden"><span id="buildCheckLabel">تحقق ✓</span></button>
+            <button id="buildCheck" class="build-check-btn" :class="{ hidden: !($store.app.quizAnswered === false && $store.app.quizMode === 'build') }" @click="checkBuildAnswer($store.app.currentQuestion)"><span id="buildCheckLabel">تحقق ✓</span></button>
           </div>
 
           <!-- BLANK MODE -->
@@ -397,8 +397,8 @@
   </nav>
 
   <!-- ABOUT MODAL -->
-  <div id="aboutOverlay" class="about-overlay" x-show="$store.app.aboutOpen">
-    <div class="about-modal">
+  <div id="aboutOverlay" class="about-overlay" x-show="$store.app.aboutOpen" @click="$store.app.aboutOpen = false">
+    <div class="about-modal" @click.stop>
       <button class="about-close" id="aboutClose" @click="$store.app.aboutOpen = false" aria-label="close">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
@@ -424,10 +424,9 @@
     </div>
   </div>
 
-
   <!-- SETTINGS OVERLAY -->
-  <div id="settingsOverlay" class="settings-overlay" x-show="$store.app.settingsOpen">
-    <div class="settings-modal">
+  <div id="settingsOverlay" class="settings-overlay" x-show="$store.app.settingsOpen" @click="$store.app.settingsOpen = false">
+    <div class="settings-modal" @click.stop>
       <div class="settings-header">
         <span id="settingsTitleEl">الإعدادات</span>
         <button class="settings-close-btn" id="settingsClose" @click="$store.app.settingsOpen = false">

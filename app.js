@@ -715,47 +715,8 @@ function showQuizResult() {
   updateWeakOption();
 }
 
-// ===== VIEW SWITCHING =====
-function switchView(view) {
-  stopAllAudio();
-  state.view = view;
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
-
-  const viewMap = { browse: 'viewBrowse', favorites: 'viewFavorites', quiz: 'viewQuiz' };
-  document.getElementById(viewMap[view])?.classList.add('active');
-  document.querySelector(`.bnav-btn[data-view="${view}"]`)?.classList.add('active');
-
-  if (view === 'browse') renderBrowse();
-  if (view === 'favorites') renderFavorites();
-  if (view === 'quiz') resetQuizSetup();
-}
-
-function resetQuizSetup() {
-  stopListenAudio();
-  document.getElementById('quizSetup').classList.remove('hidden');
-  document.getElementById('quizGame').classList.add('hidden');
-  document.getElementById('quizResult').classList.add('hidden');
-}
-
-// ===== DRAWER =====
-function openDrawer() {
-  document.getElementById('drawer').classList.add('open');
-  document.getElementById('overlay').classList.remove('hidden');
-}
-function closeDrawer() {
-  document.getElementById('drawer').classList.remove('open');
-  document.getElementById('overlay').classList.add('hidden');
-}
-
-function closeAbout() {
-  document.getElementById('aboutOverlay').classList.add('hidden');
-  document.body.style.overflow = '';
-  // Re-activate the current view in case the overlay broke it
-  const viewMap = { browse: 'viewBrowse', favorites: 'viewFavorites', quiz: 'viewQuiz' };
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById(viewMap[state.view])?.classList.add('active');
-}
+// ===== VIEW SWITCHING (handled by Alpine store) =====
+// ===== ABOUT / DRAWER / SEARCH (handled by Alpine) =====
 
 // ===== TOAST =====
 let toastTimer;
@@ -772,10 +733,7 @@ function showToast(msg) {
   toastTimer = setTimeout(() => toast.classList.remove('show'), 2000);
 }
 
-// ===== SEARCH (Alpine handles UI, keep toggleSearch for old event listeners) =====
-function toggleSearch() {
-  // No-op: handled by store.toggleSearch()
-}
+// ===== SEARCH (Alpine handles UI) =====
 
 // ===== SPARKLE PARTICLE SYSTEM =====
 function spawnSparkles(sourceEl, big = false) {
@@ -829,120 +787,8 @@ function spawnSparkles(sourceEl, big = false) {
   }
 }
 
-// ===== CONTENT SWITCHER =====
-function buildContentMenu() {
-  const popup = document.getElementById('contentPopup');
-  if (!popup) return;
-  popup.innerHTML = '';
-  CONTENT_FILES.forEach(({ file, label }) => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'content-option-btn' + (file === activeContent ? ' active' : '');
-    btn.textContent = label;
-    btn.dataset.file = file;
-    btn.addEventListener('click', () => {
-      closeContentMenu();
-      switchContent(file);
-    });
-    popup.appendChild(btn);
-  });
-}
 
-function positionContentMenu() {
-  const popup = document.getElementById('contentPopup');
-  const toggle = document.getElementById('contentToggle');
-  if (!popup || !toggle || popup.classList.contains('hidden')) return;
 
-  const rect = toggle.getBoundingClientRect();
-  const padding = 12;
-  const maxWidth = Math.min(260, window.innerWidth - padding * 2);
-  popup.style.width = `${maxWidth}px`;
-
-  const prevDisplay = popup.style.display;
-  const prevVisibility = popup.style.visibility;
-  popup.style.visibility = 'hidden';
-  popup.style.display = 'flex';
-  const popupWidth = popup.offsetWidth;
-  const popupHeight = popup.offsetHeight;
-  popup.style.display = prevDisplay;
-  popup.style.visibility = prevVisibility;
-
-  const dir = document.documentElement.dir || 'rtl';
-  let left = dir === 'rtl' ? rect.right - popupWidth : rect.left;
-  left = Math.min(Math.max(left, padding), window.innerWidth - popupWidth - padding);
-
-  let top = rect.bottom + 8;
-  if (top + popupHeight > window.innerHeight - padding) {
-    top = rect.top - popupHeight - 8;
-  }
-  if (top < padding) top = padding;
-
-  popup.style.left = `${left}px`;
-  popup.style.top = `${top}px`;
-
-  const arrowCenter = rect.left + rect.width / 2;
-  const arrowLeft = Math.min(Math.max(arrowCenter - left - 7, 12), popupWidth - 26);
-  popup.style.setProperty('--arrow-left', `${arrowLeft}px`);
-}
-
-function toggleContentMenu() {
-  const popup = document.getElementById('contentPopup');
-  const toggle = document.getElementById('contentToggle');
-  if (!popup) return;
-  popup.classList.toggle('hidden');
-  const expanded = !popup.classList.contains('hidden');
-  if (toggle) toggle.setAttribute('aria-expanded', expanded);
-  if (expanded) positionContentMenu();
-}
-
-function closeContentMenu() {
-  const popup = document.getElementById('contentPopup');
-  const toggle = document.getElementById('contentToggle');
-  if (!popup || popup.classList.contains('hidden')) return;
-  popup.classList.add('hidden');
-  if (toggle) toggle.setAttribute('aria-expanded', 'false');
-}
-
-async function switchContent(file) {
-  if (file === activeContent) { closeDrawer(); return; }
-  activeContent = file;
-  saveContentChoice();
-
-  // Reset all transient state
-  state.section = 'all';
-  state.search = '';
-  state.searchScope = 'both';
-  state.searchSection = 'all';
-  state.openCards.clear();
-  quizQuestions = [];
-  quizCurrent = 0;
-  quizScore = 0;
-  quizAnswered = false;
-  buildPlaced = [];
-  stopAllAudio();
-  stopListenAudio();
-
-  // Close search bar if open
-  document.getElementById('searchBar').classList.add('hidden');
-  document.getElementById('searchFilters').classList.add('hidden');
-
-  await loadContent(file);
-  loadStorage();
-  loadQuizHistory();
-  // Rebuild quiz section select options (still needed by old JS quiz)
-  const quizSel = document.getElementById('quizSection');
-  if (quizSel) {
-    while (quizSel.options.length > 2) quizSel.remove(2);
-    SECTIONS.forEach(sec => {
-      const opt = document.createElement('option');
-      opt.value = sec;
-      opt.textContent = sec;
-      quizSel.appendChild(opt);
-    });
-  }
-  switchView('browse');
-  closeDrawer();
-}
 
 // ===== LOAD CONTENT =====
 async function loadContent(jsonPath) {
@@ -1028,7 +874,6 @@ async function loadContent(jsonPath) {
   }
 
   // Rebuild content menu to reflect active file
-  buildContentMenu();
   buildSettingsPanel();
 
   // Keep listen button label in sync — updated on play/replay/error in playListenAudio
@@ -1045,7 +890,7 @@ async function loadContent(jsonPath) {
   });
 }
 
-// ===== INIT =====
+// ===== INIT (minimal — Alpine handles UI, this only loads content) =====
 function init() {
   loadSavedContent();
   applyDeepLink();
@@ -1055,100 +900,6 @@ function init() {
     applyFontSize(currentFontSize);
     applyContrast(highContrast);
     hideSplash();
-    renderBrowse();
-  });
-
-  // Event listeners
-  document.getElementById('menuToggle').addEventListener('click', openDrawer);
-  document.getElementById('contentToggle').addEventListener('click', (e) => {
-    e.stopPropagation();
-    toggleContentMenu();
-  });
-  document.addEventListener('click', (e) => {
-    const popup = document.getElementById('contentPopup');
-    const toggle = document.getElementById('contentToggle');
-    if (!popup || popup.classList.contains('hidden')) return;
-    if (popup.contains(e.target) || (toggle && toggle.contains(e.target))) return;
-    closeContentMenu();
-  });
-  window.addEventListener('resize', () => {
-    const popup = document.getElementById('contentPopup');
-    if (popup && !popup.classList.contains('hidden')) positionContentMenu();
-  });
-  document.getElementById('settingsToggle').addEventListener('click', openSettings);
-  document.getElementById('settingsClose').addEventListener('click', closeSettings);
-  document.getElementById('settingsOverlay').addEventListener('click', e => { if (e.target === document.getElementById('settingsOverlay')) closeSettings(); });
-
-  // About modal
-  document.getElementById('navAbout').addEventListener('click', () => {
-    closeDrawer();
-    document.getElementById('aboutOverlay').classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-  });
-  document.getElementById('aboutClose').addEventListener('click', closeAbout);
-  document.getElementById('aboutOverlay').addEventListener('click', e => {
-    if (e.target === document.getElementById('aboutOverlay')) closeAbout();
-  });
-  document.getElementById('overlay').addEventListener('click', closeDrawer);
-  document.getElementById('searchToggle').addEventListener('click', toggleSearch);
-  document.getElementById('searchClose').addEventListener('click', () => {
-    document.getElementById('searchBar').classList.add('hidden');
-    document.getElementById('searchFilters').classList.add('hidden');
-    state.search = '';
-    state.searchSection = 'all';
-    state.searchScope = 'both';
-    document.querySelectorAll('.scope-btn').forEach(b => b.classList.toggle('active', b.dataset.scope === 'both'));
-    renderBrowse();
-  });
-  document.getElementById('searchInput').addEventListener('input', (e) => {
-    state.search = e.target.value;
-    if (state.view !== 'browse') switchView('browse');
-    else renderBrowse();
-  });
-  // Scope buttons
-  document.querySelectorAll('.scope-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.scope-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      state.searchScope = btn.dataset.scope;
-      renderBrowse();
-    });
-  });
-
-  // Bottom nav
-  document.querySelectorAll('.bnav-btn').forEach(btn => {
-    btn.addEventListener('click', () => switchView(btn.dataset.view));
-  });
-
-  // Drawer nav
-  document.querySelectorAll('.nav-pill').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (btn.dataset.view) { switchView(btn.dataset.view); closeDrawer(); }
-    });
-  });
-
-  // Quiz controls
-  document.getElementById('startQuiz').addEventListener('click', initQuiz);
-  document.getElementById('nextQuizBtn').addEventListener('click', nextQuizQuestion);
-  document.getElementById('buildCheck').addEventListener('click', () => {
-    checkBuildAnswer(quizQuestions[quizCurrent]);
-  });
-  document.querySelectorAll('.mode-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      quizMode = btn.dataset.mode;
-    });
-  });
-  document.getElementById('retryQuiz').addEventListener('click', () => {
-    document.getElementById('quizResult').classList.add('hidden');
-    document.getElementById('quizSetup').classList.remove('hidden');
-  });
-  document.querySelectorAll('.count-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.count-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-    });
   });
 }
 
@@ -1431,15 +1182,6 @@ function buildSettingsPanel() {
   document.getElementById('shareUrlBtn').addEventListener('click', shareDeepLink);
 }
 
-function openSettings() {
-  buildSettingsPanel();
-  document.getElementById('settingsOverlay').classList.remove('hidden');
-  document.body.style.overflow = 'hidden';
-}
-function closeSettings() {
-  document.getElementById('settingsOverlay').classList.add('hidden');
-  document.body.style.overflow = '';
-}
 
 // ═══════════════════════════════════════════════════════════════════
 // ===== ALPINE.JS STORE & COMPONENTS =====
