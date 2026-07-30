@@ -379,6 +379,7 @@ const CHEST_SVG = `<svg class="chest-icon" viewBox="0 0 28 21" fill="none" xmlns
   <rect class="chest-lid" x="2" y="2" width="24" height="10" rx="3" fill="#6a4520" stroke="#c9982a" stroke-width="1.2"/>
   <rect x="4.5" y="4" width="19" height="6" rx="1.5" fill="#4a2e0e" stroke="#a07820" stroke-width="0.7"/>
 </svg>`;
+window.CHEST_SVG = CHEST_SVG;
 
 function favStarSVG(isFav) {
   return `<svg width="18" height="18" viewBox="0 0 24 24" fill="${isFav ? '#c9982a' : 'none'}" stroke="${isFav ? '#c9982a' : '#6e6048'}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -388,6 +389,9 @@ function favStarSVG(isFav) {
 
 const PLAY_SVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
 const STOP_SVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>`;
+// Expose SVG constants to window so Alpine templates can use them (const doesn't create window properties)
+window.PLAY_SVG = PLAY_SVG;
+window.STOP_SVG = STOP_SVG;
 
 // ===== AUDIO PLAYER =====
 let currentAudio = null;
@@ -1807,12 +1811,18 @@ document.addEventListener('alpine:init', () => {
     fontSize: localStorage.getItem('muntaqaa_font') || 'md',
     highContrast: localStorage.getItem('muntaqaa_contrast') === 'true',
 
+    // ── Pagination ──
+    visibleCount: 30,
+    PAGE_SIZE: 30,
+    browseSentinel: null,
+    browseObserver: null,
+
     // ── Computed / derived ──
     get filteredCards() {
       let data = this.QA_DATA;
       const activeSection = this.search.trim() ? this.searchSection : this.section;
       if (activeSection !== 'all') data = data.filter(q => q.section === activeSection);
-      if (!this.search.trim()) return data;
+      if (!this.search.trim()) return data.map(qa => ({ qa, matchIn: 'q' }));
       // Use the existing fuzzyScore function from vanilla code
       const scope = this.searchScope;
       return data
@@ -1827,6 +1837,14 @@ document.addEventListener('alpine:init', () => {
         })
         .filter(x => x.score >= FUZZY_THRESHOLD)
         .sort((a, b) => b.score - a.score);
+    },
+
+    get visibleCards() {
+      return this.filteredCards.slice(0, this.visibleCount);
+    },
+
+    get hasMore() {
+      return this.visibleCount < this.filteredCards.length;
     },
 
     get weakIds() {
@@ -1903,6 +1921,7 @@ document.addEventListener('alpine:init', () => {
       this.section = sec;
       this.search = '';
       this.drawerOpen = false;
+      this.resetPagination();
       document.getElementById('searchInput') && (document.getElementById('searchInput').value = '');
       document.getElementById('drawer')?.classList.remove('open');
       document.getElementById('overlay')?.classList.add('hidden');
@@ -1914,6 +1933,7 @@ document.addEventListener('alpine:init', () => {
         this.search = '';
         this.searchSection = 'all';
         this.searchScope = 'both';
+        this.resetPagination();
       }
     },
 
@@ -1953,6 +1973,32 @@ document.addEventListener('alpine:init', () => {
         return String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
       }
       return String(n);
+    },
+
+    // ── Pagination ──
+    resetPagination() {
+      this.visibleCount = this.PAGE_SIZE;
+      if (this.browseObserver) {
+        this.browseObserver.disconnect();
+        this.browseObserver = null;
+      }
+      this.browseSentinel = null;
+    },
+
+    loadMore() {
+      if (!this.hasMore) return;
+      this.visibleCount += this.PAGE_SIZE;
+    },
+
+    initSentinel(el) {
+      if (this.browseObserver) this.browseObserver.disconnect();
+      this.browseSentinel = el;
+      this.browseObserver = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting) {
+          this.loadMore();
+        }
+      }, { rootMargin: '200px' });
+      this.browseObserver.observe(el);
     },
 
     // ── Settings ──
@@ -2021,14 +2067,17 @@ document.addEventListener('alpine:init', () => {
   });
 
   // ── Alpine Data: QA Card component ──
-  Alpine.data('qaCard', (qa) => ({
+  Alpine.data('qaCard', (qa, matchIn = 'q') => ({
     qa,
-    get isFav() { return Alpine.store('app').favorites.has(qa.id); },
-    get isOpen() { return Alpine.store('app').openCards.has(qa.id); },
+    matchIn,
+    get hlQuery() {
+      const store = Alpine.store('app');
+      return store.search || '';
+    },
     toggle() {
       Alpine.store('app').toggleCard(qa.id);
-      if (this.isOpen) {
-        // Trigger sparkles from the chest toggle
+      // Sparkle effect on open
+      if (Alpine.store('app').openCards.has(qa.id)) {
         const el = this.$el.querySelector('.qa-toggle');
         if (el) spawnSparkles(el, false);
       }
@@ -2039,7 +2088,8 @@ document.addEventListener('alpine:init', () => {
     },
     playAudio(e) {
       e.stopPropagation();
-      playAudio(qa.id, e.currentTarget, this.$el);
+      const btn = e.currentTarget;
+      playAudio(qa.id, btn, this.$el);
     },
     copyQA(e) {
       e.stopPropagation();

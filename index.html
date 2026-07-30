@@ -83,7 +83,7 @@
   </header>
 
   <!-- SEARCH BAR -->
-  <div id="searchBar" class="search-bar" :class="{ 'hidden': !$store.app.searchOpen }" x-init="$watch('$store.app.search', () => { if (typeof renderBrowse === 'function') renderBrowse(); })">
+  <div id="searchBar" class="search-bar" :class="{ 'hidden': !$store.app.searchOpen }" x-init="$watch('$store.app.search', () => { $store.app.resetPagination(); if (typeof renderBrowse === 'function') renderBrowse(); })">
     <input type="text" id="searchInput" placeholder="ابحث..." autocomplete="off" x-model="$store.app.search" @input.debounce="renderBrowse()" />
     <div class="search-scope">
       <button class="scope-btn" :class="{ 'active': $store.app.searchScope === 'both' }" @click="$store.app.setSearchScope('both'); renderBrowse()" data-scope="both" id="allSectionsFilter">الكل</button>
@@ -117,11 +117,76 @@
     <!-- BROWSE VIEW -->
     <div id="viewBrowse" class="view active" x-show="$store.app.view === 'browse'">
       <div class="view-header">
-        <div class="section-badge" id="currentSectionLabel">جميع الأسئلة</div>
-        <div class="counter-pill" id="counterPill">٣٠٨ سؤال</div>
+        <div class="section-badge" id="currentSectionLabel" x-text="$store.app.section === 'all' ? $store.app.CFG.ui?.allSections : $store.app.section">جميع الأسئلة</div>
+        <div class="counter-pill" id="counterPill" x-text="$store.app.toArabic($store.app.visibleCount) + ' ' + ($store.app.CFG.ui?.counterSuffix || '')">٣٠٨ سؤال</div>
       </div>
-      <div id="cardList" class="card-list"></div>
-      <div id="noResults" class="no-results hidden">
+      <div id="cardList" class="card-list">
+        <template x-for="(item, idx) in $store.app.visibleCards" :key="item.qa.id">
+          <div class="qa-card-wrap" :class="{ open: $store.app.openCards.has(item.qa.id) }" x-data="qaCard(item.qa, item.matchIn)" x-init="$el.style.animationDelay = Math.min(idx * 20, 200) + 'ms'">
+            <div class="qa-card-flipper">
+              <!-- FRONT FACE -->
+              <div class="qa-face qa-face-front">
+                <div class="qa-card-header" @click="toggle()">
+                  <span class="qa-num" x-text="$store.app.CFG.ui?.questionNum?.replace('{n}', $store.app.toArabic(qa.id))"></span>
+                  <span class="qa-question" x-html="hlQuery ? buildHighlight(qa.q, hlQuery) : escHtml(qa.q)"></span>
+                  <button class="qa-toggle" @click.stop="toggle()" :aria-label="$store.app.CFG.ui?.showAnswer">
+                    <span x-html="window.CHEST_SVG || ''"></span>
+                  </button>
+                </div>
+                <div class="qa-footer">
+                  <span class="qa-section-tag" x-text="qa.section"></span>
+                  <div class="card-actions">
+                    <template x-if="$store.app.CFG.meta?.audio">
+                      <button class="play-btn" @click.stop="playAudio($event)" x-data="{ playing: false }" :class="{ playing }" :aria-label="$store.app.CFG.ui?.listen">
+                        <span x-html="playing ? (window.STOP_SVG || '') : (window.PLAY_SVG || '')"></span>
+                      </button>
+                    </template>
+                    <button class="fav-btn" :class="{ active: $store.app.favorites.has(qa.id) }" @click.stop="toggleFav($event)" :aria-label="$store.app.CFG.ui?.save">
+                      <span x-html="favStarSVG($store.app.favorites.has(qa.id))"></span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <!-- BACK FACE -->
+              <div class="qa-face qa-face-back" @click="toggle()">
+                <div class="qa-back-header">
+                  <span class="qa-num" x-text="$store.app.CFG.ui?.questionNum?.replace('{n}', $store.app.toArabic(qa.id))"></span>
+                  <span class="qa-back-label" x-text="$store.app.CFG.ui?.answerLabel"></span>
+                  <button class="qa-toggle qa-toggle-back" @click.stop="toggle()" :aria-label="$store.app.CFG.ui?.close">
+                    <span x-html="window.CHEST_SVG || ''"></span>
+                  </button>
+                </div>
+                <div class="qa-back-divider"></div>
+                <div class="qa-answer-body">
+                  <p class="qa-answer-text" x-html="hlQuery ? buildHighlight(qa.a, hlQuery) : escHtml(qa.a)"></p>
+                </div>
+                <div class="qa-footer">
+                  <span class="qa-section-tag" x-text="qa.section"></span>
+                  <div class="card-actions">
+                    <template x-if="$store.app.CFG.meta?.audio">
+                      <button class="play-btn" @click.stop="playAudio($event)" x-data="{ playing: false }" :class="{ playing }" :aria-label="$store.app.CFG.ui?.listen">
+                        <span x-html="playing ? (window.STOP_SVG || '') : (window.PLAY_SVG || '')"></span>
+                      </button>
+                    </template>
+                    <button class="fav-btn" :class="{ active: $store.app.favorites.has(qa.id) }" @click.stop="toggleFav($event)" :aria-label="$store.app.CFG.ui?.save">
+                      <span x-html="favStarSVG($store.app.favorites.has(qa.id))"></span>
+                    </button>
+                    <button class="copy-btn" @click.stop="copyQA($event)" :aria-label="$store.app.CFG.ui?.copyText">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    </button>
+                    <button class="share-img-btn" @click.stop="shareImage($event)" :aria-label="$store.app.CFG.ui?.shareImage">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+        <!-- IntersectionObserver sentinel for infinite scroll (managed by store) -->
+        <div id="browseSentinel" class="browse-sentinel" x-show="$store.app.hasMore" x-init="$store.app.initSentinel($el)"></div>
+      </div>
+      <div id="noResults" class="no-results" :class="{ hidden: $store.app.visibleCards.length > 0 }">
         <div class="no-results-icon">✦</div>
         <p>لا توجد نتائج</p>
       </div>
