@@ -1866,15 +1866,27 @@ document.addEventListener('alpine:init', () => {
 
     toggleDrawer() {
       this.drawerOpen = !this.drawerOpen;
+      // Sync with old JS DOM state
+      if (this.drawerOpen) {
+        document.getElementById('drawer')?.classList.add('open');
+        document.getElementById('overlay')?.classList.remove('hidden');
+      } else {
+        document.getElementById('drawer')?.classList.remove('open');
+        document.getElementById('overlay')?.classList.add('hidden');
+      }
     },
     closeDrawer() {
       this.drawerOpen = false;
+      document.getElementById('drawer')?.classList.remove('open');
+      document.getElementById('overlay')?.classList.add('hidden');
     },
 
     switchView(view) {
       stopAllAudio();
       this.view = view;
       this.drawerOpen = false;
+      document.getElementById('drawer')?.classList.remove('open');
+      document.getElementById('overlay')?.classList.add('hidden');
       if (view === 'quiz') {
         this.quizPhase = 'setup';
       }
@@ -1884,6 +1896,9 @@ document.addEventListener('alpine:init', () => {
       this.section = sec;
       this.search = '';
       this.drawerOpen = false;
+      document.getElementById('searchInput') && (document.getElementById('searchInput').value = '');
+      document.getElementById('drawer')?.classList.remove('open');
+      document.getElementById('overlay')?.classList.add('hidden');
     },
 
     toggleSearch() {

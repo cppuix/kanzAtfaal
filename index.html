@@ -53,7 +53,7 @@
 
   <!-- TOP BAR -->
   <header class="topbar">
-    <button class="icon-btn" id="menuToggle" aria-label="القائمة">
+    <button class="icon-btn" id="menuToggle" @click="$store.app.toggleDrawer()" aria-label="القائمة">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
         <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
       </svg>
@@ -68,13 +68,13 @@
       </svg>
     </button>
     <div id="contentPopup" class="content-popup hidden" role="menu" aria-label="اختيار المحتوى"></div>
-    <button class="icon-btn" id="settingsToggle" aria-label="settings">
+    <button class="icon-btn" id="settingsToggle" @click="$store.app.settingsOpen = true" aria-label="settings">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="3"/>
         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
       </svg>
     </button>
-    <button class="icon-btn" id="searchToggle" aria-label="البحث">
+    <button class="icon-btn" id="searchToggle" @click="$store.app.toggleSearch()" aria-label="البحث">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
       </svg>
@@ -98,17 +98,17 @@
   </div>
 
   <!-- SIDE DRAWER -->
-  <div id="overlay" class="overlay hidden"></div>
-  <nav id="drawer" class="drawer">
+  <div id="overlay" class="overlay hidden" :class="{ 'hidden': !$store.app.drawerOpen }" @click="$store.app.closeDrawer()"></div>
+  <nav id="drawer" class="drawer" :class="{ 'open': $store.app.drawerOpen }">
     <div class="drawer-header">
       <span id="drawerSectionsTitle">الأبواب</span>
     </div>
     <ul id="sectionList" class="section-list"></ul>
     <div class="drawer-footer">
-      <button class="nav-pill active" data-view="browse" id="navBrowse"><span id="navBrowseDrawerLabel">تصفح</span></button>
-      <button class="nav-pill" data-view="favorites" id="navFavs"><span id="navFavsDrawerLabel">المحفوظات</span></button>
-      <button class="nav-pill" data-view="quiz" id="navQuiz"><span id="navQuizDrawerLabel">اختبار</span></button>
-      <button class="nav-pill nav-pill-about" id="navAbout"><span id="navAboutLabel">عن التطبيق</span></button>
+    <button class="nav-pill" :class="{ 'active': $store.app.view === 'browse' }" @click="$store.app.switchView('browse')" data-view="browse" id="navBrowse"><span id="navBrowseDrawerLabel">تصفح</span></button>
+      <button class="nav-pill" :class="{ 'active': $store.app.view === 'favorites' }" @click="$store.app.switchView('favorites')" data-view="favorites" id="navFavs"><span id="navFavsDrawerLabel">المحفوظات</span></button>
+      <button class="nav-pill" :class="{ 'active': $store.app.view === 'quiz' }" @click="$store.app.switchView('quiz')" data-view="quiz" id="navQuiz"><span id="navQuizDrawerLabel">اختبار</span></button>
+      <button class="nav-pill nav-pill-about" id="navAbout" @click="$store.app.aboutOpen = true"><span id="navAboutLabel">عن التطبيق</span></button>
     </div>
   </nav>
 
@@ -116,7 +116,7 @@
   <main id="mainContent">
 
     <!-- BROWSE VIEW -->
-    <div id="viewBrowse" class="view active">
+    <div id="viewBrowse" class="view" x-show="$store.app.view === 'browse'">
       <div class="view-header">
         <div class="section-badge" id="currentSectionLabel">جميع الأسئلة</div>
         <div class="counter-pill" id="counterPill">٣٠٨ سؤال</div>
@@ -129,7 +129,7 @@
     </div>
 
     <!-- FAVORITES VIEW -->
-    <div id="viewFavorites" class="view hidden">
+    <div id="viewFavorites" class="view" x-show="$store.app.view === 'favorites'">
       <div class="view-header">
         <div class="section-badge" id="favSectionLabel">المحفوظات</div>
         <div class="counter-pill" id="favCounterPill">٠</div>
@@ -143,7 +143,7 @@
     </div>
 
     <!-- QUIZ VIEW -->
-    <div id="viewQuiz" class="view hidden">
+    <div id="viewQuiz" class="view" x-show="$store.app.view === 'quiz'">
       <div id="quizSetup" class="quiz-setup">
         <div class="quiz-chest-wrap">
           <svg class="quiz-chest-svg" viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -249,24 +249,24 @@
 
   <!-- BOTTOM NAV -->
   <nav class="bottom-nav">
-    <button class="bnav-btn active" data-view="browse">
+    <button class="bnav-btn" :class="{ 'active': $store.app.view === 'browse' }" @click="$store.app.switchView('browse')" data-view="browse">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
       <span id="navBrowseLabel">تصفح</span>
     </button>
-    <button class="bnav-btn" data-view="favorites">
+    <button class="bnav-btn" :class="{ 'active': $store.app.view === 'favorites' }" @click="$store.app.switchView('favorites')" data-view="favorites">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
       <span id="navFavsLabel">محفوظات</span>
     </button>
-    <button class="bnav-btn" data-view="quiz">
+    <button class="bnav-btn" :class="{ 'active': $store.app.view === 'quiz' }" @click="$store.app.switchView('quiz')" data-view="quiz">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
       <span id="navQuizLabel">اختبار</span>
     </button>
   </nav>
 
   <!-- ABOUT MODAL -->
-  <div id="aboutOverlay" class="about-overlay hidden">
+  <div id="aboutOverlay" class="about-overlay" x-show="$store.app.aboutOpen">
     <div class="about-modal">
-      <button class="about-close" id="aboutClose" id="aboutClose" aria-label="close">
+      <button class="about-close" id="aboutClose" @click="$store.app.aboutOpen = false" aria-label="close">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
 
@@ -293,11 +293,11 @@
 
 
   <!-- SETTINGS OVERLAY -->
-  <div id="settingsOverlay" class="settings-overlay hidden">
+  <div id="settingsOverlay" class="settings-overlay" x-show="$store.app.settingsOpen">
     <div class="settings-modal">
       <div class="settings-header">
         <span id="settingsTitleEl">الإعدادات</span>
-        <button class="settings-close-btn" id="settingsClose">
+        <button class="settings-close-btn" id="settingsClose" @click="$store.app.settingsOpen = false">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
