@@ -2,7 +2,7 @@
 
 ## Overview
 
-Migrating from monolithic vanilla JS (1758-line `app.js`) to **Alpine.js** components with a reactive store, keeping the PWA zero-build-step nature. No bundler, no npm.
+Migrating from monolithic vanilla JS (1758-line `app.js` → 1577 lines) to **Alpine.js** components with a reactive store, keeping the PWA zero-build-step nature. No bundler, no npm.
 
 **Branch:** `refactor/alpine-migration`
 
@@ -87,7 +87,7 @@ plan.md             ← this file
 
 ## Still Running as Old JS (bridge code)
 
-These functions still exist in `app.js` and are called from old event listeners in `init()`. They coexist with Alpine — both paths converge on the same DOM state.
+These functions still exist in `app.js`. They're called by Alpine store methods or directly from the quiz rendering pipeline.
 
 ### Quiz rendering (~250 lines)
 - `renderQuizQuestion()`, `renderMCQ()`, `renderBuild()`, `renderBlank()`, `renderListen()`
@@ -102,19 +102,14 @@ These functions still exist in `app.js` and are called from old event listeners 
 ### Share features (~180 lines)
 - `copyQA()`, `shareAsImage()`, `roundRect()`, `wrapText()`
 
-### Settings panel (~60 lines)
-- `buildSettingsPanel()`, `openSettings()`, `closeSettings()`
+### Settings panel (~40 lines)
+- `buildSettingsPanel()`
 
-### Content switcher helpers (~60 lines)
-- `buildContentMenu()`, `positionContentMenu()`, `toggleContentMenu()`, `closeContentMenu()`
-- `switchContent()` (old version, superseded by store method)
-
-### View switching (~30 lines)
-- `switchView()` (still toggles `.active` classes alongside Alpine `x-show`)
-
-### Old init() event listeners (~80 lines)
-- Bound to DOM elements on `DOMContentLoaded`, mostly call the no-op stubs above
-- Harmless but redundant — both old listener and Alpine `@click` fire for each interaction
+### Helper functions (keep as-is)
+- `normalizeAr()`, `fuzzyScore()`, `buildHighlight()`, `escHtml()` — used by store computed props
+- `loadContent()`, `saveFavorites()`, `loadStorage()`, `loadQuizHistory()` — data persistence
+- `toArabic()`, `favStarSVG()` — formatting
+- `spawnSparkles()`, `showToast()` — effects
 
 ### Helper functions (keep as-is)
 - `normalizeAr()`, `fuzzyScore()`, `buildHighlight()`, `escHtml()` — used by store computed props
@@ -126,12 +121,14 @@ These functions still exist in `app.js` and are called from old event listeners 
 
 ## Remaining Work
 
-### High Priority
-- [ ] **Remove old `init()` event listeners** — they're redundant with Alpine `@click` handlers. Currently both fire for every interaction (harmless but wasteful). Can gut the entire `init()` function.
-- [ ] **Remove old `switchView()`** — Alpine `x-show` + `:class` already handles view visibility. The old function just adds redundant `.active` classes.
+### ✅ Done (recent cleanup)
+- [x] **Remove old `init()` event listeners** — gutted entirely (23 listener registrations removed). Only content loading remains.
+- [x] **Remove old `switchView()`** — Alpine `x-show` + `:class` handles view visibility.
+- [x] **Remove content switcher old code** — `buildContentMenu()`, `positionContentMenu()`, `toggleContentMenu()`, `closeContentMenu()` removed.
+- [x] **Remove `openDrawer/closeDrawer/closeAbout/toggleSearch/openSettings/closeSettings`** — all handled by Alpine store.
+- [x] **Remove old `switchContent()`** — replaced by Alpine store method.
 
-### Medium Priority
-- [ ] **Remove content switcher old code** — Alpine `x-data` handles it now. `buildContentMenu()`, `positionContentMenu()`, `toggleContentMenu()`, `closeContentMenu()` are dead.
+### Remaining Medium Priority
 - [ ] **Convert quiz rendering to Alpine** — `renderMCQ()`, `renderBuild()`, etc. create DOM elements manually. Could be Alpine `x-for` templates. Complex but cleaner.
 - [ ] **Clean up `style.css`** — remove `.hidden`, `.active` class toggling rules that are now handled by Alpine. Keep theme and animations.
 
@@ -153,11 +150,9 @@ These functions still exist in `app.js` and are called from old event listeners 
 
 1. **Quiz DOM manipulation conflicts** — Old JS toggles `.hidden` class (with `!important`) while Alpine controls via `x-show`. Both work but the old `.hidden` can override Alpine's inline style. So far no visible bugs.
 
-2. **Double event handlers** — Both old `init()` listeners and Alpine `@click` handlers fire for each user interaction. Both converge on the same state, so no bugs — just ~2x the work.
+2. **Service worker cache** — Old SW (v6) cached the pre-migration `app.js`. Current SW is v7 with updated files. Users may need a hard refresh to clear stale cache.
 
-3. **Service worker cache** — Old SW (v6) cached the pre-migration `app.js`. Current SW is v7 with updated files. Users may need a hard refresh to clear stale cache.
-
-4. **`content.en.json`** has 0 items (empty array). Not selected by default (only `content.kanz-en.json` is used for English), but could confuse.
+3. **`content.en.json`** has 0 items (empty array). Not selected by default (only `content.kanz-en.json` is used for English), but could confuse.
 
 ---
 
