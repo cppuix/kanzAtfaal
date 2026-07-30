@@ -327,12 +327,8 @@ let buildPlaced = [];   // for build mode
 let listenAudio = null; // for listen mode
 
 function initQuiz() {
-  const sec = document.getElementById('quizSection').value;
-  const count = parseInt(document.querySelector('.count-btn.active').dataset.count);
-  let pool;
-  if (sec === 'all') pool = QA_DATA;
-  else if (sec === '__weak__') pool = getWeakPool();
-  else pool = QA_DATA.filter(q => q.section === sec);
+  // No-op: handled by store.initQuiz()
+}
 
   // Filter pool by mode requirements
   if (quizMode === 'build') {
@@ -503,8 +499,10 @@ function checkBuildAnswer(qa) {
     feedback.className = 'quiz-feedback wrong';
     feedback.innerHTML = `${CFG.ui.wrongOrderFeedback} <strong>${escHtml(qa.a)}</strong>`;
   }
-  document.getElementById('quizScoreBadge').textContent = `النقاط: ${toArabic(quizScore)}`;
   document.getElementById('nextQuizBtn').classList.remove('hidden');
+  // Sync to Alpine store
+  const __quizStore = Alpine.store('app');
+  if (__quizStore) { __quizStore.quizScore = quizScore; __quizStore.quizAnswered = true; }
 }
 
 // ── BLANK mode ────────────────────────────────────────────
@@ -580,8 +578,10 @@ function answerBlank(correct, btn, keyWord, blankEl, keyIdx, words) {
     feedback.className = 'quiz-feedback wrong';
     feedback.innerHTML = `${CFG.ui.wrongBlankFeedback} <strong>${escHtml(keyWord)}</strong>`;
   }
-  document.getElementById('quizScoreBadge').textContent = `النقاط: ${toArabic(quizScore)}`;
   document.getElementById('nextQuizBtn').classList.remove('hidden');
+  // Sync to Alpine store
+  const __quizStore = Alpine.store('app');
+  if (__quizStore) { __quizStore.quizScore = quizScore; __quizStore.quizAnswered = true; }
 }
 
 // ── LISTEN mode ───────────────────────────────────────────
@@ -659,13 +659,18 @@ function answerListen(correct, btn, correctQ) {
     feedback.className = 'quiz-feedback wrong';
     feedback.innerHTML = `${CFG.ui.wrongListenFeedback} <strong>${escHtml(correctQ)}</strong>`;
   }
-  document.getElementById('quizScoreBadge').textContent = `النقاط: ${toArabic(quizScore)}`;
   document.getElementById('nextQuizBtn').classList.remove('hidden');
+  // Sync to Alpine store
+  const __quizStore = Alpine.store('app');
+  if (__quizStore) { __quizStore.quizScore = quizScore; __quizStore.quizAnswered = true; }
 }
 
 function answerQuiz(correct, btn, correctText) {
   if (quizAnswered) return;
   quizAnswered = true;
+  // Sync to Alpine store
+  const store = Alpine.store('app');
+  if (store) { store.quizAnswered = true; }
 
   document.querySelectorAll('.choice-btn').forEach(b => {
     b.disabled = true;
@@ -677,32 +682,27 @@ function answerQuiz(correct, btn, correctText) {
   recordAnswer(currentQA.id, correct);
   if (correct) {
     quizScore++;
+    if (store) store.quizScore = quizScore;
     btn.classList.add('correct');
     feedback.className = 'quiz-feedback correct';
     feedback.textContent = CFG.ui.correctMCQFeedback;
-    spawnSparkles(btn, true); // big burst
+    spawnSparkles(btn, true);
   } else {
     btn.classList.add('wrong');
     feedback.className = 'quiz-feedback wrong';
     feedback.innerHTML = `${CFG.ui.wrongMCQFeedback} <strong>${correctText}</strong>`;
   }
-  document.getElementById('quizScoreBadge').textContent = `النقاط: ${toArabic(quizScore)}`;
   document.getElementById('nextQuizBtn').classList.remove('hidden');
 }
 
 function nextQuizQuestion() {
-  quizCurrent++;
-  if (quizCurrent >= quizQuestions.length) {
-    showQuizResult();
-  } else {
-    renderQuizQuestion();
-  }
+  // No-op: handled by store.nextQuizQuestion()
 }
 
 function showQuizResult() {
-  document.getElementById('quizGame').classList.add('hidden');
-  const result = document.getElementById('quizResult');
-  result.classList.remove('hidden');
+  // Sync to Alpine store
+  const store = Alpine.store('app');
+  if (store) store.quizPhase = 'result';
 
   const total = quizQuestions.length;
   const pct = Math.round((quizScore / total) * 100);
@@ -1771,21 +1771,40 @@ document.addEventListener('alpine:init', () => {
       this.quizScore = 0;
       this.quizAnswered = false;
       this.quizPhase = 'game';
+
+      // Sync to old globals so old quiz rendering functions can find the data
+      window.quizQuestions = pool;
+      window.quizCurrent = 0;
+      window.quizScore = 0;
+      window.quizAnswered = false;
+      window.quizMode = this.quizMode;
+
+      // Call old render function to draw the question UI
+      renderQuizQuestion();
     },
 
     answerQuiz(correct, correctText) {
-      if (this.quizAnswered) return;
+      if (window.quizAnswered) return;
+      window.quizAnswered = true;
       this.quizAnswered = true;
       const currentQA = this.quizQuestions[this.quizCurrent];
       recordAnswer(currentQA.id, correct);
-      if (correct) this.quizScore++;
+      if (correct) {
+        this.quizScore++;
+        window.quizScore++;
+      }
     },
 
     nextQuizQuestion() {
+      window.quizCurrent++;
       this.quizCurrent++;
       this.quizAnswered = false;
+      window.quizAnswered = false;
       if (this.quizCurrent >= this.quizQuestions.length) {
         this.quizPhase = 'result';
+        showQuizResult();
+      } else {
+        renderQuizQuestion();
       }
     },
 
