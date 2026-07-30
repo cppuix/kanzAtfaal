@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v6';
+const CACHE_NAME = 'muntaqaa-v7';
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [
@@ -13,6 +13,7 @@ const SHELL_ASSETS = [
   './content.en.json',
   './content.kanz-ar.json',
   './content.kanz-en.json',
+  './lib/alpine.min.js',
 ];
 
 const AUDIO_ASSETS = [

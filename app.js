@@ -1757,3 +1757,275 @@ function closeSettings() {
   document.getElementById('settingsOverlay').classList.add('hidden');
   document.body.style.overflow = '';
 }
+
+// ═══════════════════════════════════════════════════════════════════
+// ===== ALPINE.JS STORE & COMPONENTS =====
+// ═══════════════════════════════════════════════════════════════════
+document.addEventListener('alpine:init', () => {
+  Alpine.store('app', {
+    // ── Content data ──
+    CFG: {},
+    QA_DATA: [],
+    SECTIONS: [],
+    activeContent: 'content.kanz-ar.json',
+    contentLoaded: false,
+
+    // ── UI state ──
+    view: 'browse',           // 'browse' | 'favorites' | 'quiz'
+    section: 'all',
+    drawerOpen: false,
+    searchOpen: false,
+    search: '',
+    searchScope: 'both',      // 'both' | 'q' | 'a'
+    searchSection: 'all',
+    aboutOpen: false,
+    settingsOpen: false,
+
+    // ── Favorites & open cards ──
+    favorites: new Set(),
+    openCards: new Set(),
+
+    // ── Quiz state ──
+    quizMode: 'mcq',          // 'mcq' | 'build' | 'blank' | 'listen'
+    quizCount: 5,
+    quizSection: 'all',
+    quizQuestions: [],
+    quizCurrent: 0,
+    quizScore: 0,
+    quizAnswered: false,
+    quizPhase: 'setup',       // 'setup' | 'game' | 'result'
+    quizHistory: {},
+
+    // ── Settings ──
+    fontSize: localStorage.getItem('muntaqaa_font') || 'md',
+    highContrast: localStorage.getItem('muntaqaa_contrast') === 'true',
+
+    // ── Computed / derived ──
+    get filteredCards() {
+      let data = this.QA_DATA;
+      const activeSection = this.search.trim() ? this.searchSection : this.section;
+      if (activeSection !== 'all') data = data.filter(q => q.section === activeSection);
+      if (!this.search.trim()) return data;
+      // Use the existing fuzzyScore function from vanilla code
+      const scope = this.searchScope;
+      return data
+        .map(qa => {
+          const qScore = (scope === 'both' || scope === 'q') ? fuzzyScore(qa.q, this.search) : 0;
+          const aScore = (scope === 'both' || scope === 'a') ? fuzzyScore(qa.a, this.search) : 0;
+          const score = Math.max(qScore, aScore);
+          let matchIn = 'q';
+          if (aScore > qScore) matchIn = 'a';
+          else if (qScore > 0 && aScore > 0) matchIn = 'both';
+          return { qa, score, matchIn };
+        })
+        .filter(x => x.score >= FUZZY_THRESHOLD)
+        .sort((a, b) => b.score - a.score);
+    },
+
+    get weakIds() {
+      return Object.entries(this.quizHistory)
+        .filter(([, v]) => v.wrong > v.correct)
+        .map(([id]) => parseInt(id));
+    },
+
+    get weakPool() {
+      const ids = new Set(this.weakIds);
+      return this.QA_DATA.filter(q => ids.has(q.id));
+    },
+
+    get currentQuestion() {
+      return this.quizQuestions[this.quizCurrent] || null;
+    },
+
+    get quizProgress() {
+      if (!this.quizQuestions.length) return 0;
+      return (this.quizCurrent / this.quizQuestions.length) * 100;
+    },
+
+    // ── Methods ──
+    async loadContent(file) {
+      this.activeContent = file;
+      saveContentChoice();
+
+      const res = await fetch(file);
+      const json = await res.json();
+      this.CFG = { meta: json.meta, ui: json.ui, about: json.about || null };
+      this.QA_DATA = json.items || [];
+      this.SECTIONS = [...new Set(this.QA_DATA.map(q => q.section))];
+
+      document.documentElement.dir = this.CFG.meta.dir || 'rtl';
+      document.documentElement.lang = this.CFG.meta.lang || 'ar';
+      document.body.dataset.fonts = (this.CFG.meta.fonts || []).join(',').toLowerCase();
+
+      // Apply font size and contrast
+      this.applyFontSize(this.fontSize);
+      this.applyContrast(this.highContrast);
+
+      this.contentLoaded = true;
+    },
+
+    toggleDrawer() {
+      this.drawerOpen = !this.drawerOpen;
+    },
+    closeDrawer() {
+      this.drawerOpen = false;
+    },
+
+    switchView(view) {
+      stopAllAudio();
+      this.view = view;
+      this.drawerOpen = false;
+      if (view === 'quiz') {
+        this.quizPhase = 'setup';
+      }
+    },
+
+    setSection(sec) {
+      this.section = sec;
+      this.search = '';
+      this.drawerOpen = false;
+    },
+
+    toggleSearch() {
+      this.searchOpen = !this.searchOpen;
+      if (!this.searchOpen) {
+        this.search = '';
+        this.searchSection = 'all';
+        this.searchScope = 'both';
+      }
+    },
+
+    setSearchScope(scope) {
+      this.searchScope = scope;
+    },
+    setSearchSection(sec) {
+      this.searchSection = sec;
+    },
+
+    toggleFav(id) {
+      if (this.favorites.has(id)) {
+        this.favorites.delete(id);
+        showToast(this.CFG.ui?.unsaved || 'تمت الإزالة');
+      } else {
+        this.favorites.add(id);
+        showToast(this.CFG.ui?.saved || 'تمت الحفظ');
+      }
+      saveFavorites();
+    },
+    isFav(id) {
+      return this.favorites.has(id);
+    },
+    isOpen(id) {
+      return this.openCards.has(id);
+    },
+    toggleCard(id) {
+      if (this.openCards.has(id)) {
+        this.openCards.delete(id);
+      } else {
+        this.openCards.add(id);
+      }
+    },
+
+    toArabic(n) {
+      if (this.CFG.meta?.numerals === 'arabic') {
+        return String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+      }
+      return String(n);
+    },
+
+    // ── Settings ──
+    applyFontSize(size) {
+      this.fontSize = size;
+      document.documentElement.style.setProperty('--font-scale',
+        ({ sm: '0.82', md: '1', lg: '1.35' })[size] || '1');
+      localStorage.setItem('muntaqaa_font', size);
+    },
+    applyContrast(on) {
+      this.highContrast = on;
+      document.documentElement.classList.toggle('high-contrast', on);
+      localStorage.setItem('muntaqaa_contrast', on);
+    },
+    toggleContrast() {
+      this.applyContrast(!this.highContrast);
+    },
+
+    // ── Quiz methods ──
+    initQuiz() {
+      const sec = this.quizSection;
+      const count = this.quizCount;
+      let pool;
+      if (sec === 'all') pool = this.QA_DATA;
+      else if (sec === '__weak__') pool = this.weakPool;
+      else pool = this.QA_DATA.filter(q => q.section === sec);
+
+      if (this.quizMode === 'build') {
+        pool = pool.filter(q => q.a.trim().split(/\s+/).length >= (this.CFG.meta?.buildMinWords || 4));
+      } else if (this.quizMode === 'blank') {
+        pool = pool.filter(q => q.a.trim().split(/\s+/).length >= (this.CFG.meta?.blankMinWords || 3));
+      }
+
+      if (pool.length === 0) {
+        showToast(this.CFG.ui?.notEnoughQuestions || 'لا توجد أسئلة كافية');
+        return;
+      }
+
+      pool = [...pool].sort(() => Math.random() - 0.5).slice(0, Math.min(count, pool.length));
+      this.quizQuestions = pool;
+      this.quizCurrent = 0;
+      this.quizScore = 0;
+      this.quizAnswered = false;
+      this.quizPhase = 'game';
+    },
+
+    answerQuiz(correct, correctText) {
+      if (this.quizAnswered) return;
+      this.quizAnswered = true;
+      const currentQA = this.quizQuestions[this.quizCurrent];
+      recordAnswer(currentQA.id, correct);
+      if (correct) this.quizScore++;
+    },
+
+    nextQuizQuestion() {
+      this.quizCurrent++;
+      this.quizAnswered = false;
+      if (this.quizCurrent >= this.quizQuestions.length) {
+        this.quizPhase = 'result';
+      }
+    },
+
+    retryQuiz() {
+      this.quizPhase = 'setup';
+    },
+  });
+
+  // ── Alpine Data: QA Card component ──
+  Alpine.data('qaCard', (qa) => ({
+    qa,
+    get isFav() { return Alpine.store('app').favorites.has(qa.id); },
+    get isOpen() { return Alpine.store('app').openCards.has(qa.id); },
+    toggle() {
+      Alpine.store('app').toggleCard(qa.id);
+      if (this.isOpen) {
+        // Trigger sparkles from the chest toggle
+        const el = this.$el.querySelector('.qa-toggle');
+        if (el) spawnSparkles(el, false);
+      }
+    },
+    toggleFav(e) {
+      e.stopPropagation();
+      Alpine.store('app').toggleFav(qa.id);
+    },
+    playAudio(e) {
+      e.stopPropagation();
+      playAudio(qa.id, e.currentTarget, this.$el);
+    },
+    copyQA(e) {
+      e.stopPropagation();
+      copyQA(qa);
+    },
+    shareImage(e) {
+      e.stopPropagation();
+      shareAsImage(qa);
+    },
+  }));
+});
