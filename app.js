@@ -797,6 +797,7 @@ async function loadContent(jsonPath) {
   CFG = { meta: json.meta, ui: json.ui, about: json.about || null };
   QA_DATA = json.items || [];
   SECTIONS = [...new Set(QA_DATA.map(q => q.section))];
+  activeContent = jsonPath;  // Update global so store sync gets the right file
 
   // Sync to Alpine store so Alpine-bound UI sees the data
   try {

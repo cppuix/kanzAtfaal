@@ -133,7 +133,7 @@
   <main id="mainContent">
 
     <!-- BROWSE VIEW -->
-    <div id="viewBrowse" class="view active" x-show="$store.app.view === 'browse'">
+    <div id="viewBrowse" class="view" :class="{ active: $store.app.view === 'browse' }">
       <div class="view-header">
         <div class="section-badge" id="currentSectionLabel" x-text="$store.app.section === 'all' ? $store.app.CFG.ui?.allSections : $store.app.section">جميع الأسئلة</div>
         <div class="counter-pill" id="counterPill" x-text="$store.app.toArabic($store.app.visibleCount) + ' ' + ($store.app.CFG.ui?.counterSuffix || '')">٣٠٨ سؤال</div>
@@ -211,7 +211,7 @@
     </div>
 
     <!-- FAVORITES VIEW -->
-    <div id="viewFavorites" class="view" x-show="$store.app.view === 'favorites'">
+    <div id="viewFavorites" class="view" :class="{ active: $store.app.view === 'favorites' }">
       <div class="view-header">
         <div class="section-badge" x-text="$store.app.CFG.ui?.favoritesTitle || 'المحفوظات'">المحفوظات</div>
         <div class="counter-pill" x-text="$store.app.toArabic($store.app.favorites.size) + ' ' + ($store.app.CFG.ui?.counterSuffix || '')">٠</div>
@@ -276,7 +276,7 @@
     </div>
 
     <!-- QUIZ VIEW -->
-    <div id="viewQuiz" class="view" x-show="$store.app.view === 'quiz'">
+    <div id="viewQuiz" class="view" :class="{ active: $store.app.view === 'quiz' }">
       <div id="quizSetup" class="quiz-setup" x-show="$store.app.quizPhase === 'setup'">
         <div class="quiz-chest-wrap">
           <svg class="quiz-chest-svg" viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -108,10 +108,13 @@ body {
 }
 .icon-btn:hover { color: var(--gold2); background: var(--gold-dim); }
 
+.content-switch-wrapper {
+  position: relative;
+}
 .content-popup {
-  position: fixed;
-  top: 0;
-  left: 0;
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
   width: min(260px, calc(100vw - 32px));
   background: var(--bg2);
   border: 1px solid var(--gold-mid);
@@ -122,14 +125,13 @@ body {
   flex-direction: column;
   gap: 10px;
   z-index: 150;
-  --arrow-left: 16px;
 }
 .content-popup.hidden { display: none !important; }
 .content-popup::before {
   content: '';
   position: absolute;
   top: -8px;
-  left: var(--arrow-left);
+  right: 16px;
   width: 14px;
   height: 14px;
   background: var(--bg2);
