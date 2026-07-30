@@ -1477,17 +1477,12 @@ function init() {
 }
 
 
+// ===== INIT (runs immediately — don't gate on SW ready) =====
 document.addEventListener('DOMContentLoaded', () => {
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.ready.then(() => {
-      init();
-    });
-  } else {
-    init();
-  }
+  init();
 });
 
-// ===== PWA SERVICE WORKER =====
+// ===== PWA SERVICE WORKER (registered independently, never blocks app) =====
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js').catch(() => {});
