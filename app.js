@@ -1197,6 +1197,11 @@ document.addEventListener('alpine:init', () => {
     SECTIONS: [],
     activeContent: 'content.kanz-ar.json',
     contentLoaded: false,
+    contentFiles: [
+      { file: 'content.ar.json',      label: 'منتقى عربي' },
+      { file: 'content.kanz-ar.json', label: 'كنز عربي' },
+      { file: 'content.kanz-en.json', label: 'Kanz EN' },
+    ],
 
     // ── UI state ──
     view: 'browse',           // 'browse' | 'favorites' | 'quiz'
