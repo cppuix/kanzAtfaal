@@ -816,6 +816,7 @@ async function loadContent(jsonPath) {
   // Apply direction and lang to document
   document.documentElement.dir = CFG.meta.dir || 'rtl';
   document.documentElement.lang = CFG.meta.lang || 'ar';
+  document.title = CFG.ui.appTitle || 'منتقى كنز الأطفال';
 
   // Apply font class
   document.body.dataset.fonts = (CFG.meta.fonts || []).join(',').toLowerCase();
