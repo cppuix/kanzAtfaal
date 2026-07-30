@@ -134,53 +134,7 @@ function hideSplash() {
   }, 1800);
 }
 
-// ===== BUILD SECTION LIST =====
-function buildSectionList() {
-  const list = document.getElementById('sectionList');
-  list.innerHTML = '';
-  // Also reset quiz section select
-  const quizSel = document.getElementById('quizSection');
-  while (quizSel.options.length > 2) quizSel.remove(2);  // keep 'all' and '__weak__'
-  // All item
-  const allItem = document.createElement('li');
-  allItem.className = 'section-item' + (state.section === 'all' ? ' active' : '');
-  allItem.innerHTML = `<span>${CFG.ui.allSections}</span><span class="count">${toArabic(QA_DATA.length)}</span>`;
-  allItem.addEventListener('click', () => { setSection('all'); closeDrawer(); });
-  list.appendChild(allItem);
-
-  SECTIONS.forEach(sec => {
-    const count = QA_DATA.filter(q => q.section === sec).length;
-    const item = document.createElement('li');
-    item.className = 'section-item' + (state.section === sec ? ' active' : '');
-    item.dataset.section = sec;
-    item.innerHTML = `<span>${sec}</span><span class="count">${toArabic(count)}</span>`;
-    item.addEventListener('click', () => { setSection(sec); closeDrawer(); });
-    list.appendChild(item);
-  });
-
-  // Build quiz section select
-  SECTIONS.forEach(sec => {
-    const opt = document.createElement('option');
-    opt.value = sec;
-    opt.textContent = `${getSectionIcon(sec)} ${sec}`;
-    quizSel.appendChild(opt);
-  });
-}
-
-function setSection(sec) {
-  state.section = sec;
-  state.search = '';
-  document.getElementById('searchInput').value = '';
-  // Update active in list
-  document.querySelectorAll('.section-item').forEach(el => {
-    el.classList.toggle('active', (el.dataset.section || 'all') === sec);
-    if (!el.dataset.section) el.classList.toggle('active', sec === 'all');
-  });
-  renderBrowse();
-  switchView('browse');
-}
-
-// ===== FILTERED DATA =====
+// ===== BUILD SECTION LIST (replaced by Alpine x-for, stub kept for quiz section options) =====
 // ===== ARABIC NORMALISER =====
 function normalizeAr(str) {
   return str
@@ -267,102 +221,9 @@ function escHtml(s) {
 const FUZZY_THRESHOLD = 0.5;
 
 // Returns array of {qa, matchIn: 'q'|'a'|'both'}
-function getFiltered() {
-  let data = QA_DATA;
-  const activeSection = state.search.trim() ? state.searchSection : state.section;
-  if (activeSection !== 'all') data = data.filter(q => q.section === activeSection);
-
-  if (!state.search.trim()) return data.map(qa => ({ qa, matchIn: 'q' }));
-
-  const scope = state.searchScope;
-  const scored = data
-    .map(qa => {
-      const qScore = (scope === 'both' || scope === 'q') ? fuzzyScore(qa.q, state.search) : 0;
-      const aScore = (scope === 'both' || scope === 'a') ? fuzzyScore(qa.a, state.search) : 0;
-      const score = Math.max(qScore, aScore);
-      // matchIn: where was the best match?
-      let matchIn = 'q';
-      if (aScore > qScore) matchIn = 'a';
-      else if (qScore > 0 && aScore > 0) matchIn = 'both';
-      return { qa, score, matchIn };
-    })
-    .filter(x => x.score >= FUZZY_THRESHOLD)
-    .sort((a, b) => b.score - a.score);
-
-  return scored;
-}
-
-// ===== RENDER BROWSE (paginated) =====
-const PAGE_SIZE = 30;
-let browseFiltered = [];
-let browsePage = 0;
-let browseObserver = null;
-
+// ===== RENDER BROWSE (now Alpine-driven) =====
 function renderBrowse() {
-  browseFiltered = getFiltered();
-  browsePage = 0;
-
-  const list = document.getElementById('cardList');
-  const noResults = document.getElementById('noResults');
-  const sectionLabel = document.getElementById('currentSectionLabel');
-  const counter = document.getElementById('counterPill');
-
-  // Disconnect old observer
-  if (browseObserver) { browseObserver.disconnect(); browseObserver = null; }
-  list.innerHTML = '';
-
-  if (browseFiltered.length === 0) {
-    noResults.classList.remove('hidden');
-    list.classList.add('hidden');
-  } else {
-    noResults.classList.add('hidden');
-    list.classList.remove('hidden');
-    renderNextPage();
-  }
-
-  sectionLabel.textContent = state.section === 'all' ? CFG.ui.allSections : state.section;
-  counter.textContent = `${toArabic(browseFiltered.length)} ${CFG.ui.counterSuffix}`;
-  // browseFiltered is now [{qa, matchIn}] — update section label based on search
-}
-
-function renderNextPage() {
-  const list = document.getElementById('cardList');
-  const start = browsePage * PAGE_SIZE;
-  const end = Math.min(start + PAGE_SIZE, browseFiltered.length);
-  const frag = document.createDocumentFragment();
-  for (let i = start; i < end; i++) {
-    const { qa, matchIn } = browseFiltered[i];
-    // Auto-open to back face if the match was only in the answer
-    const autoFlip = state.search.trim() && matchIn === 'a';
-    frag.appendChild(makeCard(qa, (i - start) * 20, state.search, autoFlip));
-  }
-  list.appendChild(frag);
-  browsePage++;
-
-  if (end < browseFiltered.length) {
-    attachBrowseSentinel(list);
-  }
-}
-
-function attachBrowseSentinel(list) {
-  // Remove old sentinel
-  const old = list.querySelector('.browse-sentinel');
-  if (old) old.remove();
-
-  const sentinel = document.createElement('div');
-  sentinel.className = 'browse-sentinel';
-  list.appendChild(sentinel);
-
-  browseObserver = new IntersectionObserver(entries => {
-    if (entries[0].isIntersecting) {
-      browseObserver.disconnect();
-      browseObserver = null;
-      sentinel.remove();
-      renderNextPage();
-    }
-  }, { rootMargin: '200px' });
-
-  browseObserver.observe(sentinel);
+  // No-op: browse view rendering is handled by Alpine x-for + store.filteredCards
 }
 
 const CHEST_SVG = `<svg class="chest-icon" viewBox="0 0 28 21" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -1068,50 +929,9 @@ function showToast(msg) {
   toastTimer = setTimeout(() => toast.classList.remove('show'), 2000);
 }
 
-// ===== SEARCH =====
+// ===== SEARCH (Alpine handles UI, keep toggleSearch for old event listeners) =====
 function toggleSearch() {
-  const bar = document.getElementById('searchBar');
-  const filters = document.getElementById('searchFilters');
-  const hidden = bar.classList.toggle('hidden');
-  if (!hidden) {
-    filters.classList.remove('hidden');
-    buildSearchFilters();
-    document.getElementById('searchInput').focus();
-    switchView('browse');
-  } else {
-    filters.classList.add('hidden');
-    state.search = '';
-    state.searchSection = 'all';
-    renderBrowse();
-  }
-}
-
-function buildSearchFilters() {
-  const bar = document.getElementById('searchFilters');
-  bar.innerHTML = '';
-  const allBtn = document.createElement('button');
-  allBtn.className = 'filter-pill' + (state.searchSection === 'all' ? ' active' : '');
-  allBtn.dataset.section = 'all';
-  allBtn.textContent = CFG.ui.allSectionsShort;
-  allBtn.addEventListener('click', () => setSearchSection('all'));
-  bar.appendChild(allBtn);
-
-  SECTIONS.forEach(sec => {
-    const btn = document.createElement('button');
-    btn.className = 'filter-pill' + (state.searchSection === sec ? ' active' : '');
-    btn.dataset.section = sec;
-    btn.textContent = sec;
-    btn.addEventListener('click', () => setSearchSection(sec));
-    bar.appendChild(btn);
-  });
-}
-
-function setSearchSection(sec) {
-  state.searchSection = sec;
-  document.querySelectorAll('.filter-pill').forEach(b =>
-    b.classList.toggle('active', b.dataset.section === sec)
-  );
-  renderBrowse();
+  // No-op: handled by store.toggleSearch()
 }
 
 // ===== SPARKLE PARTICLE SYSTEM =====
@@ -1266,7 +1086,17 @@ async function switchContent(file) {
   await loadContent(file);
   loadStorage();
   loadQuizHistory();
-  buildSectionList();
+  // Rebuild quiz section select options (still needed by old JS quiz)
+  const quizSel = document.getElementById('quizSection');
+  if (quizSel) {
+    while (quizSel.options.length > 2) quizSel.remove(2);
+    SECTIONS.forEach(sec => {
+      const opt = document.createElement('option');
+      opt.value = sec;
+      opt.textContent = sec;
+      quizSel.appendChild(opt);
+    });
+  }
   switchView('browse');
   closeDrawer();
 }
@@ -1382,7 +1212,6 @@ function init() {
     applyFontSize(currentFontSize);
     applyContrast(highContrast);
     hideSplash();
-    buildSectionList();
     renderBrowse();
   });
 
