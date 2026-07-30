@@ -5,6 +5,7 @@ const CONTENT_FILES = [
   { file: 'content.kanz-ar.json', label: 'كنز عربي' },
   { file: 'content.kanz-en.json', label: 'Kanz EN' },
 ];
+window.CONTENT_FILES = CONTENT_FILES;
 let activeContent = CONTENT_FILES[0].file;
 
 // ===== CONFIG & DATA (set by loadContent) =====
@@ -1688,6 +1689,44 @@ document.addEventListener('alpine:init', () => {
         }
       }, { rootMargin: '200px' });
       this.browseObserver.observe(el);
+    },
+
+    // ── Content switching ──
+    async switchContent(file) {
+      if (file === this.activeContent) return;
+      // Reset all transient state
+      this.section = 'all';
+      this.search = '';
+      this.searchScope = 'both';
+      this.searchSection = 'all';
+      this.openCards = new Set();
+      this.quizQuestions = [];
+      this.quizCurrent = 0;
+      this.quizScore = 0;
+      this.quizAnswered = false;
+      this.resetPagination();
+      stopAllAudio();
+      stopListenAudio();
+      this.searchOpen = false;
+
+      // Load new content (old loadContent syncs to store)
+      await loadContent(file);
+      loadStorage();
+      loadQuizHistory();
+
+      // Rebuild quiz section select options
+      const quizSel = document.getElementById('quizSection');
+      if (quizSel) {
+        while (quizSel.options.length > 2) quizSel.remove(2);
+        SECTIONS.forEach(sec => {
+          const opt = document.createElement('option');
+          opt.value = sec;
+          opt.textContent = sec;
+          quizSel.appendChild(opt);
+        });
+      }
+
+      this.view = 'browse';
     },
 
     // ── Settings ──
