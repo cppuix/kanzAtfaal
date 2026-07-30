@@ -1275,6 +1275,18 @@ async function loadContent(jsonPath) {
   QA_DATA = json.items || [];
   SECTIONS = [...new Set(QA_DATA.map(q => q.section))];
 
+  // Sync to Alpine store so Alpine-bound UI sees the data
+  try {
+    const store = Alpine.store('app');
+    if (store) {
+      store.CFG = CFG;
+      store.QA_DATA = QA_DATA;
+      store.SECTIONS = SECTIONS;
+      store.activeContent = activeContent;
+      store.contentLoaded = true;
+    }
+  } catch(e) {}
+
   // Apply direction and lang to document
   document.documentElement.dir = CFG.meta.dir || 'rtl';
   document.documentElement.lang = CFG.meta.lang || 'ar';
