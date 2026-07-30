@@ -339,31 +339,6 @@ function initQuiz() {
   // No-op: handled by store.initQuiz()
 }
 
-  // Filter pool by mode requirements
-  if (quizMode === 'build') {
-    pool = pool.filter(q => q.a.trim().split(/\s+/).length >= (CFG.meta.buildMinWords || 4));
-  } else if (quizMode === 'blank') {
-    pool = pool.filter(q => q.a.trim().split(/\s+/).length >= (CFG.meta.blankMinWords || 3));
-  }
-
-  if (pool.length === 0) {
-    showToast(CFG.ui.notEnoughQuestions);
-    return;
-  }
-
-  pool = [...pool].sort(() => Math.random() - 0.5).slice(0, Math.min(count, pool.length));
-  quizQuestions = pool;
-  quizCurrent = 0;
-  quizScore = 0;
-  quizAnswered = false;
-
-  document.getElementById('quizSetup').classList.add('hidden');
-  document.getElementById('quizResult').classList.add('hidden');
-  document.getElementById('quizGame').classList.remove('hidden');
-
-  renderQuizQuestion();
-}
-
 function hideAllModeZones() {
   ['quizChoices','buildZone','blankZone','listenZone'].forEach(id => {
     document.getElementById(id).classList.add('hidden');
