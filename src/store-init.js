@@ -137,27 +137,6 @@ Alpine.store('app', (function() {
       return (this.quizCurrent / this.quizQuestions.length) * 100;
     },
 
-    // ── Filtered cards (Alpine-reactive getter on QA_DATA) ──
-    get filteredCards() {
-      var data = this.QA_DATA;
-      var activeSection = this.search.trim() ? this.searchSection : this.section;
-      if (activeSection !== 'all') data = data.filter(function(q) { return q.section === activeSection; });
-      if (!this.search.trim()) return data.map(function(qa) { return { qa: qa, matchIn: 'q' }; });
-      var scope = this.searchScope;
-      return data
-        .map(function(qa) {
-          var qScore = (scope === 'both' || scope === 'q') ? fuzzyScore(qa.q, this.search) : 0;
-          var aScore = (scope === 'both' || scope === 'a') ? fuzzyScore(qa.a, this.search) : 0;
-          var score = Math.max(qScore, aScore);
-          var matchIn = 'q';
-          if (aScore > qScore) matchIn = 'a';
-          else if (qScore > 0 && aScore > 0) matchIn = 'both';
-          return { qa: qa, score: score, matchIn: matchIn };
-        }.bind(this))
-        .filter(function(x) { return x.score >= FUZZY_THRESHOLD; })
-        .sort(function(a, b) { return b.score - a.score; });
-    },
-
     // ── Pre-computed section counts ──
     get sectionCounts() {
       var counts = {};
@@ -240,30 +219,14 @@ Alpine.store('app', (function() {
       if (window.__stopAllAudio) window.__stopAllAudio();
       if (window.__stopListenAudio) window.__stopListenAudio();
       this.searchOpen = false;
-      // Fetch new content JSON directly (assign to this.* so Alpine proxy tracks it)
-      try {
-        var res = await fetch(file);
-        var json = await res.json();
-        this.CFG = { meta: json.meta, ui: json.ui, about: json.about || null };
-        this.QA_DATA = json.items || [];
-        this.SECTIONS = [...new Set(this.QA_DATA.map(function(q) { return q.section; }))];
-        this.activeContent = file;
-        this.contentLoaded = true;
-      } catch(e) { return; }
-
-      // Still call content.js loadContent for UI string updates (idempotent)
+      // Load content via content.js (single fetch, syncs to store)
       try {
         var mod = await import('./services/content.js');
-        await mod.loadContent(file);
-      } catch(e) {}
-
-      // Reload persisted state
-      try {
         var storage = await import('./services/storage.js');
+        await mod.loadContent(file);
         storage.loadStorage();
         storage.loadQuizHistory();
-      } catch(e) {}
-
+      } catch(e) { return; }
       this.view = 'browse';
     },
     applyFontSize: function(size) {

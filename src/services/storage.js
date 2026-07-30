@@ -58,9 +58,4 @@ export function getWeakIds() {
     .map(([id]) => parseInt(id));
 }
 
-export function getWeakPool() {
-  const store = Alpine.store('app');
-  const qaData = store?.QA_DATA || [];
-  const ids = new Set(getWeakIds());
-  return qaData.filter(q => ids.has(q.id));
-}
+

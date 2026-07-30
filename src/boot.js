@@ -6,7 +6,7 @@ import { loadStorage, loadQuizHistory } from './services/storage.js';
 import { playAudio, stopAllAudio, stopListenAudio, playListenAudio } from './services/audio.js';
 import { showToast } from './services/toast.js';
 import { spawnSparkles } from './services/sparkles.js';
-import { copyQA, shareAsImage, shareDeepLink } from './services/share.js';
+import { copyQA, shareAsImage } from './services/share.js';
 import { saveFavorites, recordAnswer } from './services/storage.js';
 
 // Expose service functions to window so store-init.js methods can call them
@@ -75,7 +75,6 @@ function buildHighlight(text, query) {
 window.buildHighlight = buildHighlight;
 window.escHtml = escHtml;
 window.normalizeAr = normalizeAr;
-window.renderBrowse = function() {};
 
 // ===== SPLASH =====
 function hideSplash() {
