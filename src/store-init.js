@@ -134,7 +134,28 @@ Alpine.store('app', (function() {
       return (this.quizCurrent / this.quizQuestions.length) * 100;
     },
 
-    // ── Pre-computed section counts (avoids 24x filter() calls per render) ──
+    // ── Filtered cards (Alpine-reactive getter on QA_DATA) ──
+    get filteredCards() {
+      var data = this.QA_DATA;
+      var activeSection = this.search.trim() ? this.searchSection : this.section;
+      if (activeSection !== 'all') data = data.filter(function(q) { return q.section === activeSection; });
+      if (!this.search.trim()) return data.map(function(qa) { return { qa: qa, matchIn: 'q' }; });
+      var scope = this.searchScope;
+      return data
+        .map(function(qa) {
+          var qScore = (scope === 'both' || scope === 'q') ? fuzzyScore(qa.q, this.search) : 0;
+          var aScore = (scope === 'both' || scope === 'a') ? fuzzyScore(qa.a, this.search) : 0;
+          var score = Math.max(qScore, aScore);
+          var matchIn = 'q';
+          if (aScore > qScore) matchIn = 'a';
+          else if (qScore > 0 && aScore > 0) matchIn = 'both';
+          return { qa: qa, score: score, matchIn: matchIn };
+        }.bind(this))
+        .filter(function(x) { return x.score >= FUZZY_THRESHOLD; })
+        .sort(function(a, b) { return b.score - a.score; });
+    },
+
+    // ── Pre-computed section counts ──
     get sectionCounts() {
       var counts = {};
       this.QA_DATA.forEach(function(q) {
@@ -212,8 +233,7 @@ Alpine.store('app', (function() {
     resetPagination: function() {
       this.visibleCount = this.PAGE_SIZE;
       if (this.browseObserver) { this.browseObserver.disconnect(); this.browseObserver = null; }
-      this.browseSentinel = null;
-    },
+      this.browseSentinel = null;    },
     loadMore: function() { if (!this.hasMore) return; this.visibleCount += this.PAGE_SIZE; },
     initSentinel: function(el) {
       var self = this;
@@ -233,21 +253,30 @@ Alpine.store('app', (function() {
       if (window.__stopAllAudio) window.__stopAllAudio();
       if (window.__stopListenAudio) window.__stopListenAudio();
       this.searchOpen = false;
-      // Dynamic import since this runs before module scripts
-      var mod = await import('./services/content.js');
-      var storage = await import('./services/storage.js');
-      await mod.loadContent(file);
-      storage.loadStorage();
-      storage.loadQuizHistory();
-      var quizSel = document.getElementById('quizSection');
-      if (quizSel) {
-        while (quizSel.options.length > 2) quizSel.remove(2);
-        this.SECTIONS.forEach(function(sec) {
-          var opt = document.createElement('option');
-          opt.value = sec; opt.textContent = sec;
-          quizSel.appendChild(opt);
-        });
-      }
+      // Fetch new content JSON directly (assign to this.* so Alpine proxy tracks it)
+      try {
+        var res = await fetch(file);
+        var json = await res.json();
+        this.CFG = { meta: json.meta, ui: json.ui, about: json.about || null };
+        this.QA_DATA = json.items || [];
+        this.SECTIONS = [...new Set(this.QA_DATA.map(function(q) { return q.section; }))];
+        this.activeContent = file;
+        this.contentLoaded = true;
+      } catch(e) { return; }
+
+      // Still call content.js loadContent for UI string updates (idempotent)
+      try {
+        var mod = await import('./services/content.js');
+        await mod.loadContent(file);
+      } catch(e) {}
+
+      // Reload persisted state
+      try {
+        var storage = await import('./services/storage.js');
+        storage.loadStorage();
+        storage.loadQuizHistory();
+      } catch(e) {}
+
       this.view = 'browse';
     },
     applyFontSize: function(size) {

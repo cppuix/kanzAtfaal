@@ -139,8 +139,9 @@
         <div class="section-badge" id="currentSectionLabel" x-text="$store.app.section === 'all' ? $store.app.CFG.ui?.allSections : $store.app.section">جميع الأسئلة</div>
         <div class="counter-pill" id="counterPill" x-text="$store.app.toArabic($store.app.filteredCards.length) + ' ' + ($store.app.CFG.ui?.counterSuffix || '')">٣٠٨ سؤال</div>
       </div>
+      <!-- CARD LIST -->
       <div id="cardList" class="card-list">
-        <template x-for="(item, idx) in $store.app.visibleCards" :key="item.qa.id">
+        <template x-for="(item, idx) in $store.app.browseCards" :key="item.qa.id + '-' + $store.app.cardVersion">
           <div class="qa-card-wrap" :class="{ open: $store.app.openCards.includes(item.qa.id) }" x-data="qaCard(item.qa, item.matchIn)" x-init="$el.style.animationDelay = Math.min(idx * 20, 200) + 'ms'">
             <div class="qa-card-flipper">
               <!-- FRONT FACE -->

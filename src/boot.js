@@ -21,6 +21,25 @@ window.__saveFavorites = saveFavorites;
 window.__recordAnswer = recordAnswer;
 window.__normalizeAr = normalizeAr;
 
+// Fuzzy search function used by store getters
+function fuzzyScore(text, query) {
+  var t = normalizeAr(text);
+  var q = normalizeAr(query);
+  if (!q || q.length < 2) return 0;
+  if (t.includes(q)) return 1;
+  var minLen = Math.ceil(q.length * 0.75);
+  for (var len = q.length - 1; len >= minLen; len--) {
+    for (var start = 0; start <= q.length - len; start++) {
+      var sub = q.slice(start, start + len);
+      if (sub.length >= 2 && t.includes(sub)) {
+        return 0.5 + 0.5 * (len / q.length);
+      }
+    }
+  }
+  return 0;
+}
+window.__fuzzyScore = fuzzyScore;
+
 // Utilities exposed to Alpine templates
 function escHtml(s) {
   return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -75,7 +94,6 @@ function buildHighlight(text, query) {
 window.buildHighlight = buildHighlight;
 window.escHtml = escHtml;
 window.normalizeAr = normalizeAr;
-window.checkBuildAnswer = checkBuildAnswer;
 window.renderBrowse = function() {};
 
 // ===== SPLASH =====
@@ -100,7 +118,9 @@ function init() {
     loadQuizHistory();
     applyFontSize(currentFontSize);
     applyContrast(highContrast);
-    // Force Alpine to re-evaluate DOM now that store is fully populated
+    // Populate browse cards and force Alpine re-evaluation
+    var store = Alpine.store('app');
+    if (store && store.refreshCards) store.refreshCards();
     Alpine.initTree(document.body);
     hideSplash();
   });
