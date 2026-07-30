@@ -3,7 +3,6 @@
 
 import { loadContent, loadSavedContent, applyDeepLink, activeContent, applyFontSize, applyContrast, currentFontSize, highContrast } from './services/content.js';
 import { loadStorage, loadQuizHistory } from './services/storage.js';
-import { checkBuildAnswer, syncModuleState, renderQuizQuestion, showQuizResult } from './services/render.js';
 import { playAudio, stopAllAudio, stopListenAudio, playListenAudio } from './services/audio.js';
 import { showToast } from './services/toast.js';
 import { spawnSparkles } from './services/sparkles.js';
@@ -19,12 +18,8 @@ window.__spawnSparkles = spawnSparkles;
 window.__copyQA = copyQA;
 window.__shareAsImage = shareAsImage;
 window.__saveFavorites = saveFavorites;
-window.__syncModuleState = syncModuleState;
-window.__renderQuizQuestion = renderQuizQuestion;
-window.__showQuizResult = showQuizResult;
 window.__recordAnswer = recordAnswer;
 window.__normalizeAr = normalizeAr;
-window.__playListenAudio = playListenAudio;
 
 // Utilities exposed to Alpine templates
 function escHtml(s) {
