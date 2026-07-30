@@ -84,16 +84,16 @@
   </header>
 
   <!-- SEARCH BAR -->
-  <div id="searchBar" class="search-bar hidden">
-    <input type="text" id="searchInput" placeholder="ابحث..." autocomplete="off" />
+  <div id="searchBar" class="search-bar" :class="{ 'hidden': !$store.app.searchOpen }" x-init="$watch('$store.app.search', () => { if (typeof renderBrowse === 'function') renderBrowse(); })">
+    <input type="text" id="searchInput" placeholder="ابحث..." autocomplete="off" x-model="$store.app.search" @input.debounce="renderBrowse()" />
     <div class="search-scope">
-      <button class="scope-btn active" data-scope="both" id="allSectionsFilter">الكل</button>
-      <button class="scope-btn" data-scope="q" id="scopeQBtn">س</button>
-      <button class="scope-btn" data-scope="a" id="scopeABtn">ج</button>
+      <button class="scope-btn" :class="{ 'active': $store.app.searchScope === 'both' }" @click="$store.app.setSearchScope('both'); renderBrowse()" data-scope="both" id="allSectionsFilter">الكل</button>
+      <button class="scope-btn" :class="{ 'active': $store.app.searchScope === 'q' }" @click="$store.app.setSearchScope('q'); renderBrowse()" data-scope="q" id="scopeQBtn">س</button>
+      <button class="scope-btn" :class="{ 'active': $store.app.searchScope === 'a' }" @click="$store.app.setSearchScope('a'); renderBrowse()" data-scope="a" id="scopeABtn">ج</button>
     </div>
-    <button id="searchClose">✕</button>
+    <button id="searchClose" @click="$store.app.toggleSearch()">✕</button>
   </div>
-  <div id="searchFilters" class="search-filters hidden">
+  <div id="searchFilters" class="search-filters" :class="{ 'hidden': !$store.app.searchOpen }">
     <button class="filter-pill active" data-section="all">الكل</button>
   </div>
 
