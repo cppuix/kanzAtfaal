@@ -209,14 +209,65 @@
     <!-- FAVORITES VIEW -->
     <div id="viewFavorites" class="view" x-show="$store.app.view === 'favorites'">
       <div class="view-header">
-        <div class="section-badge" id="favSectionLabel">المحفوظات</div>
-        <div class="counter-pill" id="favCounterPill">٠</div>
+        <div class="section-badge" x-text="$store.app.CFG.ui?.favoritesTitle || 'المحفوظات'">المحفوظات</div>
+        <div class="counter-pill" x-text="$store.app.toArabic($store.app.favorites.size) + ' ' + ($store.app.CFG.ui?.counterSuffix || '')">٠</div>
       </div>
-      <div id="favList" class="card-list"></div>
-      <div id="noFavs" class="no-results">
+      <div id="favList" class="card-list">
+        <template x-for="qa in $store.app.QA_DATA.filter(q => $store.app.favorites.has(q.id))" :key="qa.id">
+          <div class="qa-card-wrap" :class="{ open: $store.app.openCards.has(qa.id) }" x-data="qaCard(qa)">
+            <div class="qa-card-flipper">
+              <div class="qa-face qa-face-front">
+                <div class="qa-card-header" @click="toggle()">
+                  <span class="qa-num" x-text="$store.app.CFG.ui?.questionNum?.replace('{n}', $store.app.toArabic(qa.id))"></span>
+                  <span class="qa-question" x-text="qa.q"></span>
+                  <button class="qa-toggle" @click.stop="toggle()">
+                    <span x-html="window.CHEST_SVG || ''"></span>
+                  </button>
+                </div>
+                <div class="qa-footer">
+                  <span class="qa-section-tag" x-text="qa.section"></span>
+                  <div class="card-actions">
+                    <button class="fav-btn active" @click.stop="toggleFav($event)">
+                      <span x-html="favStarSVG(true)"></span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="qa-face qa-face-back" @click="toggle()">
+                <div class="qa-back-header">
+                  <span class="qa-num" x-text="$store.app.CFG.ui?.questionNum?.replace('{n}', $store.app.toArabic(qa.id))"></span>
+                  <span class="qa-back-label" x-text="$store.app.CFG.ui?.answerLabel"></span>
+                  <button class="qa-toggle qa-toggle-back" @click.stop="toggle()">
+                    <span x-html="window.CHEST_SVG || ''"></span>
+                  </button>
+                </div>
+                <div class="qa-back-divider"></div>
+                <div class="qa-answer-body">
+                  <p class="qa-answer-text" x-text="qa.a"></p>
+                </div>
+                <div class="qa-footer">
+                  <span class="qa-section-tag" x-text="qa.section"></span>
+                  <div class="card-actions">
+                    <button class="fav-btn active" @click.stop="toggleFav($event)">
+                      <span x-html="favStarSVG(true)"></span>
+                    </button>
+                    <button class="copy-btn" @click.stop="copyQA($event)" :aria-label="$store.app.CFG.ui?.copyText">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    </button>
+                    <button class="share-img-btn" @click.stop="shareImage($event)" :aria-label="$store.app.CFG.ui?.shareImage">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+      <div id="noFavs" class="no-results" :class="{ hidden: $store.app.favorites.size > 0 }">
         <div class="no-results-icon">✦</div>
-        <p id="noFavsTitle">احفظ الأسئلة المهمة هنا!</p>
-        <small id="noFavsHint">اضغط على أي سؤال لحفظه</small>
+        <p x-text="$store.app.CFG.ui?.noFavsTitle || 'لا توجد محفوظات بعد!'"></p>
+        <small x-text="$store.app.CFG.ui?.noFavsHint || 'اضغط على أي سؤال لحفظه'"></small>
       </div>
     </div>
 
