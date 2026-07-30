@@ -88,12 +88,12 @@
   </header>
 
   <!-- SEARCH BAR -->
-  <div id="searchBar" class="search-bar" :class="{ 'hidden': !$store.app.searchOpen }" x-init="$watch('$store.app.search', () => { $store.app.resetPagination(); if (typeof renderBrowse === 'function') renderBrowse(); })">
-    <input type="text" id="searchInput" placeholder="ابحث..." autocomplete="off" x-model="$store.app.search" @input.debounce="renderBrowse()" />
+  <div id="searchBar" class="search-bar" :class="{ 'hidden': !$store.app.searchOpen }" x-init="$watch('$store.app.search', () => $store.app.resetPagination())">
+    <input type="text" id="searchInput" placeholder="ابحث..." autocomplete="off" x-model="$store.app.search" />
     <div class="search-scope">
-      <button class="scope-btn" :class="{ 'active': $store.app.searchScope === 'both' }" @click="$store.app.setSearchScope('both'); renderBrowse()" data-scope="both" id="allSectionsFilter">الكل</button>
-      <button class="scope-btn" :class="{ 'active': $store.app.searchScope === 'q' }" @click="$store.app.setSearchScope('q'); renderBrowse()" data-scope="q" id="scopeQBtn">س</button>
-      <button class="scope-btn" :class="{ 'active': $store.app.searchScope === 'a' }" @click="$store.app.setSearchScope('a'); renderBrowse()" data-scope="a" id="scopeABtn">ج</button>
+      <button class="scope-btn" :class="{ 'active': $store.app.searchScope === 'both' }" @click="$store.app.setSearchScope('both')" data-scope="both" id="allSectionsFilter">الكل</button>
+      <button class="scope-btn" :class="{ 'active': $store.app.searchScope === 'q' }" @click="$store.app.setSearchScope('q')" data-scope="q" id="scopeQBtn">س</button>
+      <button class="scope-btn" :class="{ 'active': $store.app.searchScope === 'a' }" @click="$store.app.setSearchScope('a')" data-scope="a" id="scopeABtn">ج</button>
     </div>
     <button id="searchClose" @click="$store.app.toggleSearch()">✕</button>
   </div>
@@ -347,7 +347,7 @@
             <div id="buildAnswer" class="build-answer"></div>
             <div class="build-divider"></div>
             <div id="buildPool" class="build-pool"></div>
-            <button id="buildCheck" class="build-check-btn" :class="{ hidden: !($store.app.quizAnswered === false && $store.app.quizMode === 'build') }" @click="checkBuildAnswer($store.app.currentQuestion)"><span id="buildCheckLabel">تحقق ✓</span></button>
+            <button id="buildCheck" class="build-check-btn hidden" @click="checkBuildAnswer($store.app.currentQuestion)"><span id="buildCheckLabel">تحقق ✓</span></button>
           </div>
 
           <!-- BLANK MODE -->

@@ -819,37 +819,6 @@ mark {
 .listen-choices { width: 100%; display: flex; flex-direction: column; gap: 8px; }
 .listen-q-choice { text-align: right; font-family: var(--font-display); font-size: 14px; line-height: 1.7; }
 
-/* ===== CONTENT PICKER ===== */
-.content-picker {
-  display: flex;
-  gap: 8px;
-  padding: 12px 16px 4px;
-  flex-wrap: wrap;
-}
-.content-btn {
-  flex: 1;
-  padding: 8px 12px;
-  border-radius: 10px;
-  border: 1px solid rgba(201,152,42,0.2);
-  background: var(--bg3);
-  color: var(--text2);
-  font-family: var(--font-ui);
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.18s;
-  text-align: center;
-}
-.content-btn:hover {
-  border-color: var(--gold-mid);
-  color: var(--gold2);
-}
-.content-btn.active {
-  background: var(--gold-dim);
-  border-color: var(--gold-mid);
-  color: var(--gold2);
-  font-weight: 600;
-}
-
 /* ===== LTR OVERRIDES (for English and other LTR content) ===== */
 
 /* Drawer slides from left in LTR */

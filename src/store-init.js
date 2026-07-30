@@ -141,6 +141,7 @@ Alpine.store('app', (function() {
       this.view = view;
       this.closeDrawer();
       if (view === 'quiz') this.quizPhase = 'setup';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     },
     setSection: function(sec) {
       this.section = sec;
@@ -150,6 +151,7 @@ Alpine.store('app', (function() {
       var si = document.getElementById('searchInput');
       if (si) si.value = '';
       this.closeDrawer();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     },
     toggleSearch: function() {
       this.searchOpen = !this.searchOpen;
