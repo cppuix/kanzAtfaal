@@ -75,13 +75,16 @@ Alpine.store('app', (function() {
     quizChoices: [],       // MCQ: [{text, isCorrect}]
     buildPool: [],         // Build: [{word, id}]
     buildPlaced: [],       // Build: [{word, id}] — in user order
-    blankSegments: [],     // Blank: [{text, isBlank}]
     blankOptions: [],      // Blank: [word, word, ...]
     blankCorrect: '',      // Blank: the correct word
     blankKeyIdx: 0,        // Blank: index of blank in segments
+    blankFilled: '',       // Blank: what user selected
     listenChoices: [],     // Listen: [{text, isCorrect}]
     quizFeedbackText: '',
     quizFeedbackType: '',  // 'correct' | 'wrong' | ''
+    quizResultTitle: '',
+    quizResultMsg: '',
+    quizResultScore: '',
 
     // ── Settings ──
     fontSize: localStorage.getItem('muntaqaa_font') || 'md',
@@ -163,22 +166,6 @@ Alpine.store('app', (function() {
       });
       return counts;
     },
-
-    // ── Quiz mode helpers ──
-    get blankHtml() {
-      if (!this.blankSegments.length) return '';
-      var qa = this.currentQuestion;
-      if (!qa) return '';
-      var words = qa.a.trim().split(/\s+/);
-      return words.map(function(w, i) {
-        if (i === this.blankKeyIdx && this.blankFilled) {
-          return '<span class="blank-filled ' + (this.blankFilled === this.blankCorrect ? 'correct' : 'wrong') + '">' + escHtml(this.blankFilled) + '</span>';
-        }
-        if (i === this.blankKeyIdx) return '<span class="blank-slot">_____</span>';
-        return escHtml(w);
-      }.bind(this)).join(' ');
-    },
-    get blankFilled() { return ''; },  // overridden when user picks
 
     // ── Methods (service dependencies set via window.__ by boot.js) ──
     toggleDrawer: function() {
@@ -440,22 +427,19 @@ Alpine.store('app', (function() {
     },
     playListenAudio: function() {
       var qa = this.currentQuestion;
-      if (!qa || !window.__playListenAudio) return;
-      this.listenBtnText = (this.CFG.ui?.listen || 'استمع') + '...';
-      window.__playListenAudio(qa.id, { 
-        classList: { add: function() {}, remove: function() {} },
-        querySelector: function() { return null; },
-        disabled: false, style: {}
-      });
-      // Use a proper approach: play via audio service directly
+      if (!qa) return;
+      // Stop previous audio
+      if (this._currentListenAudio) { this._currentListenAudio.pause(); this._currentListenAudio = null; }
       var audio = new Audio((this.CFG.meta?.audioPath || 'audios/{id}.opus').replace('{id}', qa.id));
       this._currentListenAudio = audio;
       var self = this;
-      audio.play().then(function() {
-        self.listenBtnText = self.CFG.ui?.listen + '...';
-      }).catch(function() {});
+      self.listenBtnText = (self.CFG.ui?.listen || 'استمع') + '...';
+      audio.play().catch(function() {});
       audio.addEventListener('ended', function() {
         self.listenBtnText = self.CFG.ui?.replay || 'إعادة';
+      });
+      audio.addEventListener('error', function() {
+        self.listenBtnText = self.CFG.ui?.audioError || 'خطأ';
       });
     },
     selectListenChoice: function(choice) {
