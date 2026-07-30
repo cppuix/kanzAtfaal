@@ -4,11 +4,11 @@
 import { loadContent, loadSavedContent, applyDeepLink, activeContent, applyFontSize, applyContrast, currentFontSize, highContrast } from './services/content.js';
 import { loadStorage, loadQuizHistory } from './services/storage.js';
 import { checkBuildAnswer, syncModuleState, renderQuizQuestion, showQuizResult } from './services/render.js';
-import { playAudio, stopAllAudio, stopListenAudio } from './services/audio.js';
+import { playAudio, stopAllAudio, stopListenAudio, playListenAudio } from './services/audio.js';
 import { showToast } from './services/toast.js';
 import { spawnSparkles } from './services/sparkles.js';
 import { copyQA, shareAsImage, shareDeepLink } from './services/share.js';
-import { saveFavorites } from './services/storage.js';
+import { saveFavorites, recordAnswer } from './services/storage.js';
 
 // Expose service functions to window so store-init.js methods can call them
 window.__playAudio = playAudio;
@@ -22,6 +22,9 @@ window.__saveFavorites = saveFavorites;
 window.__syncModuleState = syncModuleState;
 window.__renderQuizQuestion = renderQuizQuestion;
 window.__showQuizResult = showQuizResult;
+window.__recordAnswer = recordAnswer;
+window.__normalizeAr = normalizeAr;
+window.__playListenAudio = playListenAudio;
 
 // Utilities exposed to Alpine templates
 function escHtml(s) {
@@ -76,6 +79,7 @@ function buildHighlight(text, query) {
 
 window.buildHighlight = buildHighlight;
 window.escHtml = escHtml;
+window.normalizeAr = normalizeAr;
 window.checkBuildAnswer = checkBuildAnswer;
 window.renderBrowse = function() {};
 

@@ -71,6 +71,17 @@ Alpine.store('app', (function() {
     quizAnswered: false,
     quizPhase: 'setup',
     quizHistory: {},
+    // Quiz data (populated by initQuiz for each mode)
+    quizChoices: [],       // MCQ: [{text, isCorrect}]
+    buildPool: [],         // Build: [{word, id}]
+    buildPlaced: [],       // Build: [{word, id}] — in user order
+    blankSegments: [],     // Blank: [{text, isBlank}]
+    blankOptions: [],      // Blank: [word, word, ...]
+    blankCorrect: '',      // Blank: the correct word
+    blankKeyIdx: 0,        // Blank: index of blank in segments
+    listenChoices: [],     // Listen: [{text, isCorrect}]
+    quizFeedbackText: '',
+    quizFeedbackType: '',  // 'correct' | 'wrong' | ''
 
     // ── Settings ──
     fontSize: localStorage.getItem('muntaqaa_font') || 'md',
@@ -122,6 +133,31 @@ Alpine.store('app', (function() {
       if (!this.quizQuestions.length) return 0;
       return (this.quizCurrent / this.quizQuestions.length) * 100;
     },
+
+    // ── Pre-computed section counts (avoids 24x filter() calls per render) ──
+    get sectionCounts() {
+      var counts = {};
+      this.QA_DATA.forEach(function(q) {
+        counts[q.section] = (counts[q.section] || 0) + 1;
+      });
+      return counts;
+    },
+
+    // ── Quiz mode helpers ──
+    get blankHtml() {
+      if (!this.blankSegments.length) return '';
+      var qa = this.currentQuestion;
+      if (!qa) return '';
+      var words = qa.a.trim().split(/\s+/);
+      return words.map(function(w, i) {
+        if (i === this.blankKeyIdx && this.blankFilled) {
+          return '<span class="blank-filled ' + (this.blankFilled === this.blankCorrect ? 'correct' : 'wrong') + '">' + escHtml(this.blankFilled) + '</span>';
+        }
+        if (i === this.blankKeyIdx) return '<span class="blank-slot">_____</span>';
+        return escHtml(w);
+      }.bind(this)).join(' ');
+    },
+    get blankFilled() { return ''; },  // overridden when user picks
 
     // ── Methods (service dependencies set via window.__ by boot.js) ──
     toggleDrawer: function() {
@@ -225,6 +261,8 @@ Alpine.store('app', (function() {
       localStorage.setItem('muntaqaa_contrast', on);
     },
     toggleContrast: function() { this.applyContrast(!this.highContrast); },
+
+    // ── QUIZ ──
     initQuiz: function() {
       var sec = this.quizSection, count = this.quizCount, pool;
       if (sec === 'all') pool = this.QA_DATA;
@@ -235,19 +273,224 @@ Alpine.store('app', (function() {
       if (pool.length === 0) { if (window.__showToast) window.__showToast(this.CFG.ui?.notEnoughQuestions || 'لا توجد أسئلة كافية'); return; }
       pool = [...pool].sort(function() { return Math.random() - 0.5; }).slice(0, Math.min(count, pool.length));
       this.quizQuestions = pool; this.quizCurrent = 0; this.quizScore = 0; this.quizAnswered = false; this.quizPhase = 'game';
-      if (window.__syncModuleState) window.__syncModuleState(pool, 0, 0, false, this.quizMode);
-      if (window.__renderQuizQuestion) window.__renderQuizQuestion();
+      this.quizFeedbackType = ''; this.quizFeedbackText = '';
+      this.blankFilled = '';
+      this._generateQuestion();
     },
-    nextQuizQuestion: function() {
-      this.quizCurrent++; this.quizAnswered = false;
-      if (this.quizCurrent >= this.quizQuestions.length) {
-        this.quizPhase = 'result';
-        if (window.__showQuizResult) window.__showQuizResult();
+
+    _generateQuestion: function() {
+      var qa = this.currentQuestion;
+      if (!qa) return;
+      this.quizAnswered = false;
+      this.quizFeedbackType = ''; this.quizFeedbackText = '';
+      if (window.__stopListenAudio) window.__stopListenAudio();
+      var mode = this.quizMode;
+
+      if (mode === 'mcq') this._generateMCQ(qa);
+      else if (mode === 'build') this._generateBuild(qa);
+      else if (mode === 'blank') { this._generateBlank(qa); this.blankFilled = ''; }
+      else if (mode === 'listen') this._generateListen(qa);
+    },
+
+    // ── MCQ ──
+    _generateMCQ: function(qa) {
+      var others = this.QA_DATA.filter(function(q) { return q.id !== qa.id; }).sort(function() { return Math.random() - 0.5; }).slice(0, 3);
+      var choices = [qa, ...others].sort(function() { return Math.random() - 0.5; });
+      this.quizChoices = choices.map(function(c) { return { text: c.a, isCorrect: c.id === qa.id, selected: false }; });
+    },
+    selectMCQChoice: function(choice) {
+      if (this.quizAnswered) return;
+      this.quizAnswered = true;
+      choice.selected = true;
+      var correct = choice.isCorrect;
+      if (window.__recordAnswer) window.__recordAnswer(this.currentQuestion.id, correct);
+      if (correct) {
+        this.quizScore++;
+        this.quizFeedbackType = 'correct';
+        this.quizFeedbackText = this.CFG.ui?.correctMCQFeedback || 'أحسنت! إجابة صحيحة';
+        if (window.__spawnSparkles) window.__spawnSparkles(document.querySelector('.quiz-card'), true);
       } else {
-        if (window.__renderQuizQuestion) window.__renderQuizQuestion();
+        this.quizFeedbackType = 'wrong';
+        var correctText = this.quizChoices.filter(function(c) { return c.isCorrect; })[0]?.text || '';
+        this.quizFeedbackText = (this.CFG.ui?.wrongMCQFeedback || 'الإجابة الصحيحة:') + ' <strong>' + window.escHtml(correctText) + '</strong>';
       }
     },
-    retryQuiz: function() { this.quizPhase = 'setup'; }
+
+    // ── BUILD ──
+    _generateBuild: function(qa) {
+      var words = qa.a.trim().split(/\s+/);
+      var shuffled = words.map(function(w, i) { return { word: w, id: i, placed: false }; }).sort(function() { return Math.random() - 0.5; });
+      this.buildPool = shuffled;
+      this.buildPlaced = [];
+    },
+    placeBuildTile: function(idx) {
+      if (this.quizAnswered) return;
+      var tile = this.buildPool[idx];
+      if (!tile || tile.placed) return;
+      tile.placed = true;
+      this.buildPlaced.push({ word: tile.word, id: tile.id });
+      // Trigger reactivity
+      this.buildPool = this.buildPool.slice();
+      this.buildPlaced = this.buildPlaced.slice();
+    },
+    removeBuildTile: function(idx) {
+      if (this.quizAnswered) return;
+      var pw = this.buildPlaced[idx];
+      if (!pw) return;
+      this.buildPlaced.splice(idx, 1);
+      var poolIdx = this.buildPool.findIndex(function(t) { return t.id === pw.id; });
+      if (poolIdx !== -1) this.buildPool[poolIdx].placed = false;
+      this.buildPool = this.buildPool.slice();
+      this.buildPlaced = this.buildPlaced.slice();
+    },
+    checkBuildAnswer: function() {
+      if (this.quizAnswered) return;
+      var qa = this.currentQuestion;
+      if (!qa) return;
+      var userAnswer = this.buildPlaced.map(function(p) { return p.word; }).join(' ');
+      var correct = window.__normalizeAr ? window.__normalizeAr(userAnswer) === window.__normalizeAr(qa.a) : (userAnswer === qa.a);
+      this.quizAnswered = true;
+      if (window.__recordAnswer) window.__recordAnswer(qa.id, correct);
+      if (correct) {
+        this.quizScore++;
+        this.quizFeedbackType = 'correct';
+        this.quizFeedbackText = this.CFG.ui?.correctFeedback || 'أحسنت!';
+        if (window.__spawnSparkles) window.__spawnSparkles(document.getElementById('buildAnswer'), true);
+      } else {
+        this.quizFeedbackType = 'wrong';
+        this.quizFeedbackText = (this.CFG.ui?.wrongOrderFeedback || 'الإجابة الصحيحة:') + ' <strong>' + window.escHtml(qa.a) + '</strong>';
+      }
+    },
+
+    // ── BLANK ──
+    _generateBlank: function(qa) {
+      var stopWords = new Set(this.CFG.meta?.stopWords || []);
+      var words = qa.a.trim().split(/\s+/);
+      var keyIdx = 0, keyLen = 0;
+      words.forEach(function(w, i) {
+        var clean = w.replace(/[^؀-ۿ]/g, '');
+        if (clean.length > keyLen && !stopWords.has(clean)) { keyLen = clean.length; keyIdx = i; }
+      });
+      var keyWord = words[keyIdx];
+      this.blankCorrect = keyWord;
+      this.blankKeyIdx = keyIdx;
+      this.blankFilled = '';
+
+      var allWords = this.QA_DATA
+        .filter(function(q) { return q.id !== qa.id; })
+        .flatMap(function(q) { return q.a.split(/\s+/); })
+        .filter(function(w) { return w.length >= 3 && !stopWords.has(w.replace(/[^؀-ۿ]/g, '')); });
+      var distractors = [...new Set(allWords)].sort(function() { return Math.random() - 0.5; }).slice(0, 3);
+      this.blankOptions = [keyWord, ...distractors].sort(function() { return Math.random() - 0.5; });
+    },
+    selectBlankChoice: function(word) {
+      if (this.quizAnswered) return;
+      var qa = this.currentQuestion;
+      if (!qa) return;
+      this.quizAnswered = true;
+      this.blankFilled = word;
+      var correct = word === this.blankCorrect;
+      if (window.__recordAnswer) window.__recordAnswer(qa.id, correct);
+      if (correct) {
+        this.quizScore++;
+        this.quizFeedbackType = 'correct';
+        this.quizFeedbackText = this.CFG.ui?.correctBlankFeedback || 'أحسنت!';
+        if (window.__spawnSparkles) window.__spawnSparkles(document.querySelector('.blank-choice-btn.correct'), true);
+      } else {
+        this.quizFeedbackType = 'wrong';
+        this.quizFeedbackText = (this.CFG.ui?.wrongBlankFeedback || 'الإجابة الصحيحة:') + ' <strong>' + window.escHtml(this.blankCorrect) + '</strong>';
+      }
+    },
+
+    // ── LISTEN ──
+    _generateListen: function(qa) {
+      var others = this.QA_DATA.filter(function(q) { return q.id !== qa.id; }).sort(function() { return Math.random() - 0.5; }).slice(0, 3);
+      var choices = [qa, ...others].sort(function() { return Math.random() - 0.5; });
+      this.listenChoices = choices.map(function(c) { return { text: c.a, isCorrect: c.id === qa.id, selected: false }; });
+      this.listenBtnText = this.CFG.ui?.listen || 'استمع';
+    },
+    playListenAudio: function() {
+      var qa = this.currentQuestion;
+      if (!qa || !window.__playListenAudio) return;
+      this.listenBtnText = (this.CFG.ui?.listen || 'استمع') + '...';
+      window.__playListenAudio(qa.id, { 
+        classList: { add: function() {}, remove: function() {} },
+        querySelector: function() { return null; },
+        disabled: false, style: {}
+      });
+      // Use a proper approach: play via audio service directly
+      var audio = new Audio((this.CFG.meta?.audioPath || 'audios/{id}.opus').replace('{id}', qa.id));
+      this._currentListenAudio = audio;
+      var self = this;
+      audio.play().then(function() {
+        self.listenBtnText = self.CFG.ui?.listen + '...';
+      }).catch(function() {});
+      audio.addEventListener('ended', function() {
+        self.listenBtnText = self.CFG.ui?.replay || 'إعادة';
+      });
+    },
+    selectListenChoice: function(choice) {
+      if (this.quizAnswered) return;
+      var qa = this.currentQuestion;
+      if (!qa) return;
+      this.quizAnswered = true;
+      choice.selected = true;
+      if (this._currentListenAudio) { this._currentListenAudio.pause(); this._currentListenAudio = null; }
+      var correct = choice.isCorrect;
+      if (window.__recordAnswer) window.__recordAnswer(qa.id, correct);
+      if (correct) {
+        this.quizScore++;
+        this.quizFeedbackType = 'correct';
+        this.quizFeedbackText = this.CFG.ui?.correctListenFeedback || 'أحسنت!';
+        if (window.__spawnSparkles) window.__spawnSparkles(document.querySelector('.quiz-card'), true);
+      } else {
+        this.quizFeedbackType = 'wrong';
+        var correctText = this.listenChoices.filter(function(c) { return c.isCorrect; })[0]?.text || '';
+        this.quizFeedbackText = (this.CFG.ui?.wrongListenFeedback || 'الإجابة الصحيحة:') + ' <strong>' + window.escHtml(correctText) + '</strong>';
+      }
+    },
+
+    blankHtml: function() {
+      var qa = this.currentQuestion;
+      if (!qa) return '';
+      var words = qa.a.trim().split(/\s+/);
+      var self = this;
+      return words.map(function(w, i) {
+        if (i === self.blankKeyIdx && self.blankFilled) {
+          return '<span class="blank-filled ' + (self.blankFilled === self.blankCorrect ? 'correct' : 'wrong') + '">' + window.escHtml(self.blankFilled) + '</span>';
+        }
+        if (i === self.blankKeyIdx) return '<span class="blank-slot">_____</span>';
+        return window.escHtml(w);
+      }).join(' ');
+    },
+
+    nextQuizQuestion: function() {
+      this.quizCurrent++;
+      this.quizAnswered = false;
+      this.quizFeedbackType = ''; this.quizFeedbackText = '';
+      if (this.quizCurrent >= this.quizQuestions.length) {
+        this.quizPhase = 'result';
+        this._showResult();
+      } else {
+        this._generateQuestion();
+      }
+    },
+
+    _showResult: function() {
+      var total = this.quizQuestions.length;
+      var pct = Math.round((this.quizScore / total) * 100);
+      var title, msg;
+      if (pct < 40) { title = this.CFG.ui?.resultTryAgain; msg = this.CFG.ui?.resultTryAgainMsg; }
+      else if (pct < 70) { title = this.CFG.ui?.resultGood; msg = this.CFG.ui?.resultGoodMsg; }
+      else if (pct < 100) { title = this.CFG.ui?.resultGreat; msg = this.CFG.ui?.resultGreatMsg; }
+      else { title = this.CFG.ui?.resultPerfect; msg = this.CFG.ui?.resultPerfectMsg; }
+      this.quizResultTitle = title;
+      this.quizResultMsg = msg;
+      this.quizResultScore = this.toArabic(this.quizScore) + ' / ' + this.toArabic(total);
+    },
+    retryQuiz: function() {
+      this.quizPhase = 'setup';
+    }
   };
 })());
 

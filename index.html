@@ -118,7 +118,7 @@
       <template x-for="sec in $store.app.SECTIONS" :key="sec">
         <li class="section-item" :class="{ active: $store.app.section === sec }" @click="$store.app.setSection(sec)">
           <span x-text="sec"></span>
-          <span class="count" x-text="$store.app.toArabic($store.app.QA_DATA.filter(q => q.section === sec).length)"></span>
+          <span class="count" x-text="$store.app.toArabic($store.app.sectionCounts[sec] || 0)"></span>
         </li>
       </template>
     </ul>
@@ -333,49 +333,98 @@
 
       <div id="quizGame" class="quiz-game" x-show="$store.app.quizPhase === 'game'">
         <div class="quiz-progress-wrap">
-          <div class="quiz-progress-bar"><div id="quizProgressFill"></div></div>
-          <span id="quizProgressText">١ / ١٠</span>
+          <div class="quiz-progress-bar"><div id="quizProgressFill" :style="{ width: $store.app.quizProgress + '%' }"></div></div>
+          <span id="quizProgressText" x-text="$store.app.toArabic($store.app.quizCurrent + 1) + ' / ' + $store.app.toArabic($store.app.quizQuestions.length)"></span>
         </div>
-        <div class="quiz-score-badge" id="quizScoreBadge">النقاط: ٠</div>
+        <div class="quiz-score-badge" x-text="($store.app.CFG.ui?.score || 'النقاط') + ': ' + $store.app.toArabic($store.app.quizScore)"></div>
         <div class="quiz-card">
-          <div class="quiz-q-num" id="quizQNum">س ١</div>
-          <div class="quiz-q-text" id="quizQText"></div>
-          <div id="quizChoices" class="quiz-choices"></div>
+          <div class="quiz-q-num" x-text="$store.app.CFG.ui?.questionNum?.replace('{n}', $store.app.toArabic($store.app.currentQuestion?.id || 0))"></div>
+          <div class="quiz-q-text" x-text="$store.app.currentQuestion?.q || ''"></div>
+
+          <!-- MCQ MODE -->
+          <div id="quizChoices" class="quiz-choices" x-show="$store.app.quizMode === 'mcq'">
+            <template x-for="(choice, idx) in $store.app.quizChoices" :key="idx">
+              <button class="choice-btn"
+                :class="{ correct: $store.app.quizAnswered && choice.isCorrect, wrong: $store.app.quizAnswered && !choice.isCorrect && choice.selected }"
+                :disabled="$store.app.quizAnswered"
+                x-text="choice.text"
+                @click="$store.app.selectMCQChoice(choice)"></button>
+            </template>
+          </div>
 
           <!-- BUILD MODE -->
-          <div id="buildZone" class="build-zone hidden">
-            <div id="buildAnswer" class="build-answer"></div>
+          <div id="buildZone" class="build-zone" x-show="$store.app.quizMode === 'build'">
+            <div id="buildAnswer" class="build-answer" :class="{ 'build-correct': $store.app.quizFeedbackType === 'correct', 'build-wrong': $store.app.quizFeedbackType === 'wrong' }">
+              <template x-if="$store.app.buildPlaced.length === 0">
+                <span class="build-placeholder" x-text="$store.app.CFG.ui?.placeTilesHint || 'اضغط الكلمات بالترتيب'"></span>
+              </template>
+              <template x-for="(pw, idx) in $store.app.buildPlaced" :key="idx">
+                <span class="build-placed-tile removable" @click="$store.app.removeBuildTile(idx)" x-text="pw.word"></span>
+              </template>
+            </div>
             <div class="build-divider"></div>
-            <div id="buildPool" class="build-pool"></div>
-            <button id="buildCheck" class="build-check-btn hidden" @click="checkBuildAnswer($store.app.currentQuestion)"><span id="buildCheckLabel">تحقق ✓</span></button>
+            <div id="buildPool" class="build-pool">
+              <template x-for="(pw, idx) in $store.app.buildPool" :key="idx">
+                <button class="build-tile" :class="{ placed: pw.placed }" :disabled="$store.app.quizAnswered" @click="$store.app.placeBuildTile(idx)" x-text="pw.word"></button>
+              </template>
+            </div>
+            <button id="buildCheck" class="build-check-btn" :class="{ hidden: $store.app.buildPlaced.length < ($store.app.currentQuestion?.a?.trim().split(/\\s+/).length || 0) || $store.app.quizAnswered }" @click="$store.app.checkBuildAnswer()"><span id="buildCheckLabel">تحقق ✓</span></button>
           </div>
 
           <!-- BLANK MODE -->
-          <div id="blankZone" class="blank-zone hidden">
-            <div id="blankText" class="blank-text"></div>
-            <div id="blankChoices" class="blank-choices"></div>
+          <div id="blankZone" class="blank-zone" x-show="$store.app.quizMode === 'blank'">
+            <div id="blankText" class="blank-text" x-html="$store.app.blankHtml()"></div>
+            <div id="blankChoices" class="blank-choices">
+              <template x-for="(word, idx) in $store.app.blankOptions" :key="idx">
+                <button class="blank-choice-btn"
+                  :class="{ correct: $store.app.quizAnswered && word === $store.app.blankCorrect, wrong: $store.app.quizAnswered && word === $store.app.blankFilled && word !== $store.app.blankCorrect }"
+                  :disabled="$store.app.quizAnswered"
+                  @click="$store.app.selectBlankChoice(word)"
+                  x-text="word"></button>
+              </template>
+            </div>
           </div>
 
           <!-- LISTEN MODE -->
-          <div id="listenZone" class="listen-zone hidden">
-            <button id="listenPlay" class="listen-play-btn">
+          <div id="listenZone" class="listen-zone" x-show="$store.app.quizMode === 'listen'">
+            <button id="listenPlay" class="listen-play-btn" @click="$store.app.playListenAudio()">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-              <span id="listenBtnLabel">استمع</span>
+              <span id="listenBtnLabel" x-text="$store.app.listenBtnText || ($store.app.CFG.ui?.listen || 'استمع')"></span>
             </button>
-            <div id="listenChoices" class="listen-choices"></div>
+            <div id="listenChoices" class="listen-choices">
+              <template x-for="(choice, idx) in $store.app.listenChoices" :key="idx">
+                <button class="choice-btn listen-q-choice"
+                  :class="{ correct: $store.app.quizAnswered && choice.isCorrect, wrong: $store.app.quizAnswered && !choice.isCorrect && choice.selected }"
+                  :disabled="$store.app.quizAnswered"
+                  @click="$store.app.selectListenChoice(choice)"
+                  x-text="choice.text"></button>
+              </template>
+            </div>
           </div>
 
-          <div id="quizFeedback" class="quiz-feedback hidden"></div>
+          <div id="quizFeedback" class="quiz-feedback" :class="{ hidden: !$store.app.quizFeedbackType, correct: $store.app.quizFeedbackType === 'correct', wrong: $store.app.quizFeedbackType === 'wrong' }" x-html="$store.app.quizFeedbackText"></div>
         </div>
         <button id="nextQuizBtn" class="next-btn" :class="{ 'hidden': !$store.app.quizAnswered }" @click="$store.app.nextQuizQuestion()">التالي ←</button>
       </div>
 
       <div id="quizResult" class="quiz-result" x-show="$store.app.quizPhase === 'result'">
-        <div id="resultEmoji" class="result-emoji-wrap"></div>
-        <h2 id="resultTitle">أحسنت!</h2>
-        <div class="result-score" id="resultScore"></div>
-        <p id="resultMsg"></p>
-        <button id="retryQuiz" class="start-btn" @click="$store.app.retryQuiz()">مرة أخرى</button>
+        <div class="result-emoji-wrap">
+          <svg class="result-chest" viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="22" cy="46" rx="9" ry="5" fill="#c9982a" opacity="0.85"/>
+            <ellipse cx="40" cy="43" rx="11" ry="6" fill="#e8bf5a" opacity="0.95"/>
+            <ellipse cx="58" cy="46" rx="9" ry="5" fill="#c9982a" opacity="0.85"/>
+            <rect x="4" y="28" width="72" height="28" rx="4" fill="#4a2e0e" stroke="#c9982a" stroke-width="2"/>
+            <rect x="10" y="33" width="60" height="18" rx="2" fill="#3a2208" stroke="#a07820" stroke-width="1"/>
+            <rect x="33" y="24" width="14" height="12" rx="3" fill="#c9982a" stroke="#a07820" stroke-width="1.5"/>
+            <circle cx="40" cy="29" r="3" fill="#0c1a12" stroke="#a07820" stroke-width="1"/>
+            <rect x="4" y="26" width="72" height="5" rx="1" fill="#c9982a" opacity="0.55"/>
+            <rect x="4" y="2" width="72" height="28" rx="6" fill="#6a4520" stroke="#c9982a" stroke-width="2" transform="rotate(-20 40 15)"/>
+          </svg>
+        </div>
+        <h2 x-text="$store.app.quizResultTitle || 'أحسنت!'">أحسنت!</h2>
+        <div class="result-score" x-text="$store.app.quizResultScore"></div>
+        <p x-text="$store.app.quizResultMsg"></p>
+        <button class="start-btn" @click="$store.app.retryQuiz()">مرة أخرى</button>
       </div>
     </div>
 
