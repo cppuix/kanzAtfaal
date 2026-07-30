@@ -140,7 +140,7 @@
       </div>
       <div id="cardList" class="card-list">
         <template x-for="(item, idx) in $store.app.visibleCards" :key="item.qa.id">
-          <div class="qa-card-wrap" :class="{ open: $store.app.openCards.has(item.qa.id) }" x-data="qaCard(item.qa, item.matchIn)" x-init="$el.style.animationDelay = Math.min(idx * 20, 200) + 'ms'">
+          <div class="qa-card-wrap" :class="{ open: $store.app.openCards.includes(item.qa.id) }" x-data="qaCard(item.qa, item.matchIn)" x-init="$el.style.animationDelay = Math.min(idx * 20, 200) + 'ms'">
             <div class="qa-card-flipper">
               <!-- FRONT FACE -->
               <div class="qa-face qa-face-front">
@@ -159,8 +159,8 @@
                         <span x-html="playing ? (window.STOP_SVG || '') : (window.PLAY_SVG || '')"></span>
                       </button>
                     </template>
-                    <button class="fav-btn" :class="{ active: $store.app.favorites.has(qa.id) }" @click.stop="toggleFav($event)" :aria-label="$store.app.CFG.ui?.save">
-                      <span x-html="favStarSVG($store.app.favorites.has(qa.id))"></span>
+                    <button class="fav-btn" :class="{ active: $store.app.favorites.includes(qa.id) }" @click.stop="toggleFav($event)" :aria-label="$store.app.CFG.ui?.save">
+                      <span x-html="favStarSVG($store.app.favorites.includes(qa.id))"></span>
                     </button>
                   </div>
                 </div>
@@ -186,8 +186,8 @@
                         <span x-html="playing ? (window.STOP_SVG || '') : (window.PLAY_SVG || '')"></span>
                       </button>
                     </template>
-                    <button class="fav-btn" :class="{ active: $store.app.favorites.has(qa.id) }" @click.stop="toggleFav($event)" :aria-label="$store.app.CFG.ui?.save">
-                      <span x-html="favStarSVG($store.app.favorites.has(qa.id))"></span>
+                    <button class="fav-btn" :class="{ active: $store.app.favorites.includes(qa.id) }" @click.stop="toggleFav($event)" :aria-label="$store.app.CFG.ui?.save">
+                      <span x-html="favStarSVG($store.app.favorites.includes(qa.id))"></span>
                     </button>
                     <button class="copy-btn" @click.stop="copyQA($event)" :aria-label="$store.app.CFG.ui?.copyText">
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
@@ -217,8 +217,8 @@
         <div class="counter-pill" x-text="$store.app.toArabic($store.app.favorites.size) + ' ' + ($store.app.CFG.ui?.counterSuffix || '')">٠</div>
       </div>
       <div id="favList" class="card-list">
-        <template x-for="qa in $store.app.QA_DATA.filter(q => $store.app.favorites.has(q.id))" :key="qa.id">
-          <div class="qa-card-wrap" :class="{ open: $store.app.openCards.has(qa.id) }" x-data="qaCard(qa)">
+        <template x-for="qa in $store.app.QA_DATA.filter(q => $store.app.favorites.includes(q.id))" :key="qa.id">
+          <div class="qa-card-wrap" :class="{ open: $store.app.openCards.includes(qa.id) }" x-data="qaCard(qa)">
             <div class="qa-card-flipper">
               <div class="qa-face qa-face-front">
                 <div class="qa-card-header" @click="toggle()">

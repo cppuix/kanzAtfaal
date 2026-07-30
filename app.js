@@ -47,10 +47,19 @@ function loadStorage() {
   try {
     const favs = JSON.parse(localStorage.getItem('favs_' + (CFG.meta && CFG.meta.id || 'default')) || '[]');
     state.favorites = new Set(favs);
+    // Sync to Alpine store
+    try { Alpine.store('app').favorites = favs; } catch(e) {}
   } catch(e) {}
 }
 function saveFavorites() {
-  localStorage.setItem('favs_' + (CFG.meta && CFG.meta.id || 'default'), JSON.stringify([...state.favorites]));
+  // Read from Alpine store first (source of truth), fall back to old global
+  let favs;
+  try {
+    const store = Alpine.store('app');
+    if (store && store.favorites) favs = store.favorites;
+  } catch(e) {}
+  if (!favs) favs = [...state.favorites];
+  localStorage.setItem('favs_' + (CFG.meta && CFG.meta.id || 'default'), JSON.stringify(favs));
 }
 
 function loadSavedContent() {
@@ -1481,8 +1490,8 @@ document.addEventListener('alpine:init', () => {
     settingsOpen: false,
 
     // ── Favorites & open cards ──
-    favorites: new Set(),
-    openCards: new Set(),
+    favorites: [],
+    openCards: [],
 
     // ── Quiz state ──
     quizMode: 'mcq',          // 'mcq' | 'build' | 'blank' | 'listen'
@@ -1635,26 +1644,28 @@ document.addEventListener('alpine:init', () => {
     },
 
     toggleFav(id) {
-      if (this.favorites.has(id)) {
-        this.favorites.delete(id);
+      const idx = this.favorites.indexOf(id);
+      if (idx !== -1) {
+        this.favorites.splice(idx, 1);
         showToast(this.CFG.ui?.unsaved || 'تمت الإزالة');
       } else {
-        this.favorites.add(id);
+        this.favorites.push(id);
         showToast(this.CFG.ui?.saved || 'تمت الحفظ');
       }
       saveFavorites();
     },
     isFav(id) {
-      return this.favorites.has(id);
+      return this.favorites.includes(id);
     },
     isOpen(id) {
-      return this.openCards.has(id);
+      return this.openCards.includes(id);
     },
     toggleCard(id) {
-      if (this.openCards.has(id)) {
-        this.openCards.delete(id);
+      const idx = this.openCards.indexOf(id);
+      if (idx !== -1) {
+        this.openCards.splice(idx, 1);
       } else {
-        this.openCards.add(id);
+        this.openCards.push(id);
       }
     },
 
@@ -1699,7 +1710,7 @@ document.addEventListener('alpine:init', () => {
       this.search = '';
       this.searchScope = 'both';
       this.searchSection = 'all';
-      this.openCards = new Set();
+      this.openCards = [];
       this.quizQuestions = [];
       this.quizCurrent = 0;
       this.quizScore = 0;
@@ -1824,7 +1835,7 @@ document.addEventListener('alpine:init', () => {
     toggle() {
       Alpine.store('app').toggleCard(qa.id);
       // Sparkle effect on open
-      if (Alpine.store('app').openCards.has(qa.id)) {
+      if (Alpine.store('app').openCards.includes(qa.id)) {
         const el = this.$el.querySelector('.qa-toggle');
         if (el) spawnSparkles(el, false);
       }
