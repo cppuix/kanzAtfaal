@@ -355,6 +355,8 @@ function renderQuizQuestion() {
   document.getElementById('quizFeedback').className = 'quiz-feedback hidden';
   document.getElementById('nextQuizBtn').classList.add('hidden');
   quizAnswered = false;
+  // Sync to Alpine store so :class binding on nextQuizBtn works
+  try { Alpine.store('app').quizAnswered = false; } catch(e) {}
   hideAllModeZones();
   stopListenAudio();
 
@@ -1501,34 +1503,34 @@ document.addEventListener('alpine:init', () => {
       this.quizAnswered = false;
       this.quizPhase = 'game';
 
-      // Sync to old globals so old quiz rendering functions can find the data
-      window.quizQuestions = pool;
-      window.quizCurrent = 0;
-      window.quizScore = 0;
-      window.quizAnswered = false;
-      window.quizMode = this.quizMode;
+      // Sync to module-level let vars so old quiz render functions find the data
+      quizQuestions = pool;
+      quizCurrent = 0;
+      quizScore = 0;
+      quizAnswered = false;
+      quizMode = this.quizMode;
 
       // Call old render function to draw the question UI
       renderQuizQuestion();
     },
 
     answerQuiz(correct, correctText) {
-      if (window.quizAnswered) return;
-      window.quizAnswered = true;
+      if (quizAnswered) return;
+      quizAnswered = true;
       this.quizAnswered = true;
       const currentQA = this.quizQuestions[this.quizCurrent];
       recordAnswer(currentQA.id, correct);
       if (correct) {
         this.quizScore++;
-        window.quizScore++;
+        quizScore++;
       }
     },
 
     nextQuizQuestion() {
-      window.quizCurrent++;
+      quizCurrent++;
       this.quizCurrent++;
       this.quizAnswered = false;
-      window.quizAnswered = false;
+      quizAnswered = false;
       if (this.quizCurrent >= this.quizQuestions.length) {
         this.quizPhase = 'result';
         showQuizResult();
