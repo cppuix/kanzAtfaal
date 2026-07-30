@@ -144,7 +144,7 @@
 
     <!-- QUIZ VIEW -->
     <div id="viewQuiz" class="view" x-show="$store.app.view === 'quiz'">
-      <div id="quizSetup" class="quiz-setup">
+      <div id="quizSetup" class="quiz-setup" x-show="$store.app.quizPhase === 'setup'">
         <div class="quiz-chest-wrap">
           <svg class="quiz-chest-svg" viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
             <rect x="4" y="4" width="72" height="26" rx="6" fill="#5a3a1a" stroke="#d4a843" stroke-width="2"/>
@@ -161,43 +161,43 @@
         </div>
         <h2 id="quizHeaderLabel">اختبر نفسك!</h2>
         <p id="quizSubHeaderLabel">اختر البابَ وعدَدَ الأسئلة</p>
-        <select id="quizSection" class="quiz-select">
+        <select id="quizSection" class="quiz-select" x-model="$store.app.quizSection">
           <option value="all" id="allChaptersOpt">جميع الأبواب</option>
           <option value="__weak__" id="weakOption" style="display:none">نقاط الضعف ⚠</option>
         </select>
         <div class="quiz-count-row">
           <label id="questionCountLabel">عدد الأسئلة:</label>
           <div class="count-btns">
-            <button class="count-btn active" data-count="5">٥</button>
-            <button class="count-btn" data-count="10">١٠</button>
-            <button class="count-btn" data-count="20">٢٠</button>
+            <button class="count-btn" :class="{ 'active': $store.app.quizCount === 5 }" @click="$store.app.quizCount = 5">٥</button>
+            <button class="count-btn" :class="{ 'active': $store.app.quizCount === 10 }" @click="$store.app.quizCount = 10">١٠</button>
+            <button class="count-btn" :class="{ 'active': $store.app.quizCount === 20 }" @click="$store.app.quizCount = 20">٢٠</button>
           </div>
         </div>
         <div class="quiz-mode-row">
           <label id="quizTypeLabel">نوع الاختبار:</label>
           <div class="mode-btns">
-            <button class="mode-btn active" data-mode="mcq" title="اختر الجواب الصحيح">
+            <button class="mode-btn" :class="{ 'active': $store.app.quizMode === 'mcq' }" @click="$store.app.quizMode = 'mcq'" title="اختر الجواب الصحيح">
               <span class="mode-icon">؟</span>
               <span class="mode-label" id="modeMCQLabel">اختيار</span>
             </button>
-            <button class="mode-btn" data-mode="build" title="رتّب كلمات الجواب">
+            <button class="mode-btn" :class="{ 'active': $store.app.quizMode === 'build' }" @click="$store.app.quizMode = 'build'" title="رتّب كلمات الجواب">
               <span class="mode-icon">⧉</span>
               <span class="mode-label" id="modeBuildLabel">ترتيب</span>
             </button>
-            <button class="mode-btn" data-mode="blank" title="أكمل الكلمة الناقصة">
+            <button class="mode-btn" :class="{ 'active': $store.app.quizMode === 'blank' }" @click="$store.app.quizMode = 'blank'" title="أكمل الكلمة الناقصة">
               <span class="mode-icon">_</span>
               <span class="mode-label" id="modeBlankLabel">تكميل</span>
             </button>
-            <button class="mode-btn" data-mode="listen" title="استمع واختر السؤال">
+            <button class="mode-btn" :class="{ 'active': $store.app.quizMode === 'listen' }" @click="$store.app.quizMode = 'listen'" title="استمع واختر السؤال">
               <span class="mode-icon">♪</span>
               <span class="mode-label" id="modeListenLabel">استماع</span>
             </button>
           </div>
         </div>
-        <button id="startQuiz" class="start-btn">ابدأ الاختبار</button>
+        <button id="startQuiz" class="start-btn" @click="$store.app.initQuiz()">ابدأ الاختبار</button>
       </div>
 
-      <div id="quizGame" class="quiz-game hidden">
+      <div id="quizGame" class="quiz-game" x-show="$store.app.quizPhase === 'game'">
         <div class="quiz-progress-wrap">
           <div class="quiz-progress-bar"><div id="quizProgressFill"></div></div>
           <span id="quizProgressText">١ / ١٠</span>
@@ -233,15 +233,15 @@
 
           <div id="quizFeedback" class="quiz-feedback hidden"></div>
         </div>
-        <button id="nextQuizBtn" class="next-btn hidden">التالي ←</button>
+        <button id="nextQuizBtn" class="next-btn" :class="{ 'hidden': !$store.app.quizAnswered }" @click="$store.app.nextQuizQuestion()">التالي ←</button>
       </div>
 
-      <div id="quizResult" class="quiz-result hidden">
+      <div id="quizResult" class="quiz-result" x-show="$store.app.quizPhase === 'result'">
         <div id="resultEmoji" class="result-emoji-wrap"></div>
         <h2 id="resultTitle">أحسنت!</h2>
         <div class="result-score" id="resultScore"></div>
         <p id="resultMsg"></p>
-        <button id="retryQuiz" class="start-btn">مرة أخرى</button>
+        <button id="retryQuiz" class="start-btn" @click="$store.app.retryQuiz()">مرة أخرى</button>
       </div>
     </div>
 
