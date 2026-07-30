@@ -1269,11 +1269,8 @@ async function switchContent(file) {
 
 // ===== LOAD CONTENT =====
 async function loadContent(jsonPath) {
-  console.log('[DIAG] loadContent fetching:', jsonPath);
   const res = await fetch(jsonPath);
-  console.log('[DIAG] fetch status:', res.status, res.ok);
   const json = await res.json();
-  console.log('[DIAG] parsed JSON, has items:', Array.isArray(json.items), 'count:', json.items?.length);
   CFG = { meta: json.meta, ui: json.ui, about: json.about || null };
   QA_DATA = json.items || [];
   SECTIONS = [...new Set(QA_DATA.map(q => q.section))];
@@ -1373,25 +1370,16 @@ async function loadContent(jsonPath) {
 
 // ===== INIT =====
 function init() {
-  console.log('[DIAG] init() called, activeContent:', activeContent);
   loadSavedContent();
-  console.log('[DIAG] after loadSavedContent, activeContent:', activeContent);
   applyDeepLink();
-  console.log('[DIAG] after applyDeepLink, activeContent:', activeContent);
   loadContent(activeContent).then(() => {
-    console.log('[DIAG] loadContent resolved, QA_DATA length:', QA_DATA.length, 'CFG keys:', Object.keys(CFG));
     loadStorage();
     loadQuizHistory();
     applyFontSize(currentFontSize);
     applyContrast(highContrast);
     hideSplash();
-    console.log('[DIAG] before buildSectionList');
     buildSectionList();
-    console.log('[DIAG] before renderBrowse');
     renderBrowse();
-    console.log('[DIAG] after renderBrowse');
-  }).catch(err => {
-    console.error('[DIAG] loadContent FAILED:', err);
   });
 
   // Event listeners
