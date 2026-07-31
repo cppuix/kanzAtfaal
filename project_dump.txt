@@ -1,0 +1,1777 @@
+===== index.html =====
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#1a3a2a" />
+  <meta name="description" content="منتقى كنز الأطفال - تعلم العقيدة بطريقة ممتعة" />
+  <!-- iOS PWA -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="منتقى" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <title>منتقى كنز الأطفال</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="fonts/fonts.css" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="src/store-init.js"></script>
+  <script defer src="lib/alpine.min.js"></script>
+  <script type="module" src="src/boot.js"></script></head>
+<body>
+
+<!-- SPLASH SCREEN -->
+<div id="splash">
+  <div class="splash-inner">
+    <div class="splash-chest">
+      <svg class="chest-svg-splash" viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- lid -->
+        <rect class="chest-lid-splash" x="4" y="4" width="72" height="26" rx="6" fill="#5a3a1a" stroke="#d4a843" stroke-width="2"/>
+        <rect x="10" y="10" width="60" height="14" rx="3" fill="#3d2510" stroke="#b8902c" stroke-width="1"/>
+        <!-- body -->
+        <rect x="4" y="28" width="72" height="28" rx="4" fill="#4a2e0e" stroke="#d4a843" stroke-width="2"/>
+        <rect x="10" y="33" width="60" height="18" rx="2" fill="#3a2208" stroke="#b8902c" stroke-width="1"/>
+        <!-- lock -->
+        <rect x="33" y="24" width="14" height="12" rx="3" fill="#d4a843" stroke="#b8902c" stroke-width="1.5"/>
+        <circle cx="40" cy="29" r="3" fill="#0f1f18" stroke="#b8902c" stroke-width="1"/>
+        <!-- gold coins peek -->
+        <ellipse cx="26" cy="44" rx="7" ry="4" fill="#d4a843" opacity="0.8"/>
+        <ellipse cx="40" cy="42" rx="8" ry="4.5" fill="#f0c96a" opacity="0.9"/>
+        <ellipse cx="54" cy="44" rx="7" ry="4" fill="#d4a843" opacity="0.8"/>
+        <!-- band -->
+        <rect x="4" y="26" width="72" height="5" rx="1" fill="#d4a843" opacity="0.6"/>
+      </svg>
+    </div>
+    <h1 class="splash-title">كنز<br/>الأطفال</h1>
+    <p class="splash-sub">تعلّم العقيدة الإسلامية</p>
+    <div class="splash-dots">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" class="hidden" x-data>
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <button class="icon-btn" id="menuToggle" @click="$store.app.toggleDrawer()" aria-label="القائمة">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+    <div class="topbar-title">
+      <span id="appTitleEl">منتقى كنز الأطفال</span>
+    </div>
+    <div class="content-switch-wrapper" x-data="{ menuOpen: false }" @click.outside="menuOpen = false">
+    <button class="icon-btn" id="contentToggle" @click="menuOpen = !menuOpen" :aria-expanded="menuOpen" aria-label="تغيير اللغة" title="تغيير اللغة">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+        <path d="M12,24C5.4,24,0,18.6,0,12S5.4,0,12,0s12,5.4,12,12S18.6,24,12,24z M9.5,17c0.6,3.1,1.7,5,2.5,5s1.9-1.9,2.5-5H9.5z M16.6,17c-0.3,1.7-0.8,3.3-1.4,4.5c2.3-0.8,4.3-2.4,5.5-4.5H16.6z M3.3,17c1.2,2.1,3.2,3.7,5.5,4.5c-0.6-1.2-1.1-2.8-1.4-4.5H3.3 z M16.9,15h4.7c0.2-0.9,0.4-2,0.4-3s-0.2-2.1-0.5-3h-4.7c0.2,1,0.2,2,0.2,3S17,14,16.9,15z M9.2,15h5.7c0.1-0.9,0.2-1.9,0.2-3 S15,9.9,14.9,9H9.2C9.1,9.9,9,10.9,9,12C9,13.1,9.1,14.1,9.2,15z M2.5,15h4.7c-0.1-1-0.1-2-0.1-3s0-2,0.1-3H2.5C2.2,9.9,2,11,2,12 S2.2,14.1,2.5,15z M16.6,7h4.1c-1.2-2.1-3.2-3.7-5.5-4.5C15.8,3.7,16.3,5.3,16.6,7z M9.5,7h5.1c-0.6-3.1-1.7-5-2.5-5 C11.3,2,10.1,3.9,9.5,7z M3.3,7h4.1c0.3-1.7,0.8-3.3,1.4-4.5C6.5,3.3,4.6,4.9,3.3,7z"/>
+      </svg>
+    </button>
+    <div class="content-popup" :class="{ hidden: !menuOpen }" role="menu" aria-label="اختيار المحتوى">
+      <template x-for="cf in $store.app.contentFiles" :key="cf.file">
+        <button class="content-option-btn" :class="{ active: cf.file === $store.app.activeContent }" @click="menuOpen = false; $store.app.switchContent(cf.file)" x-text="cf.label" type="button"></button>
+      </template>
+    </div>
+    <button class="icon-btn" id="settingsToggle" @click="$store.app.settingsOpen = true" aria-label="settings">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+    </button>
+    <button class="icon-btn" id="searchToggle" @click="$store.app.toggleSearch()" aria-label="البحث">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+    </button>
+    </div>
+  </header>
+
+  <!-- SEARCH BAR -->
+  <div id="searchBar" class="search-bar" :class="{ 'hidden': !$store.app.searchOpen }" x-init="$watch('$store.app.search', () => $store.app.resetPagination())">
+    <input type="text" id="searchInput" placeholder="ابحث..." autocomplete="off" x-model="$store.app.search" />
+    <div class="search-scope">
+      <button class="scope-btn" :class="{ 'active': $store.app.searchScope === 'both' }" @click="$store.app.setSearchScope('both')" data-scope="both" id="allSectionsFilter">الكل</button>
+      <button class="scope-btn" :class="{ 'active': $store.app.searchScope === 'q' }" @click="$store.app.setSearchScope('q')" data-scope="q" id="scopeQBtn">س</button>
+      <button class="scope-btn" :class="{ 'active': $store.app.searchScope === 'a' }" @click="$store.app.setSearchScope('a')" data-scope="a" id="scopeABtn">ج</button>
+    </div>
+    <button id="searchClose" @click="$store.app.toggleSearch()">✕</button>
+  </div>
+  <div id="searchFilters" class="search-filters" :class="{ 'hidden': !$store.app.searchOpen }">
+    <button class="filter-pill" :class="{ active: $store.app.searchSection === 'all' }" @click="$store.app.setSearchSection('all')">الكل</button>
+    <template x-for="sec in $store.app.SECTIONS" :key="sec">
+      <button class="filter-pill" :class="{ active: $store.app.searchSection === sec }" @click="$store.app.setSearchSection(sec)" x-text="sec"></button>
+    </template>
+  </div>
+
+  <!-- SIDE DRAWER -->
+  <div id="overlay" class="overlay hidden" :class="{ 'hidden': !$store.app.drawerOpen }" @click="$store.app.closeDrawer()"></div>
+  <nav id="drawer" class="drawer" :class="{ 'open': $store.app.drawerOpen }">
+    <div class="drawer-header">
+      <span id="drawerSectionsTitle">الأبواب</span>
+    </div>
+    <ul id="sectionList" class="section-list">
+      <li class="section-item" :class="{ active: $store.app.section === 'all' }" @click="$store.app.setSection('all')">
+        <span x-text="$store.app.CFG.ui?.allSections || 'الكل'"></span>
+        <span class="count" x-text="$store.app.toArabic($store.app.QA_DATA.length)"></span>
+      </li>
+      <template x-for="sec in $store.app.SECTIONS" :key="sec">
+        <li class="section-item" :class="{ active: $store.app.section === sec }" @click="$store.app.setSection(sec)">
+          <span x-text="sec"></span>
+          <span class="count" x-text="$store.app.toArabic($store.app.sectionCounts[sec] || 0)"></span>
+        </li>
+      </template>
+    </ul>
+    <div class="drawer-footer">
+    <button class="nav-pill" :class="{ 'active': $store.app.view === 'browse' }" @click="$store.app.switchView('browse')" data-view="browse" id="navBrowse"><span id="navBrowseDrawerLabel">تصفح</span></button>
+      <button class="nav-pill" :class="{ 'active': $store.app.view === 'favorites' }" @click="$store.app.switchView('favorites')" data-view="favorites" id="navFavs"><span id="navFavsDrawerLabel">المحفوظات</span></button>
+      <button class="nav-pill" :class="{ 'active': $store.app.view === 'quiz' }" @click="$store.app.switchView('quiz')" data-view="quiz" id="navQuiz"><span id="navQuizDrawerLabel">اختبار</span></button>
+      <button class="nav-pill nav-pill-about" id="navAbout" @click="$store.app.aboutOpen = true; $store.app.closeDrawer()"><span id="navAboutLabel">عن التطبيق</span></button>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTENT -->
+  <main id="mainContent">
+
+    <!-- BROWSE VIEW -->
+    <div id="viewBrowse" class="view" :class="{ active: $store.app.view === 'browse' }">
+      <div class="view-header">
+        <div class="section-badge" id="currentSectionLabel" x-text="$store.app.section === 'all' ? $store.app.CFG.ui?.allSections : $store.app.section">جميع الأسئلة</div>
+        <div class="counter-pill" id="counterPill" x-text="$store.app.toArabic($store.app.filteredCards.length) + ' ' + ($store.app.CFG.ui?.counterSuffix || '')">٣٠٨ سؤال</div>
+      </div>
+      <!-- CARD LIST -->
+      <div id="cardList" class="card-list">
+        <template x-for="(item, idx) in $store.app.browseCards" :key="item.qa.id + '-' + $store.app.cardVersion">
+          <div class="qa-card-wrap" :class="{ open: $store.app.openCards.includes(item.qa.id) }" x-data="qaCard(item.qa, item.matchIn)" x-init="$el.style.animationDelay = Math.min(idx * 20, 200) + 'ms'">
+            <div class="qa-card-flipper">
+              <!-- FRONT FACE -->
+              <div class="qa-face qa-face-front">
+                <div class="qa-card-header" @click="toggle()">
+                  <span class="qa-num" x-text="$store.app.CFG.ui?.questionNum?.replace('{n}', $store.app.toArabic(qa.id))"></span>
+                  <span class="qa-question" x-html="hlQuery ? buildHighlight(qa.q, hlQuery) : escHtml(qa.q)"></span>
+                  <button class="qa-toggle" @click.stop="toggle()" :aria-label="$store.app.CFG.ui?.showAnswer">
+                    <span x-html="window.CHEST_SVG || ''"></span>
+                  </button>
+                </div>
+                <div class="qa-footer">
+                  <span class="qa-section-tag" x-text="qa.section"></span>
+                  <div class="card-actions">
+                    <template x-if="$store.app.CFG.meta?.audio">
+                      <button class="play-btn" @click.stop="playAudio($event)" x-data="{ playing: false }" :class="{ playing }" :aria-label="$store.app.CFG.ui?.listen">
+                        <span x-html="playing ? (window.STOP_SVG || '') : (window.PLAY_SVG || '')"></span>
+                      </button>
+                    </template>
+                    <button class="fav-btn" :class="{ active: $store.app.favorites.includes(qa.id) }" @click.stop="toggleFav($event)" :aria-label="$store.app.CFG.ui?.save">
+                      <span x-html="favStarSVG($store.app.favorites.includes(qa.id))"></span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <!-- BACK FACE -->
+              <div class="qa-face qa-face-back" @click="toggle()">
+                <div class="qa-back-header">
+                  <span class="qa-num" x-text="$store.app.CFG.ui?.questionNum?.replace('{n}', $store.app.toArabic(qa.id))"></span>
+                  <span class="qa-back-label" x-text="$store.app.CFG.ui?.answerLabel"></span>
+                  <button class="qa-toggle qa-toggle-back" @click.stop="toggle()" :aria-label="$store.app.CFG.ui?.close">
+                    <span x-html="window.CHEST_SVG || ''"></span>
+                  </button>
+                </div>
+                <div class="qa-back-divider"></div>
+                <div class="qa-answer-body">
+                  <p class="qa-answer-text" x-html="hlQuery ? buildHighlight(qa.a, hlQuery) : escHtml(qa.a)"></p>
+                </div>
+                <div class="qa-footer">
+                  <span class="qa-section-tag" x-text="qa.section"></span>
+                  <div class="card-actions">
+                    <template x-if="$store.app.CFG.meta?.audio">
+                      <button class="play-btn" @click.stop="playAudio($event)" x-data="{ playing: false }" :class="{ playing }" :aria-label="$store.app.CFG.ui?.listen">
+                        <span x-html="playing ? (window.STOP_SVG || '') : (window.PLAY_SVG || '')"></span>
+                      </button>
+                    </template>
+                    <button class="fav-btn" :class="{ active: $store.app.favorites.includes(qa.id) }" @click.stop="toggleFav($event)" :aria-label="$store.app.CFG.ui?.save">
+                      <span x-html="favStarSVG($store.app.favorites.includes(qa.id))"></span>
+                    </button>
+                    <button class="copy-btn" @click.stop="copyQA($event)" :aria-label="$store.app.CFG.ui?.copyText">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    </button>
+                    <button class="share-img-btn" @click.stop="shareImage($event)" :aria-label="$store.app.CFG.ui?.shareImage">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+        <!-- Infinite scroll removed — all cards render at once -->
+      </div>
+      <div id="noResults" class="no-results" :class="{ hidden: $store.app.browseCards.length > 0 }">
+        <div class="no-results-icon">✦</div>
+        <p>لا توجد نتائج</p>
+      </div>
+    </div>
+
+    <!-- FAVORITES VIEW -->
+    <div id="viewFavorites" class="view" :class="{ active: $store.app.view === 'favorites' }">
+      <div class="view-header">
+        <div class="section-badge" x-text="$store.app.CFG.ui?.favoritesTitle || 'المحفوظات'">المحفوظات</div>
+        <div class="counter-pill" x-text="$store.app.toArabic($store.app.favorites.length) + ' ' + ($store.app.CFG.ui?.counterSuffix || '')">٠</div>
+      </div>
+      <div id="favList" class="card-list">
+        <template x-for="qa in $store.app.QA_DATA.filter(q => $store.app.favorites.includes(q.id))" :key="qa.id">
+          <div class="qa-card-wrap" :class="{ open: $store.app.openCards.includes(qa.id) }" x-data="qaCard(qa)">
+            <div class="qa-card-flipper">
+              <div class="qa-face qa-face-front">
+                <div class="qa-card-header" @click="toggle()">
+                  <span class="qa-num" x-text="$store.app.CFG.ui?.questionNum?.replace('{n}', $store.app.toArabic(qa.id))"></span>
+                  <span class="qa-question" x-text="qa.q"></span>
+                  <button class="qa-toggle" @click.stop="toggle()">
+                    <span x-html="window.CHEST_SVG || ''"></span>
+                  </button>
+                </div>
+                <div class="qa-footer">
+                  <span class="qa-section-tag" x-text="qa.section"></span>
+                  <div class="card-actions">
+                    <button class="fav-btn active" @click.stop="toggleFav($event)">
+                      <span x-html="favStarSVG(true)"></span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="qa-face qa-face-back" @click="toggle()">
+                <div class="qa-back-header">
+                  <span class="qa-num" x-text="$store.app.CFG.ui?.questionNum?.replace('{n}', $store.app.toArabic(qa.id))"></span>
+                  <span class="qa-back-label" x-text="$store.app.CFG.ui?.answerLabel"></span>
+                  <button class="qa-toggle qa-toggle-back" @click.stop="toggle()">
+                    <span x-html="window.CHEST_SVG || ''"></span>
+                  </button>
+                </div>
+                <div class="qa-back-divider"></div>
+                <div class="qa-answer-body">
+                  <p class="qa-answer-text" x-text="qa.a"></p>
+                </div>
+                <div class="qa-footer">
+                  <span class="qa-section-tag" x-text="qa.section"></span>
+                  <div class="card-actions">
+                    <button class="fav-btn active" @click.stop="toggleFav($event)">
+                      <span x-html="favStarSVG(true)"></span>
+                    </button>
+                    <button class="copy-btn" @click.stop="copyQA($event)" :aria-label="$store.app.CFG.ui?.copyText">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    </button>
+                    <button class="share-img-btn" @click.stop="shareImage($event)" :aria-label="$store.app.CFG.ui?.shareImage">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
+      </div>
+      <div id="noFavs" class="no-results" :class="{ hidden: $store.app.favorites.length > 0 }">
+        <div class="no-results-icon">✦</div>
+        <p x-text="$store.app.CFG.ui?.noFavsTitle || 'لا توجد محفوظات بعد!'"></p>
+        <small x-text="$store.app.CFG.ui?.noFavsHint || 'اضغط على أي سؤال لحفظه'"></small>
+      </div>
+    </div>
+
+    <!-- QUIZ VIEW -->
+    <div id="viewQuiz" class="view" :class="{ active: $store.app.view === 'quiz' }">
+      <div id="quizSetup" class="quiz-setup" x-show="$store.app.quizPhase === 'setup'">
+        <div class="quiz-chest-wrap">
+          <svg class="quiz-chest-svg" viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="4" y="4" width="72" height="26" rx="6" fill="#5a3a1a" stroke="#d4a843" stroke-width="2"/>
+            <rect x="10" y="10" width="60" height="14" rx="3" fill="#3d2510" stroke="#b8902c" stroke-width="1"/>
+            <rect x="4" y="28" width="72" height="28" rx="4" fill="#4a2e0e" stroke="#d4a843" stroke-width="2"/>
+            <rect x="10" y="33" width="60" height="18" rx="2" fill="#3a2208" stroke="#b8902c" stroke-width="1"/>
+            <rect x="33" y="24" width="14" height="12" rx="3" fill="#d4a843" stroke="#b8902c" stroke-width="1.5"/>
+            <circle cx="40" cy="29" r="3" fill="#0f1f18" stroke="#b8902c" stroke-width="1"/>
+            <ellipse cx="26" cy="44" rx="7" ry="4" fill="#d4a843" opacity="0.8"/>
+            <ellipse cx="40" cy="42" rx="8" ry="4.5" fill="#f0c96a" opacity="0.9"/>
+            <ellipse cx="54" cy="44" rx="7" ry="4" fill="#d4a843" opacity="0.8"/>
+            <rect x="4" y="26" width="72" height="5" rx="1" fill="#d4a843" opacity="0.6"/>
+          </svg>
+        </div>
+        <h2 id="quizHeaderLabel">اختبر نفسك!</h2>
+        <p id="quizSubHeaderLabel">اختر البابَ وعدَدَ الأسئلة</p>
+        <select id="quizSection" class="quiz-select" x-model="$store.app.quizSection">
+          <option value="all" id="allChaptersOpt">جميع الأبواب</option>
+          <template x-for="sec in $store.app.SECTIONS" :key="sec">
+            <option x-bind:value="sec" x-text="sec"></option>
+          </template>
+          <option value="__weak__" id="weakOption" style="display:none">نقاط الضعف ⚠</option>
+        </select>
+        <div class="quiz-count-row">
+          <label id="questionCountLabel">عدد الأسئلة:</label>
+          <div class="count-btns">
+            <button class="count-btn" :class="{ 'active': $store.app.quizCount === 5 }" @click="$store.app.quizCount = 5">٥</button>
+            <button class="count-btn" :class="{ 'active': $store.app.quizCount === 10 }" @click="$store.app.quizCount = 10">١٠</button>
+            <button class="count-btn" :class="{ 'active': $store.app.quizCount === 20 }" @click="$store.app.quizCount = 20">٢٠</button>
+          </div>
+        </div>
+        <div class="quiz-mode-row">
+          <label id="quizTypeLabel">نوع الاختبار:</label>
+          <div class="mode-btns">
+            <button class="mode-btn" :class="{ 'active': $store.app.quizMode === 'mcq' }" @click="$store.app.quizMode = 'mcq'" title="اختر الجواب الصحيح">
+              <span class="mode-icon">؟</span>
+              <span class="mode-label" id="modeMCQLabel">اختيار</span>
+            </button>
+            <button class="mode-btn" :class="{ 'active': $store.app.quizMode === 'build' }" @click="$store.app.quizMode = 'build'" title="رتّب كلمات الجواب">
+              <span class="mode-icon">⧉</span>
+              <span class="mode-label" id="modeBuildLabel">ترتيب</span>
+            </button>
+            <button class="mode-btn" :class="{ 'active': $store.app.quizMode === 'blank' }" @click="$store.app.quizMode = 'blank'" title="أكمل الكلمة الناقصة">
+              <span class="mode-icon">_</span>
+              <span class="mode-label" id="modeBlankLabel">تكميل</span>
+            </button>
+            <button class="mode-btn" :class="{ 'active': $store.app.quizMode === 'listen' }" @click="$store.app.quizMode = 'listen'" title="استمع واختر السؤال">
+              <span class="mode-icon">♪</span>
+              <span class="mode-label" id="modeListenLabel">استماع</span>
+            </button>
+          </div>
+        </div>
+        <button id="startQuiz" class="start-btn" @click="$store.app.initQuiz()">ابدأ الاختبار</button>
+      </div>
+
+      <div id="quizGame" class="quiz-game" x-show="$store.app.quizPhase === 'game'">
+        <div class="quiz-progress-wrap">
+          <div class="quiz-progress-bar"><div id="quizProgressFill" :style="{ width: $store.app.quizProgress + '%' }"></div></div>
+          <span id="quizProgressText" x-text="$store.app.toArabic($store.app.quizCurrent + 1) + ' / ' + $store.app.toArabic($store.app.quizQuestions.length)"></span>
+        </div>
+        <div class="quiz-score-badge" x-text="($store.app.CFG.ui?.score || 'النقاط') + ': ' + $store.app.toArabic($store.app.quizScore)"></div>
+        <div class="quiz-card">
+          <div class="quiz-q-num" x-text="$store.app.CFG.ui?.questionNum?.replace('{n}', $store.app.toArabic($store.app.currentQuestion?.id || 0))"></div>
+          <div class="quiz-q-text" x-text="$store.app.currentQuestion?.q || ''"></div>
+
+          <!-- MCQ MODE -->
+          <div id="quizChoices" class="quiz-choices" x-show="$store.app.quizMode === 'mcq'">
+            <template x-for="(choice, idx) in $store.app.quizChoices" :key="idx">
+              <button class="choice-btn"
+                :class="{ correct: $store.app.quizAnswered && choice.isCorrect, wrong: $store.app.quizAnswered && !choice.isCorrect && choice.selected }"
+                :disabled="$store.app.quizAnswered"
+                x-text="choice.text"
+                @click="$store.app.selectMCQChoice(choice)"></button>
+            </template>
+          </div>
+
+          <!-- BUILD MODE -->
+          <div id="buildZone" class="build-zone" x-show="$store.app.quizMode === 'build'">
+            <div id="buildAnswer" class="build-answer" :class="{ 'build-correct': $store.app.quizFeedbackType === 'correct', 'build-wrong': $store.app.quizFeedbackType === 'wrong' }">
+              <template x-if="$store.app.buildPlaced.length === 0">
+                <span class="build-placeholder" x-text="$store.app.CFG.ui?.placeTilesHint || 'اضغط الكلمات بالترتيب'"></span>
+              </template>
+              <template x-for="(pw, idx) in $store.app.buildPlaced" :key="idx">
+                <span class="build-placed-tile removable" @click="$store.app.removeBuildTile(idx)" x-text="pw.word"></span>
+              </template>
+            </div>
+            <div class="build-divider"></div>
+            <div id="buildPool" class="build-pool">
+              <template x-for="(pw, idx) in $store.app.buildPool" :key="idx">
+                <button class="build-tile" :class="{ placed: pw.placed }" :disabled="$store.app.quizAnswered" @click="$store.app.placeBuildTile(idx)" x-text="pw.word"></button>
+              </template>
+            </div>
+            <button id="buildCheck" class="build-check-btn" :class="{ hidden: $store.app.buildPlaced.length < ($store.app.currentQuestion?.a?.trim().split(/\\s+/).length || 0) || $store.app.quizAnswered }" @click="$store.app.checkBuildAnswer()"><span id="buildCheckLabel">تحقق ✓</span></button>
+          </div>
+
+          <!-- BLANK MODE -->
+          <div id="blankZone" class="blank-zone" x-show="$store.app.quizMode === 'blank'">
+            <div id="blankText" class="blank-text" x-html="$store.app.blankHtml()"></div>
+            <div id="blankChoices" class="blank-choices">
+              <template x-for="(word, idx) in $store.app.blankOptions" :key="idx">
+                <button class="blank-choice-btn"
+                  :class="{ correct: $store.app.quizAnswered && word === $store.app.blankCorrect, wrong: $store.app.quizAnswered && word === $store.app.blankFilled && word !== $store.app.blankCorrect }"
+                  :disabled="$store.app.quizAnswered"
+                  @click="$store.app.selectBlankChoice(word)"
+                  x-text="word"></button>
+              </template>
+            </div>
+          </div>
+
+          <!-- LISTEN MODE -->
+          <div id="listenZone" class="listen-zone" x-show="$store.app.quizMode === 'listen'">
+            <button id="listenPlay" class="listen-play-btn" @click="$store.app.playListenAudio()">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <span id="listenBtnLabel" x-text="$store.app.listenBtnText || ($store.app.CFG.ui?.listen || 'استمع')"></span>
+            </button>
+            <div id="listenChoices" class="listen-choices">
+              <template x-for="(choice, idx) in $store.app.listenChoices" :key="idx">
+                <button class="choice-btn listen-q-choice"
+                  :class="{ correct: $store.app.quizAnswered && choice.isCorrect, wrong: $store.app.quizAnswered && !choice.isCorrect && choice.selected }"
+                  :disabled="$store.app.quizAnswered"
+                  @click="$store.app.selectListenChoice(choice)"
+                  x-text="choice.text"></button>
+              </template>
+            </div>
+          </div>
+
+          <div id="quizFeedback" class="quiz-feedback" :class="{ hidden: !$store.app.quizFeedbackType, correct: $store.app.quizFeedbackType === 'correct', wrong: $store.app.quizFeedbackType === 'wrong' }" x-html="$store.app.quizFeedbackText"></div>
+        </div>
+        <button id="nextQuizBtn" class="next-btn" :class="{ 'hidden': !$store.app.quizAnswered }" @click="$store.app.nextQuizQuestion()">التالي ←</button>
+      </div>
+
+      <div id="quizResult" class="quiz-result" x-show="$store.app.quizPhase === 'result'">
+        <div class="result-emoji-wrap">
+          <svg class="result-chest" viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="22" cy="46" rx="9" ry="5" fill="#c9982a" opacity="0.85"/>
+            <ellipse cx="40" cy="43" rx="11" ry="6" fill="#e8bf5a" opacity="0.95"/>
+            <ellipse cx="58" cy="46" rx="9" ry="5" fill="#c9982a" opacity="0.85"/>
+            <rect x="4" y="28" width="72" height="28" rx="4" fill="#4a2e0e" stroke="#c9982a" stroke-width="2"/>
+            <rect x="10" y="33" width="60" height="18" rx="2" fill="#3a2208" stroke="#a07820" stroke-width="1"/>
+            <rect x="33" y="24" width="14" height="12" rx="3" fill="#c9982a" stroke="#a07820" stroke-width="1.5"/>
+            <circle cx="40" cy="29" r="3" fill="#0c1a12" stroke="#a07820" stroke-width="1"/>
+            <rect x="4" y="26" width="72" height="5" rx="1" fill="#c9982a" opacity="0.55"/>
+            <rect x="4" y="2" width="72" height="28" rx="6" fill="#6a4520" stroke="#c9982a" stroke-width="2" transform="rotate(-20 40 15)"/>
+          </svg>
+        </div>
+        <h2 x-text="$store.app.quizResultTitle || 'أحسنت!'">أحسنت!</h2>
+        <div class="result-score" x-text="$store.app.quizResultScore"></div>
+        <p x-text="$store.app.quizResultMsg"></p>
+        <button class="start-btn" @click="$store.app.retryQuiz()">مرة أخرى</button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="bnav-btn" :class="{ 'active': $store.app.view === 'browse' }" @click="$store.app.switchView('browse')" data-view="browse">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      <span id="navBrowseLabel">تصفح</span>
+    </button>
+    <button class="bnav-btn" :class="{ 'active': $store.app.view === 'favorites' }" @click="$store.app.switchView('favorites')" data-view="favorites">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      <span id="navFavsLabel">محفوظات</span>
+    </button>
+    <button class="bnav-btn" :class="{ 'active': $store.app.view === 'quiz' }" @click="$store.app.switchView('quiz')" data-view="quiz">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span id="navQuizLabel">اختبار</span>
+    </button>
+  </nav>
+
+  <!-- ABOUT MODAL -->
+  <div id="aboutOverlay" class="about-overlay" x-show="$store.app.aboutOpen" @click="$store.app.aboutOpen = false">
+    <div class="about-modal" @click.stop>
+      <button class="about-close" id="aboutClose" @click="$store.app.aboutOpen = false" aria-label="close">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+
+      <div class="about-chest">
+        <svg viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="22" cy="46" rx="9" ry="5" fill="#c9982a" opacity="0.85"/>
+          <ellipse cx="40" cy="43" rx="11" ry="6" fill="#e8bf5a" opacity="0.95"/>
+          <ellipse cx="58" cy="46" rx="9" ry="5" fill="#c9982a" opacity="0.85"/>
+          <rect x="4" y="28" width="72" height="28" rx="4" fill="#4a2e0e" stroke="#c9982a" stroke-width="2"/>
+          <rect x="10" y="33" width="60" height="18" rx="2" fill="#3a2208" stroke="#a07820" stroke-width="1"/>
+          <rect x="33" y="24" width="14" height="12" rx="3" fill="#c9982a" stroke="#a07820" stroke-width="1.5"/>
+          <circle cx="40" cy="29" r="3" fill="#0c1a12" stroke="#a07820" stroke-width="1"/>
+          <rect x="4" y="26" width="72" height="5" rx="1" fill="#c9982a" opacity="0.55"/>
+          <rect x="4" y="2" width="72" height="28" rx="6" fill="#6a4520" stroke="#c9982a" stroke-width="2" transform="rotate(-18 40 15)"/>
+        </svg>
+      </div>
+
+      <h1 class="about-title" id="aboutTitle"></h1>
+      <div class="about-divider"></div>
+      <div class="about-body" id="aboutBody"></div>
+
+    </div>
+  </div>
+
+  <!-- SETTINGS OVERLAY -->
+  <div id="settingsOverlay" class="settings-overlay" x-show="$store.app.settingsOpen" @click="$store.app.settingsOpen = false">
+    <div class="settings-modal" @click.stop>
+      <div class="settings-header">
+        <span id="settingsTitleEl">الإعدادات</span>
+        <button class="settings-close-btn" id="settingsClose" @click="$store.app.settingsOpen = false">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div id="settingsPanel"></div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
+===== src/store-init.js =====
+// ===== STORE INIT — registers store BEFORE Alpine processes the DOM =====
+// Runs before Alpine.js loads. Registers alpine:init listener that fires when
+// Alpine dispatches the event during its own script execution.
+// This ensures the store and components exist when Alpine processes the DOM.
+
+document.addEventListener('alpine:init', function() {
+
+Alpine.store('app', (function() {
+  // ── FUZZY SEARCH ──
+  function normalizeAr(str) {
+    return str.replace(/[ً-ٰٟ]/g, '').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/\s+/g, ' ').trim().toLowerCase();
+  }
+
+  function fuzzyScore(text, query) {
+    const t = normalizeAr(text), q = normalizeAr(query);
+    if (!q || q.length < 2) return 0;
+    if (t.includes(q)) return 1;
+    const minLen = Math.ceil(q.length * 0.75);
+    for (let len = q.length - 1; len >= minLen; len--)
+      for (let start = 0; start <= q.length - len; start++) {
+        const sub = q.slice(start, start + len);
+        if (sub.length >= 2 && t.includes(sub)) return 0.5 + 0.5 * (len / q.length);
+      }
+    return 0;
+  }
+  const FUZZY_THRESHOLD = 0.5;
+
+  // ── SVG CONSTANTS (exposed to Alpine templates) ──
+  window.CHEST_SVG = '<svg class="chest-icon" viewBox="0 0 28 21" fill="none" xmlns="http://www.w3.org/2000/svg"><g class="chest-coins"><ellipse cx="9" cy="14" rx="3.5" ry="2" fill="#c9982a" opacity="0.9"/><ellipse cx="14" cy="13" rx="4" ry="2.2" fill="#e8bf5a" opacity="0.95"/><ellipse cx="19" cy="14" rx="3.5" ry="2" fill="#c9982a" opacity="0.9"/></g><rect x="2" y="11" width="24" height="9" rx="2" fill="#5a3a1a" stroke="#c9982a" stroke-width="1.2"/><rect x="4" y="13" width="20" height="5" rx="1" fill="#3a2208" stroke="#a07820" stroke-width="0.8"/><rect x="11" y="9.5" width="6" height="5" rx="1.5" fill="#c9982a" stroke="#a07820" stroke-width="0.8"/><circle cx="14" cy="12" r="1.2" fill="#172a1e" stroke="#a07820" stroke-width="0.5"/><rect x="2" y="10.5" width="24" height="2" rx="0.5" fill="#c9982a" opacity="0.55"/><rect class="chest-lid" x="2" y="2" width="24" height="10" rx="3" fill="#6a4520" stroke="#c9982a" stroke-width="1.2"/><rect x="4.5" y="4" width="19" height="6" rx="1.5" fill="#4a2e0e" stroke="#a07820" stroke-width="0.7"/></svg>';
+  window.PLAY_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+  window.STOP_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>';
+  window.favStarSVG = function(isFav) {
+    return '<svg width="18" height="18" viewBox="0 0 24 24" fill="' + (isFav ? '#c9982a' : 'none') + '" stroke="' + (isFav ? '#c9982a' : '#6e6048') + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+  };
+
+  return {
+    // ── Content data ──
+    CFG: {},
+    QA_DATA: [],
+    SECTIONS: [],
+    activeContent: 'content.ar.json',
+    contentLoading: false,
+    contentLoaded: false,
+    contentFiles: [
+      { file: 'content.ar.json',      label: 'منتقى عربي' },
+      { file: 'content.kanz-ar.json', label: 'كنز عربي' },
+      { file: 'content.kanz-en.json', label: 'Kanz EN' },
+    ],
+
+    // ── UI state ──
+    view: 'browse',
+    section: 'all',
+    drawerOpen: false,
+    searchOpen: false,
+    search: '',
+    searchScope: 'both',
+    searchSection: 'all',
+    aboutOpen: false,
+    settingsOpen: false,
+
+    // ── Favorites & open cards ──
+    favorites: [],
+    openCards: [],
+
+    // ── Quiz state ──
+    quizMode: 'mcq',
+    quizCount: 5,
+    quizSection: 'all',
+    quizQuestions: [],
+    quizCurrent: 0,
+    quizScore: 0,
+    quizAnswered: false,
+    quizPhase: 'setup',
+    quizHistory: {},
+    // Quiz data (populated by initQuiz for each mode)
+    quizChoices: [],       // MCQ: [{text, isCorrect}]
+    buildPool: [],         // Build: [{word, id}]
+    buildPlaced: [],       // Build: [{word, id}] — in user order
+    blankOptions: [],      // Blank: [word, word, ...]
+    blankCorrect: '',      // Blank: the correct word
+    blankKeyIdx: 0,        // Blank: index of blank in segments
+    blankFilled: '',       // Blank: what user selected
+    listenChoices: [],     // Listen: [{text, isCorrect}]
+    quizFeedbackText: '',
+    quizFeedbackType: '',  // 'correct' | 'wrong' | ''
+    quizResultTitle: '',
+    quizResultMsg: '',
+    quizResultScore: '',
+
+    // ── Settings ──
+    fontSize: localStorage.getItem('muntaqaa_font') || 'md',
+    highContrast: localStorage.getItem('muntaqaa_contrast') === 'true',
+
+    // ── Pagination removed — all cards render at once
+
+    // ── Computed ──
+    get filteredCards() {
+      var data = this.QA_DATA;
+      var activeSection = this.search.trim() ? this.searchSection : this.section;
+      if (activeSection !== 'all') data = data.filter(function(q) { return q.section === activeSection; });
+      if (!this.search.trim()) return data.map(function(qa) { return { qa: qa, matchIn: 'q' }; });
+      var scope = this.searchScope;
+      return data
+        .map(function(qa) {
+          var qScore = (scope === 'both' || scope === 'q') ? fuzzyScore(qa.q, this.search) : 0;
+          var aScore = (scope === 'both' || scope === 'a') ? fuzzyScore(qa.a, this.search) : 0;
+          var score = Math.max(qScore, aScore);
+          var matchIn = 'q';
+          if (aScore > qScore) matchIn = 'a';
+          else if (qScore > 0 && aScore > 0) matchIn = 'both';
+          return { qa: qa, score: score, matchIn: matchIn };
+        }.bind(this))
+        .filter(function(x) { return x.score >= FUZZY_THRESHOLD; })
+        .sort(function(a, b) { return b.score - a.score; });
+    },
+
+    // browseCards is now just an alias for filteredCards (no pagination)
+    get browseCards() { return this.filteredCards; },
+    renderCards: function() { /* no-op — Alpine reactivity handles rendering */ },
+    resetPagination: function() { /* no-op — no pagination to reset */ },
+
+    get weakIds() {
+      return Object.entries(this.quizHistory)
+        .filter(function(kv) { return kv[1].wrong > kv[1].correct; })
+        .map(function(kv) { return parseInt(kv[0]); });
+    },
+
+    get weakPool() {
+      var ids = new Set(this.weakIds);
+      return this.QA_DATA.filter(function(q) { return ids.has(q.id); });
+    },
+
+    get currentQuestion() { return this.quizQuestions[this.quizCurrent] || null; },
+    get quizProgress() {
+      if (!this.quizQuestions.length) return 0;
+      return (this.quizCurrent / this.quizQuestions.length) * 100;
+    },
+
+    // ── Pre-computed section counts ──
+    get sectionCounts() {
+      var counts = {};
+      this.QA_DATA.forEach(function(q) {
+        counts[q.section] = (counts[q.section] || 0) + 1;
+      });
+      return counts;
+    },
+
+    // ── Methods (service dependencies set via window.__ by boot.js) ──
+    toggleDrawer: function() {
+      this.drawerOpen = !this.drawerOpen;
+      var d = document.getElementById('drawer'), o = document.getElementById('overlay');
+      if (d) d.classList.toggle('open', this.drawerOpen);
+      if (o) o.classList.toggle('hidden', !this.drawerOpen);
+    },
+    closeDrawer: function() {
+      this.drawerOpen = false;
+      var d = document.getElementById('drawer'), o = document.getElementById('overlay');
+      if (d) d.classList.remove('open');
+      if (o) o.classList.add('hidden');
+    },
+    switchView: function(view) {
+      if (window.__stopAllAudio) window.__stopAllAudio();
+      this.view = view;
+      this.closeDrawer();
+      if (view === 'quiz') this.quizPhase = 'setup';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    },
+    setSection: function(sec) {
+      this.section = sec;
+      this.search = '';
+      this.drawerOpen = false;
+      this.resetPagination();
+      var si = document.getElementById('searchInput');
+      if (si) si.value = '';
+      this.closeDrawer();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    },
+    toggleSearch: function() {
+      this.searchOpen = !this.searchOpen;
+      if (!this.searchOpen) { this.search = ''; this.searchSection = 'all'; this.searchScope = 'both'; this.resetPagination(); }
+    },
+    setSearchScope: function(scope) { this.searchScope = scope; this.resetPagination(); this.renderCards(); },
+    setSearchSection: function(sec) { this.searchSection = sec; this.resetPagination(); this.renderCards(); },
+    toggleFav: function(id) {
+      var idx = this.favorites.indexOf(id);
+      if (idx !== -1) { this.favorites.splice(idx, 1); if (window.__showToast) window.__showToast(this.CFG.ui?.unsaved || 'تمت الإزالة'); }
+      else { this.favorites.push(id); if (window.__showToast) window.__showToast(this.CFG.ui?.saved || 'تمت الحفظ'); }
+      if (window.__saveFavorites) window.__saveFavorites();
+    },
+    isFav: function(id) { return this.favorites.includes(id); },
+    isOpen: function(id) { return this.openCards.includes(id); },
+    toggleCard: function(id) {
+      var idx = this.openCards.indexOf(id);
+      if (idx !== -1) this.openCards.splice(idx, 1);
+      else this.openCards.push(id);
+    },
+    toArabic: function(n) { return this.CFG.meta?.numerals === 'arabic' ? String(n).replace(/[0-9]/g, function(d) { return '٠١٢٣٤٥٦٧٨٩'[d]; }) : String(n); },
+
+    initSentinel: function() { /* no-op — infinite scroll removed */ },
+    switchContent: async function(file) {
+      if (file === this.activeContent) return;
+      this.contentLoading = true;
+      this.section = 'all'; this.search = ''; this.searchScope = 'both'; this.searchSection = 'all';
+      this.openCards = []; this.quizQuestions = []; this.quizCurrent = 0; this.quizScore = 0; this.quizAnswered = false;
+      this.resetPagination();
+      if (window.__stopAllAudio) window.__stopAllAudio();
+      if (window.__stopListenAudio) window.__stopListenAudio();
+      this.searchOpen = false;
+      try {
+        await window.__loadContent(file);
+        window.__loadStorage();
+        window.__loadQuizHistory();
+      } catch(e) {
+        this.contentLoading = false;
+        if (window.__showToast) window.__showToast('فشل تحميل المحتوى');
+        return;
+      }
+      this.renderCards();
+      this.contentLoading = false;
+      this.view = 'browse';
+    },
+    applyFontSize: function(size) {
+      this.fontSize = size;
+      document.documentElement.style.setProperty('--font-scale', ({ sm: '0.82', md: '1', lg: '1.35' })[size] || '1');
+      localStorage.setItem('muntaqaa_font', size);
+    },
+    applyContrast: function(on) {
+      this.highContrast = on;
+      document.documentElement.classList.toggle('high-contrast', on);
+      localStorage.setItem('muntaqaa_contrast', on);
+    },
+    toggleContrast: function() { this.applyContrast(!this.highContrast); },
+
+    // ── QUIZ ──
+    initQuiz: function() {
+      var sec = this.quizSection, count = this.quizCount, pool;
+      if (sec === 'all') pool = this.QA_DATA;
+      else if (sec === '__weak__') pool = this.weakPool;
+      else pool = this.QA_DATA.filter(function(q) { return q.section === sec; });
+      if (this.quizMode === 'build') pool = pool.filter(function(q) { return q.a.trim().split(/\s+/).length >= (this.CFG.meta?.buildMinWords || 4); }.bind(this));
+      else if (this.quizMode === 'blank') pool = pool.filter(function(q) { return q.a.trim().split(/\s+/).length >= (this.CFG.meta?.blankMinWords || 3); }.bind(this));
+      if (pool.length === 0) { if (window.__showToast) window.__showToast(this.CFG.ui?.notEnoughQuestions || 'لا توجد أسئلة كافية'); return; }
+      pool = [...pool].sort(function() { return Math.random() - 0.5; }).slice(0, Math.min(count, pool.length));
+      this.quizQuestions = pool; this.quizCurrent = 0; this.quizScore = 0; this.quizAnswered = false; this.quizPhase = 'game';
+      this.quizFeedbackType = ''; this.quizFeedbackText = '';
+      this.blankFilled = '';
+      this._generateQuestion();
+    },
+
+    _generateQuestion: function() {
+      var qa = this.currentQuestion;
+      if (!qa) return;
+      this.quizAnswered = false;
+      this.quizFeedbackType = ''; this.quizFeedbackText = '';
+      if (window.__stopListenAudio) window.__stopListenAudio();
+      var mode = this.quizMode;
+
+      if (mode === 'mcq') this._generateMCQ(qa);
+      else if (mode === 'build') this._generateBuild(qa);
+      else if (mode === 'blank') { this._generateBlank(qa); this.blankFilled = ''; }
+      else if (mode === 'listen') this._generateListen(qa);
+    },
+
+    // ── MCQ ──
+    _generateMCQ: function(qa) {
+      var others = this.QA_DATA.filter(function(q) { return q.id !== qa.id; }).sort(function() { return Math.random() - 0.5; }).slice(0, 3);
+      var choices = [qa, ...others].sort(function() { return Math.random() - 0.5; });
+      this.quizChoices = choices.map(function(c) { return { text: c.a, isCorrect: c.id === qa.id, selected: false }; });
+    },
+    selectMCQChoice: function(choice) {
+      if (this.quizAnswered) return;
+      this.quizAnswered = true;
+      choice.selected = true;
+      var correct = choice.isCorrect;
+      if (window.__recordAnswer) window.__recordAnswer(this.currentQuestion.id, correct);
+      if (correct) {
+        this.quizScore++;
+        this.quizFeedbackType = 'correct';
+        this.quizFeedbackText = this.CFG.ui?.correctMCQFeedback || 'أحسنت! إجابة صحيحة';
+        if (window.__spawnSparkles) window.__spawnSparkles(document.querySelector('.quiz-card'), true);
+      } else {
+        this.quizFeedbackType = 'wrong';
+        var correctText = this.quizChoices.filter(function(c) { return c.isCorrect; })[0]?.text || '';
+        this.quizFeedbackText = (this.CFG.ui?.wrongMCQFeedback || 'الإجابة الصحيحة:') + ' <strong>' + window.escHtml(correctText) + '</strong>';
+      }
+    },
+
+    // ── BUILD ──
+    _generateBuild: function(qa) {
+      var words = qa.a.trim().split(/\s+/);
+      var shuffled = words.map(function(w, i) { return { word: w, id: i, placed: false }; }).sort(function() { return Math.random() - 0.5; });
+      this.buildPool = shuffled;
+      this.buildPlaced = [];
+    },
+    placeBuildTile: function(idx) {
+      if (this.quizAnswered) return;
+      var tile = this.buildPool[idx];
+      if (!tile || tile.placed) return;
+      tile.placed = true;
+      this.buildPlaced.push({ word: tile.word, id: tile.id });
+      // Trigger reactivity
+      this.buildPool = this.buildPool.slice();
+      this.buildPlaced = this.buildPlaced.slice();
+    },
+    removeBuildTile: function(idx) {
+      if (this.quizAnswered) return;
+      var pw = this.buildPlaced[idx];
+      if (!pw) return;
+      this.buildPlaced.splice(idx, 1);
+      var poolIdx = this.buildPool.findIndex(function(t) { return t.id === pw.id; });
+      if (poolIdx !== -1) this.buildPool[poolIdx].placed = false;
+      this.buildPool = this.buildPool.slice();
+      this.buildPlaced = this.buildPlaced.slice();
+    },
+    checkBuildAnswer: function() {
+      if (this.quizAnswered) return;
+      var qa = this.currentQuestion;
+      if (!qa) return;
+      var userAnswer = this.buildPlaced.map(function(p) { return p.word; }).join(' ');
+      var correct = window.__normalizeAr ? window.__normalizeAr(userAnswer) === window.__normalizeAr(qa.a) : (userAnswer === qa.a);
+      this.quizAnswered = true;
+      if (window.__recordAnswer) window.__recordAnswer(qa.id, correct);
+      if (correct) {
+        this.quizScore++;
+        this.quizFeedbackType = 'correct';
+        this.quizFeedbackText = this.CFG.ui?.correctFeedback || 'أحسنت!';
+        if (window.__spawnSparkles) window.__spawnSparkles(document.getElementById('buildAnswer'), true);
+      } else {
+        this.quizFeedbackType = 'wrong';
+        this.quizFeedbackText = (this.CFG.ui?.wrongOrderFeedback || 'الإجابة الصحيحة:') + ' <strong>' + window.escHtml(qa.a) + '</strong>';
+      }
+    },
+
+    // ── BLANK ──
+    _generateBlank: function(qa) {
+      var stopWords = new Set(this.CFG.meta?.stopWords || []);
+      var words = qa.a.trim().split(/\s+/);
+      var keyIdx = 0, keyLen = 0;
+      words.forEach(function(w, i) {
+        var clean = w.replace(/[^؀-ۿ]/g, '');
+        if (clean.length > keyLen && !stopWords.has(clean)) { keyLen = clean.length; keyIdx = i; }
+      });
+      var keyWord = words[keyIdx];
+      this.blankCorrect = keyWord;
+      this.blankKeyIdx = keyIdx;
+      this.blankFilled = '';
+
+      var allWords = this.QA_DATA
+        .filter(function(q) { return q.id !== qa.id; })
+        .flatMap(function(q) { return q.a.split(/\s+/); })
+        .filter(function(w) { return w.length >= 3 && !stopWords.has(w.replace(/[^؀-ۿ]/g, '')); });
+      var distractors = [...new Set(allWords)].sort(function() { return Math.random() - 0.5; }).slice(0, 3);
+      this.blankOptions = [keyWord, ...distractors].sort(function() { return Math.random() - 0.5; });
+    },
+    selectBlankChoice: function(word) {
+      if (this.quizAnswered) return;
+      var qa = this.currentQuestion;
+      if (!qa) return;
+      this.quizAnswered = true;
+      this.blankFilled = word;
+      var correct = word === this.blankCorrect;
+      if (window.__recordAnswer) window.__recordAnswer(qa.id, correct);
+      if (correct) {
+        this.quizScore++;
+        this.quizFeedbackType = 'correct';
+        this.quizFeedbackText = this.CFG.ui?.correctBlankFeedback || 'أحسنت!';
+        if (window.__spawnSparkles) window.__spawnSparkles(document.querySelector('.blank-choice-btn.correct'), true);
+      } else {
+        this.quizFeedbackType = 'wrong';
+        this.quizFeedbackText = (this.CFG.ui?.wrongBlankFeedback || 'الإجابة الصحيحة:') + ' <strong>' + window.escHtml(this.blankCorrect) + '</strong>';
+      }
+    },
+
+    // ── LISTEN ──
+    _generateListen: function(qa) {
+      var others = this.QA_DATA.filter(function(q) { return q.id !== qa.id; }).sort(function() { return Math.random() - 0.5; }).slice(0, 3);
+      var choices = [qa, ...others].sort(function() { return Math.random() - 0.5; });
+      this.listenChoices = choices.map(function(c) { return { text: c.a, isCorrect: c.id === qa.id, selected: false }; });
+      this.listenBtnText = this.CFG.ui?.listen || 'استمع';
+    },
+    playListenAudio: function() {
+      var qa = this.currentQuestion;
+      if (!qa) return;
+      if (window.__stopListenAudio) window.__stopListenAudio();
+      if (this._currentListenAudio) { this._currentListenAudio.pause(); this._currentListenAudio = null; }
+      var audio = new Audio((this.CFG.meta?.audioPath || 'audios/{id}.opus').replace('{id}', qa.id));
+      this._currentListenAudio = audio;
+      var self = this;
+      self.listenBtnText = (self.CFG.ui?.listen || 'استمع') + '...';
+      audio.play().catch(function() {});
+      audio.addEventListener('ended', function() {
+        self.listenBtnText = self.CFG.ui?.replay || 'إعادة';
+      });
+      audio.addEventListener('error', function() {
+        self.listenBtnText = self.CFG.ui?.audioError || 'خطأ';
+      });
+    },
+    selectListenChoice: function(choice) {
+      if (this.quizAnswered) return;
+      var qa = this.currentQuestion;
+      if (!qa) return;
+      this.quizAnswered = true;
+      choice.selected = true;
+      if (this._currentListenAudio) { this._currentListenAudio.pause(); this._currentListenAudio = null; }
+      var correct = choice.isCorrect;
+      if (window.__recordAnswer) window.__recordAnswer(qa.id, correct);
+      if (correct) {
+        this.quizScore++;
+        this.quizFeedbackType = 'correct';
+        this.quizFeedbackText = this.CFG.ui?.correctListenFeedback || 'أحسنت!';
+        if (window.__spawnSparkles) window.__spawnSparkles(document.querySelector('.quiz-card'), true);
+      } else {
+        this.quizFeedbackType = 'wrong';
+        var correctText = this.listenChoices.filter(function(c) { return c.isCorrect; })[0]?.text || '';
+        this.quizFeedbackText = (this.CFG.ui?.wrongListenFeedback || 'الإجابة الصحيحة:') + ' <strong>' + window.escHtml(correctText) + '</strong>';
+      }
+    },
+
+    blankHtml: function() {
+      var qa = this.currentQuestion;
+      if (!qa) return '';
+      var words = qa.a.trim().split(/\s+/);
+      var self = this;
+      return words.map(function(w, i) {
+        if (i === self.blankKeyIdx && self.blankFilled) {
+          return '<span class="blank-filled ' + (self.blankFilled === self.blankCorrect ? 'correct' : 'wrong') + '">' + window.escHtml(self.blankFilled) + '</span>';
+        }
+        if (i === self.blankKeyIdx) return '<span class="blank-slot">_____</span>';
+        return window.escHtml(w);
+      }).join(' ');
+    },
+
+    nextQuizQuestion: function() {
+      this.quizCurrent++;
+      this.quizAnswered = false;
+      this.quizFeedbackType = ''; this.quizFeedbackText = '';
+      if (this.quizCurrent >= this.quizQuestions.length) {
+        this.quizPhase = 'result';
+        this._showResult();
+      } else {
+        this._generateQuestion();
+      }
+    },
+
+    _showResult: function() {
+      var total = this.quizQuestions.length;
+      var pct = Math.round((this.quizScore / total) * 100);
+      var title, msg;
+      if (pct < 40) { title = this.CFG.ui?.resultTryAgain; msg = this.CFG.ui?.resultTryAgainMsg; }
+      else if (pct < 70) { title = this.CFG.ui?.resultGood; msg = this.CFG.ui?.resultGoodMsg; }
+      else if (pct < 100) { title = this.CFG.ui?.resultGreat; msg = this.CFG.ui?.resultGreatMsg; }
+      else { title = this.CFG.ui?.resultPerfect; msg = this.CFG.ui?.resultPerfectMsg; }
+      this.quizResultTitle = title;
+      this.quizResultMsg = msg;
+      this.quizResultScore = this.toArabic(this.quizScore) + ' / ' + this.toArabic(total);
+    },
+    retryQuiz: function() {
+      this.quizPhase = 'setup';
+    }
+  };
+})());
+
+// ── QA Card component ──
+Alpine.data('qaCard', function(qa, matchIn) {
+  if (matchIn === undefined) matchIn = 'q';
+  return {
+    qa: qa,
+    matchIn: matchIn,
+    get hlQuery() { return Alpine.store('app').search || ''; },
+    toggle: function() {
+      Alpine.store('app').toggleCard(qa.id);
+      if (Alpine.store('app').openCards.includes(qa.id)) {
+        var el = this.$el.querySelector('.qa-toggle');
+        if (el && window.__spawnSparkles) window.__spawnSparkles(el, false);
+      }
+    },
+    toggleFav: function(e) { e.stopPropagation(); Alpine.store('app').toggleFav(qa.id); },
+    playAudio: function(e) {
+      e.stopPropagation();
+      if (window.__playAudio) window.__playAudio(qa.id, e.currentTarget, this.$el);
+    },
+    copyQA: function(e) { e.stopPropagation(); if (window.__copyQA) window.__copyQA(qa); },
+    shareImage: function(e) { e.stopPropagation(); if (window.__shareAsImage) window.__shareAsImage(qa); }
+  };
+});
+});
+
+===== src/boot.js =====
+// ===== BOOT — Service Registration + Init =====
+// Store and Alpine.data components are registered by src/store-init.js (runs before this module)
+
+import { loadContent, loadSavedContent, applyDeepLink, activeContent, applyFontSize, applyContrast, currentFontSize, highContrast } from './services/content.js';
+import { loadStorage, loadQuizHistory } from './services/storage.js';
+import { playAudio, stopAllAudio, stopListenAudio, playListenAudio } from './services/audio.js';
+import { showToast } from './services/toast.js';
+import { spawnSparkles } from './services/sparkles.js';
+import { copyQA, shareAsImage } from './services/share.js';
+import { saveFavorites, recordAnswer } from './services/storage.js';
+
+// Expose service functions to window so store-init.js methods can call them
+window.__playAudio = playAudio;
+window.__stopAllAudio = stopAllAudio;
+window.__stopListenAudio = stopListenAudio;
+window.__showToast = showToast;
+window.__spawnSparkles = spawnSparkles;
+window.__copyQA = copyQA;
+window.__shareAsImage = shareAsImage;
+window.__saveFavorites = saveFavorites;
+window.__recordAnswer = recordAnswer;
+window.__normalizeAr = normalizeAr;
+window.__loadContent = loadContent;
+window.__loadStorage = loadStorage;
+window.__loadQuizHistory = loadQuizHistory;
+
+// Utilities exposed to Alpine templates
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function normalizeAr(str) {
+  return str
+    .replace(/[ً-ٰٟ]/g, '')
+    .replace(/[أإآ]/g, 'ا')
+    .replace(/ة/g, 'ه')
+    .replace(/ى/g, 'ي')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .toLowerCase();
+}
+
+function buildHighlight(text, query) {
+  if (!query.trim()) return escHtml(text);
+  const normText  = normalizeAr(text);
+  const normQuery = normalizeAr(query);
+  const idx = normText.indexOf(normQuery);
+  if (idx !== -1) {
+    let origStart = -1, origEnd = -1;
+    let ni = 0;
+    for (let i = 0; i < text.length; i++) {
+      const nc = normalizeAr(text[i]);
+      if (ni === idx && origStart === -1) origStart = i;
+      ni += nc.length;
+      if (ni === idx + normQuery.length) { origEnd = i + 1; break; }
+    }
+    if (origStart !== -1 && origEnd !== -1) {
+      return escHtml(text.slice(0, origStart))
+        + '<mark>' + escHtml(text.slice(origStart, origEnd)) + '</mark>'
+        + escHtml(text.slice(origEnd));
+    }
+  }
+  let result = '';
+  let qi = 0;
+  const normQ = normalizeAr(query);
+  for (let i = 0; i < text.length; i++) {
+    const nc = normalizeAr(text[i]);
+    if (qi < normQ.length && nc === normQ[qi]) {
+      result += '<mark>' + escHtml(text[i]) + '</mark>';
+      qi++;
+    } else {
+      result += escHtml(text[i]);
+    }
+  }
+  return result;
+}
+
+window.buildHighlight = buildHighlight;
+window.escHtml = escHtml;
+window.normalizeAr = normalizeAr;
+
+// ===== SPLASH =====
+function hideSplash() {
+  const splash = document.getElementById('splash');
+  const app = document.getElementById('app');
+  setTimeout(() => {
+    splash.classList.add('fade-out');
+    setTimeout(() => {
+      splash.style.display = 'none';
+      app.classList.remove('hidden');
+    }, 800);
+  }, 1800);
+}
+
+// ===== INIT =====
+function init() {
+  loadSavedContent();
+  applyDeepLink();
+  loadContent(activeContent).then(() => {
+    loadStorage();
+    loadQuizHistory();
+    applyFontSize(currentFontSize);
+    applyContrast(highContrast);
+    // Populate cards and re-render
+    var store = Alpine.store('app');
+    if (store && store.renderCards) store.renderCards();
+    hideSplash();
+  });
+}
+
+document.addEventListener('DOMContentLoaded', init);
+
+// ===== PWA SERVICE WORKER =====
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  });
+}
+
+===== plan.md =====
+# Kanz Al-Aṭfāl — Migration Plan & Progress
+
+## Overview
+
+Migrating from monolithic vanilla JS (1758-line `app.js` → 1577 lines) to **Alpine.js** components with a reactive store, keeping the PWA zero-build-step nature. No bundler, no npm.
+
+**Branch:** `refactor/alpine-migration`
+
+---
+
+## File Structure
+
+```
+index.html          ← Alpine directives on all templates
+style.css           ← theme, animations, layout (minimal changes)
+app.js              ← Alpine store + component definitions + old JS bridge code
+lib/
+  alpine.min.js     ← Alpine.js v3.15.12 (local for offline PWA)
+sw.js               ← updated cache list
+plan.md             ← this file
+```
+
+**Legacy (still present, mostly dead):**
+- `data.js` — orphaned, not loaded in HTML (was an early embedded data source)
+- `download-fonts.py` — font download script (unrelated)
+
+---
+
+## Progress: 19 commits, ~650 insertions, ~440 deletions
+
+### ✅ Phase 1 — Foundation
+- [x] Download Alpine.js → `lib/alpine.min.js`
+- [x] Add `<script defer>` tag in HTML head
+- [x] Create Alpine store (`Alpine.store('app')`) with all state fields
+- [x] Add `qaCard` Alpine component (`Alpine.data('qaCard', ...)`)
+- [x] Add `x-data` on `#app` wrapper
+- [x] Add `x-cloak` CSS to prevent FOUC
+- [x] Bump SW cache to v7, add alpine.min.js to shell assets
+- [x] Fix: SW ready gate blocking init on first visit
+
+### ✅ Phase 2 — Shell & Navigation
+- [x] Topbar buttons: `@click` handlers for menu, settings, search
+- [x] Drawer: `:class` open/close + `@click` on overlay to close
+- [x] Bottom nav: `:class` active + `@click` view switching
+- [x] View switching: `x-show` on browse/favorites/quiz views
+- [x] About modal: `x-show="aboutOpen"`
+- [x] Settings modal: `x-show="settingsOpen"`
+- [x] Content switcher: Alpine `x-data` with local `menuOpen`, `x-for` options
+
+### ✅ Phase 3 — Browse & Search
+- [x] Card list: `x-for` over `filteredCards` with `qaCard` component
+- [x] Search input: `x-model="$store.app.search"`
+- [x] Scope buttons: Alpine `:class` + `@click`
+- [x] Section filter pills: `x-for` over `SECTIONS`
+- [x] Infinite scroll: `IntersectionObserver` via `initSentinel()`
+- [x] Pagination: `visibleCount`, `PAGE_SIZE`, `visibleCards` computed
+
+### ✅ Phase 4 — Favorites
+- [x] Favorites view: `x-for` over `QA_DATA.filter(q => favorites.includes(q.id))`
+- [x] Same `qaCard` component reused
+- [x] Reactive fav count and empty state
+
+### ✅ Phase 5 — Quiz (bridged)
+- [x] Quiz setup: `x-show` for setup/game/result phases
+- [x] Section select: `x-model`
+- [x] Count buttons: `:class` active
+- [x] Mode buttons: `:class` active
+- [x] Store `initQuiz()` syncs to globals, calls old `renderQuizQuestion()`
+- [x] Old answer functions sync back to Alpine store
+- [x] Old `initQuiz()` made no-op (was leaving orphan code that killed script!)
+
+### ✅ Phase 6 — Modals & Settings
+- [x] About modal renders from `$store.app.CFG.about`
+- [x] Settings: font size, contrast toggle, share link
+
+### ✅ Phase 7 — Cleanup (partial)
+- [x] Fixed duplicate `id="contentPopup"`
+- [x] Removed `data.js` from SW cache
+- [x] Removed `renderBrowse()`, `renderNextPage()`, `attachBrowseSentinel()`
+- [x] Removed `getFiltered()`, `buildSearchFilters()`, `setSearchSection()`
+- [x] Removed `buildSectionList()`, old `setSection()`
+- [x] Removed `makeCard()`, `toggleCard()`, `toggleFav()`, `updateFavCount()`
+- [x] Removed `renderFavorites()`
+- [x] Made `toggleSearch()`, `toggleContentMenu()`, etc. no-ops
+
+---
+
+## Still Running as Old JS (bridge code)
+
+These functions still exist in `app.js`. They're called by Alpine store methods or directly from the quiz rendering pipeline.
+
+### Quiz rendering (~250 lines)
+- `renderQuizQuestion()`, `renderMCQ()`, `renderBuild()`, `renderBlank()`, `renderListen()`
+- `buildTileTap()`, `updateBuildAnswer()`, `checkBuildAnswer()`
+- `answerBlank()`, `playListenAudio()`, `stopListenAudio()`, `answerListen()`
+- `answerQuiz()`, `showQuizResult()`
+- `hideAllModeZones()`
+
+### Audio system (~60 lines)
+- `playAudio()`, `resetAllPlayBtns()`, `stopAllAudio()`
+
+### Share features (~180 lines)
+- `copyQA()`, `shareAsImage()`, `roundRect()`, `wrapText()`
+
+### Settings panel (~40 lines)
+- `buildSettingsPanel()`
+
+### Helper functions (keep as-is)
+- `normalizeAr()`, `fuzzyScore()`, `buildHighlight()`, `escHtml()` — used by store computed props
+- `loadContent()`, `saveFavorites()`, `loadStorage()`, `loadQuizHistory()` — data persistence
+- `toArabic()`, `favStarSVG()` — formatting
+- `spawnSparkles()`, `showToast()` — effects
+
+### Helper functions (keep as-is)
+- `normalizeAr()`, `fuzzyScore()`, `buildHighlight()`, `escHtml()` — used by store computed props
+- `loadContent()`, `saveFavorites()`, `loadStorage()`, `loadQuizHistory()` — data persistence
+- `toArabic()`, `favStarSVG()` — formatting
+- `spawnSparkles()`, `showToast()` — effects
+
+---
+
+## Remaining Work
+
+### ✅ Done (recent cleanup)
+- [x] **Remove old `init()` event listeners** — gutted entirely (23 listener registrations removed). Only content loading remains.
+- [x] **Remove old `switchView()`** — Alpine `x-show` + `:class` handles view visibility.
+- [x] **Remove content switcher old code** — `buildContentMenu()`, `positionContentMenu()`, `toggleContentMenu()`, `closeContentMenu()` removed.
+- [x] **Remove `openDrawer/closeDrawer/closeAbout/toggleSearch/openSettings/closeSettings`** — all handled by Alpine store.
+- [x] **Remove old `switchContent()`** — replaced by Alpine store method.
+
+### Remaining Medium Priority
+- [ ] **Convert quiz rendering to Alpine** — `renderMCQ()`, `renderBuild()`, etc. create DOM elements manually. Could be Alpine `x-for` templates. Complex but cleaner.
+- [ ] **Clean up `style.css`** — remove `.hidden`, `.active` class toggling rules that are now handled by Alpine. Keep theme and animations.
+
+### Low Priority
+- [ ] **Remove `data.js`** — orphaned file, not loaded by HTML. Just sits there.
+- [ ] **Add `x-transition` animations** — replace manual CSS animation classes with Alpine transitions for smoother feel.
+- [ ] **Inline SVG constants** — `CHEST_SVG`, `PLAY_SVG`, `STOP_SVG` exposed to `window` for Alpine access. Could be moved into store or components.
+- [ ] **Document content JSON schema** — for contributors adding new languages/books.
+
+### Nice-to-Have
+- [ ] Convert `buildSettingsPanel()` to Alpine template
+- [ ] Convert audio player to Alpine component
+- [ ] Add keyboard navigation for cards
+- [ ] Add loading states for content switching
+
+---
+
+## Known Issues
+
+1. **Quiz DOM manipulation conflicts** — Old JS toggles `.hidden` class (with `!important`) while Alpine controls via `x-show`. Both work but the old `.hidden` can override Alpine's inline style. So far no visible bugs.
+
+2. **Service worker cache** — Old SW (v6) cached the pre-migration `app.js`. Current SW is v7 with updated files. Users may need a hard refresh to clear stale cache.
+
+3. **`content.en.json`** has 0 items (empty array). Not selected by default (only `content.kanz-en.json` is used for English), but could confuse.
+
+---
+
+## Quick Reference: Alpine Store API
+
+**Store name:** `app` (accessed via `$store.app` or `Alpine.store('app')`)
+
+### Key State Properties
+| Property | Type | Default | Purpose |
+|----------|------|---------|---------|
+| `CFG` | Object | `{}` | Content config + UI strings |
+| `QA_DATA` | Array | `[]` | All Q&A items |
+| `SECTIONS` | Array | `[]` | Unique section names |
+| `view` | String | `'browse'` | Active view |
+| `section` | String | `'all'` | Selected chapter |
+| `search` | String | `''` | Search query |
+| `searchScope` | String | `'both'` | Search scope (q/a/both) |
+| `favorites` | Array | `[]` | Favorited question IDs |
+| `openCards` | Array | `[]` | Open/flipped card IDs |
+| `drawerOpen` | Boolean | `false` | Drawer visibility |
+| `searchOpen` | Boolean | `false` | Search bar visibility |
+| `quizPhase` | String | `'setup'` | Quiz phase (setup/game/result) |
+| `quizMode` | String | `'mcq'` | Quiz mode |
+| `fontSize` | String | `'md'` | Font size preset |
+| `highContrast` | Boolean | `false` | High contrast mode |
+
+### Key Computed Properties
+| Property | Description |
+|----------|-------------|
+| `filteredCards` | Cards filtered by section + search |
+| `visibleCards` | Paginated slice of filteredCards |
+| `hasMore` | Whether more cards to load |
+| `currentQuestion` | Current quiz question |
+| `quizProgress` | Quiz progress percentage |
+
+### Key Methods
+| Method | Purpose |
+|--------|---------|
+| `toggleDrawer()` | Toggle drawer open/close |
+| `switchView(view)` | Switch active view |
+| `setSection(sec)` | Select chapter |
+| `toggleFav(id)` | Toggle favorite |
+| `toggleCard(id)` | Flip card open/close |
+| `toggleSearch()` | Toggle search bar |
+| `initQuiz()` | Start new quiz |
+| `nextQuizQuestion()` | Advance to next question |
+| `retryQuiz()` | Reset to quiz setup |
+| `switchContent(file)` | Change content source |
+| `loadMore()` | Load next page of cards |
+
+===== README.md =====
+# Muntaqā Kanz al-Atfāl — Islamic Creed Learning App
+
+A progressive web app (PWA) for studying Islamic creed through question-and-answer flashcards, built around two educational texts: *Muntaqā Kanz al-Aṭfāl* (a concise summary) and *Kanz al-Aṭfāl* (the full book), both by Dr. Fayṣal bnu Misfir al-Wādiʿī. The app currently offers the Arabic text of both books and the English translation of the full *Kanz*, with more translations planned.
+
+---
+
+## Content
+
+The app contains over 1,500 questions and answers across 18 chapters, covering the pillars of faith, the names and attributes of Allāh, the prophets, the companions, the Qurʾān and its sciences, Islamic jurisprudence, biography of the Prophet ﷺ, etiquettes of daily life, and more. The *Muntaqā* edition (308 questions) includes a recorded audio recitation for every single question and answer.
+
+---
+
+## Browse & Search
+
+- Questions are organized into chapters and presented as interactive flip cards — tap a card to reveal the answer with a smooth 3D animation.  
+- The full list loads progressively so even the largest book feels instant.  
+- A search bar lets you find any question or answer in seconds, with fuzzy Arabic matching that handles spelling variations and strips diacritics automatically.  
+- Search results highlight the matched text and auto-flip cards to the answer face when the match is found there.  
+- You can filter by chapter at any time, both in the main view and inside search.
+
+---
+
+## Favorites
+
+- Any card can be starred and saved to a personal favorites list, which persists across sessions.  
+- The favorites view gives you quick access to the questions you want to revisit most.
+
+---
+
+## Quiz — Four Modes
+
+The quiz section lets you test yourself on any chapter or the full book, with 5, 10, or 20 questions at a time. Four distinct modes keep practice engaging:
+
+1. **Multiple Choice** — read the question and pick the correct answer from four options.  
+2. **Build the Answer** — the answer is split into shuffled word tiles; tap them in the right order to reconstruct it. Placed tiles can be tapped again to return them to the pool.  
+3. **Fill in the Blank** — the answer is shown with its most meaningful word hidden; choose the correct word from four options.  
+4. **Listen and Identify** — the audio recording plays and you identify the correct answer from four choices, training your ear alongside your memory.  
+
+- The app tracks your performance automatically.  
+- Any question you get wrong more often than right gets flagged as a weak spot, and a dedicated *Weak Spots* section appears in the chapter selector so you can drill exactly what needs work.
+
+---
+
+## Audio
+
+- Every question in the *Muntaqā* edition has a native-quality audio recording.  
+- Audio plays on both the front and back of flip cards, synced across both faces.  
+- Audio also plays during the Listen quiz mode.  
+- The app caches all 308 audio files in the background after the first visit, so they play offline without any delay.
+
+---
+
+## Share
+
+- Each card's back face has two sharing buttons:  
+  - **Copy** — puts the question and answer text on your clipboard in one tap.  
+  - **Share as Image** — generates a polished 1080×1080 card image with question, answer, chapter label, question number, gold ornaments, and app URL as a watermark; shares via the system share sheet on mobile or downloads on desktop.  
+- The settings panel also has a **share-link** button that copies (or shares) a deep link to the current content and chapter.
+
+---
+
+## Multilingual & Adaptable
+
+- Fully multilingual: switching between Arabic and English flips the entire interface — text direction, font stack, number format, button labels, chapter names, quiz feedback messages, and the about page all update instantly.  
+- Arabic interface uses **Amiri** and **Tajawal** fonts with right-to-left layout.  
+- English interface switches to a Latin font stack with left-to-right layout.  
+- Adding a new language requires only a single JSON file — no code changes.
+
+---
+
+## Settings
+
+- A settings panel (gear icon) gives three controls:  
+  - **Font size:** small, medium, large  
+  - **High contrast mode** for better readability in bright light  
+  - **Share-link** button  
+- Font size and contrast preference are saved and restored automatically on every visit.
+
+---
+
+## Offline & Installable
+
+- Full PWA: works entirely offline after the first visit — all app files and audio are cached by a service worker.  
+- Installable to home screen on any device (iPhone, Android, desktop) and opens like a native app.  
+- App shell updates silently in the background; users always get the latest version on next normal refresh.  
+- No accounts. No ads. No tracking. Completely free.
+===== content.kanz-ar.json (first 20 lines) =====
+{
+  "meta": {
+    "id": "kanz-ar",
+    "lang": "ar",
+    "dir": "rtl",
+    "fonts": [
+      "Amiri",
+      "Tajawal"
+    ],
+    "audio": false,
+    "audioPath": "audios/{id}.opus",
+    "numerals": "arabic",
+    "buildMinWords": 4,
+    "blankMinWords": 3,
+    "stopWords": [
+      "من",
+      "في",
+      "على",
+      "إلى",
+      "عن",
+
+===== src/services/storage.js =====
+import { CFG, toArabic } from './content.js';
+
+let quizHistory = {};
+
+export function loadStorage() {
+  try {
+    const favs = JSON.parse(localStorage.getItem('favs_' + (CFG.meta && CFG.meta.id || 'default')) || '[]');
+    try { Alpine.store('app').favorites = favs; } catch(e) {}
+  } catch(e) {}
+}
+
+export function saveFavorites() {
+  let favs;
+  try {
+    const store = Alpine.store('app');
+    if (store && store.favorites) favs = store.favorites;
+  } catch(e) {}
+  if (!favs) favs = [];
+  localStorage.setItem('favs_' + (CFG.meta && CFG.meta.id || 'default'), JSON.stringify(favs));
+}
+
+export function loadQuizHistory() {
+  try {
+    quizHistory = JSON.parse(localStorage.getItem('hist_' + (CFG.meta && CFG.meta.id || 'default')) || '{}');
+  } catch(e) { quizHistory = {}; }
+  updateWeakOption();
+}
+
+export function updateWeakOption() {
+  const opt = document.getElementById('weakOption');
+  if (!opt) return;
+  const weakCount = getWeakIds().length;
+  if (weakCount > 0) {
+    opt.style.display = '';
+    opt.textContent = CFG.ui.weakSpotsLabel.replace("{n}", toArabic(weakCount));
+  } else {
+    opt.style.display = 'none';
+    const sel = document.getElementById('quizSection');
+    if (sel && sel.value === '__weak__') sel.value = 'all';
+  }
+}
+
+export function saveQuizHistory() {
+  localStorage.setItem('hist_' + (CFG.meta && CFG.meta.id || 'default'), JSON.stringify(quizHistory));
+  updateWeakOption();
+}
+
+export function recordAnswer(id, correct) {
+  if (!quizHistory[id]) quizHistory[id] = { correct: 0, wrong: 0 };
+  if (correct) quizHistory[id].correct++;
+  else quizHistory[id].wrong++;
+  saveQuizHistory();
+}
+
+export function getWeakIds() {
+  return Object.entries(quizHistory)
+    .filter(([, v]) => v.wrong > v.correct)
+    .map(([id]) => parseInt(id));
+}
+
+
+
+===== src/services/content.js =====
+// ===== CONTENT REGISTRY =====
+export const CONTENT_FILES = [
+  { file: 'content.ar.json',      label: 'منتقى عربي' },
+  { file: 'content.kanz-ar.json', label: 'كنز عربي' },
+  { file: 'content.kanz-en.json', label: 'Kanz EN' },
+];
+
+export let activeContent = CONTENT_FILES[0].file;
+
+// ===== CONFIG & DATA (set by loadContent) =====
+export let CFG = {};
+
+// ===== ARABIC NUMERALS =====
+export function toArabic(n) {
+  if (CFG.meta && CFG.meta.numerals === 'arabic') {
+    return String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+  }
+  return String(n);
+}
+
+export function saveContentChoice() {
+  try { localStorage.setItem('activeContent', activeContent); } catch (e) {}
+}
+
+export function loadSavedContent() {
+  try {
+    const saved = localStorage.getItem('activeContent');
+    if (saved && CONTENT_FILES.some(f => f.file === saved)) {
+      activeContent = saved;
+    } else {
+      const userLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
+      if (userLang.startsWith('en')) {
+        activeContent = 'content.kanz-en.json';
+        saveContentChoice();
+      } else if (userLang.startsWith('ar')) {
+        activeContent = 'content.kanz-ar.json';
+        saveContentChoice();
+      }
+    }
+  } catch (e) {}
+}
+
+export function applyDeepLink() {
+  const params = new URLSearchParams(location.search);
+  const content = params.get('content');
+  const section = params.get('section');
+  if (content && CONTENT_FILES.some(f => f.file === content)) {
+    activeContent = content;
+  }
+  if (section) {
+    try {
+      const store = Alpine.store('app');
+      if (store) store.section = section;
+    } catch(e) {}
+  }
+}
+
+export async function loadContent(jsonPath) {
+  const res = await fetch(jsonPath);
+  const json = await res.json();
+  CFG = { meta: json.meta, ui: json.ui, about: json.about || null };
+
+  const QA_DATA = json.items || [];
+  const SECTIONS = [...new Set(QA_DATA.map(q => q.section))];
+  activeContent = jsonPath;
+
+  // Sync to Alpine store
+  try {
+    const store = Alpine.store('app');
+    if (store) {
+      store.CFG = CFG;
+      store.QA_DATA = QA_DATA;
+      store.SECTIONS = SECTIONS;
+      store.activeContent = activeContent;
+      store.contentLoaded = true;
+    }
+  } catch(e) {}
+
+  // Apply direction and lang
+  document.documentElement.dir = CFG.meta.dir || 'rtl';
+  document.documentElement.lang = CFG.meta.lang || 'ar';
+  document.title = CFG.ui.appTitle || 'منتقى كنز الأطفال';
+  document.body.dataset.fonts = (CFG.meta.fonts || []).join(',').toLowerCase();
+
+  // Update static UI strings
+  const q = id => document.getElementById(id);
+  const setTxt = (id, val) => { const el = q(id); if (el && val) el.textContent = val; };
+  const setAttr = (id, attr, val) => { const el = q(id); if (el && val) el.setAttribute(attr, val); };
+
+  setTxt('appTitleEl', CFG.ui.appTitle);
+  setAttr('searchInput', 'placeholder', CFG.ui.searchPlaceholder);
+  setTxt('allSectionsFilter', CFG.ui.scopeAll || CFG.ui.allSectionsShort);
+  setTxt('scopeQBtn', CFG.ui.scopeQ);
+  setTxt('scopeABtn', CFG.ui.scopeA);
+  setTxt('currentSectionLabel', CFG.ui.allSections);
+  setTxt('navBrowseLabel', CFG.ui.browseNav);
+  setTxt('navFavsLabel', CFG.ui.favsNav);
+  setTxt('navQuizLabel', CFG.ui.quizNav);
+  setTxt('startQuiz', CFG.ui.startQuiz);
+  setTxt('nextQuizBtn', CFG.ui.next);
+  setTxt('retryQuiz', CFG.ui.retry);
+  setTxt('allChaptersOpt', CFG.ui.allChapters);
+  setTxt('questionCountLabel', CFG.ui.questionCount);
+  setTxt('quizHeaderLabel', CFG.ui.quizHeader);
+  setTxt('quizSubHeaderLabel', CFG.ui.quizSubHeader);
+  setTxt('quizTypeLabel', CFG.ui.quizType);
+  setTxt('modeMCQLabel', CFG.ui.modeMCQ);
+  setTxt('modeBuildLabel', CFG.ui.modeBuild);
+  setTxt('modeBlankLabel', CFG.ui.modeBlank);
+  setTxt('modeListenLabel', CFG.ui.modeListen);
+  setTxt('drawerSectionsTitle', CFG.ui.allSectionsShort);
+  setTxt('navBrowseDrawerLabel', CFG.ui.browseNav);
+  setTxt('navFavsDrawerLabel', CFG.ui.favsNav);
+  setTxt('navQuizDrawerLabel', CFG.ui.quizNav);
+  setTxt('navAboutLabel', CFG.ui.aboutBtn);
+  setTxt('settingsTitleEl', CFG.ui.settingsTitle);
+
+  // Render about modal
+  const aboutTitleEl = document.getElementById('aboutTitle');
+  const aboutBodyEl = document.getElementById('aboutBody');
+  if (aboutTitleEl && CFG.about) {
+    aboutTitleEl.textContent = CFG.about.title;
+    let html = CFG.about.body.map(p => `<p>${p}</p>`).join('');
+    if (CFG.about.contactTitle && CFG.about.contacts) {
+      html += '<div class="about-divider"></div>'
+        + `<h2 class="about-contact-title">${CFG.about.contactTitle}</h2>`
+        + '<ul class="about-contact">'
+        + CFG.about.contacts.map(c =>
+            `<li><span class="about-contact-label">${c.label}</span>`
+            + `<a href="${c.href}">${c.value}</a></li>`
+          ).join('')
+        + '</ul>';
+    }
+    aboutBodyEl.innerHTML = html;
+  }
+
+  buildSettingsPanel();
+
+  const listenLbl = document.getElementById('listenBtnLabel');
+  if (listenLbl) listenLbl.textContent = CFG.ui.listen;
+
+  const listenModeBtn = document.querySelector('.mode-btn[data-mode="listen"]');
+  if (listenModeBtn) listenModeBtn.style.display = CFG.meta.audio ? '' : 'none';
+
+  document.querySelectorAll('.play-btn').forEach(b => {
+    b.style.display = CFG.meta.audio ? '' : 'none';
+  });
+}
+
+// ===== SETTINGS PANEL =====
+export const FONT_SCALES = { sm: '0.82', md: '1', lg: '1.35' };
+export let currentFontSize = localStorage.getItem('muntaqaa_font') || 'md';
+export let highContrast = localStorage.getItem('muntaqaa_contrast') === 'true';
+
+export function applyFontSize(size) {
+  currentFontSize = size;
+  document.documentElement.style.setProperty('--font-scale', FONT_SCALES[size]);
+  localStorage.setItem('muntaqaa_font', size);
+  document.querySelectorAll('.font-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.size === size)
+  );
+}
+
+export function applyContrast(on) {
+  highContrast = on;
+  document.documentElement.classList.toggle('high-contrast', on);
+  localStorage.setItem('muntaqaa_contrast', on);
+  const btn = document.getElementById('contrastToggle');
+  if (btn) btn.classList.toggle('active', on);
+}
+
+function buildSettingsPanel() {
+  const panel = document.getElementById('settingsPanel');
+  if (!panel) return;
+  panel.innerHTML = `
+    <div class="settings-row">
+      <span class="settings-label">${CFG.ui.fontSizeLabel}</span>
+      <div class="settings-btns">
+        <button class="font-btn${currentFontSize==='sm'?' active':''}" data-size="sm">A</button>
+        <button class="font-btn${currentFontSize==='md'?' active':''}" data-size="md">A</button>
+        <button class="font-btn${currentFontSize==='lg'?' active':''}" data-size="lg">A</button>
+      </div>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">${CFG.ui.contrastLabel}</span>
+      <button class="settings-toggle${highContrast?' active':''}" id="contrastToggle">
+        <span class="toggle-knob"></span>
+      </button>
+    </div>
+    <div class="settings-row">
+      <span class="settings-label">${CFG.ui.shareAppUrl}</span>
+      <button class="settings-action-btn" id="shareUrlBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      </button>
+    </div>
+  `;
+  panel.querySelectorAll('.font-btn').forEach(btn =>
+    btn.addEventListener('click', () => applyFontSize(btn.dataset.size))
+  );
+  document.getElementById('contrastToggle').addEventListener('click', () => applyContrast(!highContrast));
+  // Share URL handler set in boot.js after import
+}
+
+===== src/services/audio.js =====
+import { CFG } from './content.js';
+
+const PLAY_SVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
+const STOP_SVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>`;
+
+export { PLAY_SVG, STOP_SVG };
+
+let currentAudio = null;
+let currentWrapper = null;
+export let listenAudio = null;
+
+function resetAllPlayBtns(wrapper) {
+  wrapper.querySelectorAll('.play-btn').forEach(b => {
+    b.innerHTML = PLAY_SVG;
+    b.classList.remove('playing');
+  });
+}
+
+export function playAudio(id, btn, wrapper) {
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio.currentTime = 0;
+    if (currentWrapper) resetAllPlayBtns(currentWrapper);
+    if (currentWrapper === wrapper) {
+      currentAudio = null;
+      currentWrapper = null;
+      return;
+    }
+  }
+
+  const audio = new Audio(CFG.meta.audioPath.replace('{id}', id));
+  currentAudio = audio;
+  currentWrapper = wrapper;
+
+  wrapper.querySelectorAll('.play-btn').forEach(b => {
+    b.innerHTML = STOP_SVG;
+    b.classList.add('playing');
+  });
+
+  function onDone() {
+    resetAllPlayBtns(wrapper);
+    currentAudio = null;
+    currentWrapper = null;
+  }
+
+  audio.addEventListener('ended', onDone);
+  audio.addEventListener('error', onDone);
+  audio.play().catch(onDone);
+}
+
+export function stopAllAudio() {
+  if (currentAudio) {
+    currentAudio.pause();
+    currentAudio = null;
+  }
+  if (currentWrapper) {
+    resetAllPlayBtns(currentWrapper);
+    currentWrapper = null;
+  }
+}
+
+export function playListenAudio(id, btn) {
+  stopListenAudio();
+  const audio = new Audio(CFG.meta.audioPath.replace('{id}', id));
+  listenAudio = audio;
+  btn.classList.add('playing');
+  const span = btn.querySelector('span');
+  if (span) span.textContent = CFG.ui.listen + '...';
+  audio.addEventListener('ended', () => {
+    btn.classList.remove('playing');
+    if (span) span.textContent = CFG.ui.replay;
+  });
+  audio.addEventListener('error', () => {
+    btn.classList.remove('playing');
+    if (span) span.textContent = CFG.ui.audioError;
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+  });
+  audio.play().catch(() => {
+    btn.classList.remove('playing');
+    if (span) span.textContent = CFG.ui.audioError;
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+  });
+}
+
+export function stopListenAudio() {
+  if (listenAudio) { listenAudio.pause(); listenAudio = null; }
+}
