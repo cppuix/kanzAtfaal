@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v23'; // bumped: a11y P2 (font presets + local font files)
+const CACHE_NAME = 'muntaqaa-v24'; // bumped: font preset/preview refinements + green light theme
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [

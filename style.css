@@ -852,19 +852,19 @@ html { font-size: calc(15px * var(--font-scale)); }
 /* ===== THEMES ===== */
 /* Dark is the default (root vars). Light overrides the palette via <html data-theme> */
 [data-theme="light"] {
-  --bg:       #f5f1e6;
-  --bg2:      #fbf8f0;
-  --bg3:      #efe9da;
-  --card:     #fffdf6;
-  --card2:    #f3eddd;
-  --gold:     #a8791a;
-  --gold2:    #8a5e0f;
-  --gold3:    #6b4a0c;
-  --gold-dim: rgba(168,121,26,0.14);
-  --gold-mid: rgba(168,121,26,0.34);
-  --text:     #2a2115;
-  --text2:    #54493a;
-  --text3:    #8a7d66;
+  --bg:       #f4f8f3;
+  --bg2:      #fbfdfa;
+  --bg3:      #e8efe6;
+  --card:     #ffffff;
+  --card2:    #edf4ea;
+  --gold:     #2f7d4f;
+  --gold2:    #22663e;
+  --gold3:    #174f2f;
+  --gold-dim: rgba(47,125,79,0.14);
+  --gold-mid: rgba(47,125,79,0.32);
+  --text:     #1e2a21;
+  --text2:    #41523f;
+  --text3:    #7b8a76;
 }
 
 /* ===== HIGH CONTRAST ===== */
@@ -936,11 +936,14 @@ html[data-font="firacode"] .choice-btn { line-height: 1.8; }
   background: var(--bg3); color: var(--text2);
   cursor: pointer; transition: all var(--transition);
   font-family: var(--font-display);
+  line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; padding: 0;
 }
-.font-btn:nth-child(1) { font-size: 0.8667rem; }
-.font-btn:nth-child(2) { font-size: 1.1333rem; }
-.font-btn:nth-child(3) { font-size: 1.4667rem; }
-.font-btn:nth-child(4) { font-size: 1.8667rem; }
+.font-btn:nth-child(1) { font-size: 13px; }
+.font-btn:nth-child(2) { font-size: 17px; }
+.font-btn:nth-child(3) { font-size: 22px; }
+.font-btn:nth-child(4) { font-size: 28px; }
 .theme-btn {
   width: 44px; height: 40px; border-radius: 10px;
   border: 1px solid rgba(255,255,255,0.08);

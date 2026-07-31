@@ -282,8 +282,16 @@ Alpine.store('app', (function() {
     get fontPreviewLabel() { return this.lang === 'en' ? 'Preview' : 'معاينة الخط'; },
     get fontPresets() {
       var en = this.lang === 'en';
-      return FONT_PRESETS.map(function(p) { return { id: p.id, label: en ? p.labelEn : p.labelAr }; });
+      // Only offer fonts that actually cover the active script (OpenDyslexic and
+      // the Latin fonts don't have Arabic glyphs, Arabic fonts don't fit English)
+      var ids = en ? ['tajawal', 'montserrat', 'firacode', 'opendyslexic'] : ['tajawal', 'amiri', 'lateef'];
+      return ids.map(function(id) {
+        var p = FONT_PRESETS.filter(function(x) { return x.id === id; })[0];
+        return { id: p.id, label: en ? p.labelEn : p.labelAr };
+      });
     },
+    // Preview sample matches the active content language
+    get fontPreviewSample() { return this.lang === 'en' ? 'Hello 123' : 'أهلاً ١٢٣'; },
     // Resolve the body + display font stacks per preset + active language
     get mainFontStack() {
       var p = this.fontPreset;
@@ -500,6 +508,12 @@ Alpine.store('app', (function() {
       // Dataset identity changed — bump so memoized getters recompute
       this._qaVersion++;
       this.cardVersion++;
+      // Keep the font preset valid for the active language (OpenDyslexic and the
+      // Latin fonts don't cover Arabic; Amiri/Lateef don't cover English)
+      var validPresets = (this.lang === 'en')
+        ? ['tajawal', 'montserrat', 'firacode', 'opendyslexic']
+        : ['tajawal', 'amiri', 'lateef'];
+      if (validPresets.indexOf(this.fontPreset) === -1) this.fontPreset = 'tajawal';
       // Isolated page-metadata write — <title> cannot be Alpine-bound
       document.title = cfg?.ui?.appTitle || this.appTitle;
     },
