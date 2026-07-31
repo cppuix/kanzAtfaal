@@ -122,7 +122,7 @@
   </nav>
 
   <!-- MAIN CONTENT -->
-  <main id="mainContent">
+  <main id="mainContent" x-effect="$store.app.view; $store.app.section; $el.scrollTop = 0">
 
     <!-- BROWSE VIEW -->
     <div id="viewBrowse" class="view" :class="{ active: $store.app.view === 'browse' }">
@@ -471,15 +471,9 @@
     </button>
   </nav>
 
-  <!-- ABOUT CONTACT BAR (fixed footer on the About page) -->
+  <!-- ABOUT CONTACT BAR (fixed footer on the About page — bare email only) -->
   <nav class="contact-bar" x-show="$store.app.view === 'about'" aria-label="للتواصل">
-    <span class="contact-bar-title" x-show="$store.app.aboutContactTitle" x-text="$store.app.aboutContactTitle"></span>
-    <template x-for="c in $store.app.aboutContacts" :key="c.href">
-      <a class="contact-bar-link" :href="c.href" target="_blank" rel="noopener">
-        <span class="contact-bar-name" x-text="c.label"></span>
-        <span class="contact-bar-value" x-text="c.value"></span>
-      </a>
-    </template>
+    <a class="contact-bar-email" x-show="$store.app.aboutEmail" :href="$store.app.aboutEmailHref" x-text="$store.app.aboutEmail"></a>
   </nav>
 
   <!-- TOAST (reactive — CSS owns the animation via .show) -->

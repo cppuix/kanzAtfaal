@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v19'; // bumped: About/Settings as full-page views + logo replaces treasure
+const CACHE_NAME = 'muntaqaa-v20'; // bumped: app-shell layout (only main scrolls) + bare-email About footer
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [

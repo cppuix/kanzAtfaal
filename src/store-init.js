@@ -249,9 +249,15 @@ Alpine.store('app', (function() {
       var parts = (about.body || []).map(function(p) { return '<p>' + inline(p) + '</p>'; });
       return parts.join('');
     },
-    // Contacts live in the fixed About footer (rendered by the template)
-    get aboutContactTitle() { return this.CFG.about?.contactTitle || ''; },
-    get aboutContacts() { return this.CFG.about?.contacts || []; },
+    // Bare email for the About footer — only the mailto contact, nothing else
+    get aboutEmail() {
+      var c = (this.CFG.about?.contacts || []).find(function(x) { return (x.href || '').indexOf('mailto:') === 0; });
+      return c ? c.value : '';
+    },
+    get aboutEmailHref() {
+      var c = (this.CFG.about?.contacts || []).find(function(x) { return (x.href || '').indexOf('mailto:') === 0; });
+      return c ? c.href : '';
+    },
     // Contextual topbar title (About/Settings get their own title)
     get topbarTitle() {
       if (this.view === 'about') return this.CFG.about?.title || this.appTitle;
@@ -321,7 +327,6 @@ Alpine.store('app', (function() {
       this.closeDrawer();
       if (view === 'quiz') this.quizPhase = 'setup';
       if (view === 'about' || view === 'settings') this.searchOpen = false;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     },
     setSection: function(sec) {
       this.section = sec;
@@ -329,7 +334,6 @@ Alpine.store('app', (function() {
       this.drawerOpen = false;
       this.resetPagination();
       this.closeDrawer();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     },
     toggleSearch: function() {
       this.searchOpen = !this.searchOpen;
