@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="fonts/fonts.css" />
   <link rel="stylesheet" href="style.css" />
   <script src="src/store-init.js"></script>
-  <script src="lib/alpine.min.js"></script>
+  <script defer src="lib/alpine.min.js"></script>
   <script type="module" src="src/boot.js"></script></head>
 <body>
 
@@ -206,7 +206,7 @@
         <!-- IntersectionObserver sentinel for infinite scroll (managed by store) -->
         <div id="browseSentinel" class="browse-sentinel" x-show="$store.app.hasMore" x-init="$store.app.initSentinel($el)"></div>
       </div>
-      <div id="noResults" class="no-results" :class="{ hidden: $store.app.visibleCards.length > 0 }">
+      <div id="noResults" class="no-results" :class="{ hidden: $store.app.browseCards.length > 0 }">
         <div class="no-results-icon">✦</div>
         <p>لا توجد نتائج</p>
       </div>
@@ -490,6 +490,5 @@
 
 </div>
 
-<script type="module" src="src/boot.js"></script>
 </body>
 </html>

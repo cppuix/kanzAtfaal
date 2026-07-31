@@ -95,6 +95,7 @@ Alpine.store('app', (function() {
     PAGE_SIZE: 30,
     browseSentinel: null,
     browseObserver: null,
+    browseCards: [],
 
     // ── Computed ──
     get filteredCards() {
@@ -117,8 +118,23 @@ Alpine.store('app', (function() {
         .sort(function(a, b) { return b.score - a.score; });
     },
 
-    get visibleCards() { return this.filteredCards.slice(0, this.visibleCount); },
     get hasMore() { return this.visibleCount < this.filteredCards.length; },
+
+    // ── Render cards explicitly (plain property, not getter — ensures Alpine reactivity) ──
+    renderCards: function() {
+      this.browseCards = this.filteredCards.slice(0, this.visibleCount);
+    },
+    resetPagination: function() {
+      this.visibleCount = this.PAGE_SIZE;
+      if (this.browseObserver) { this.browseObserver.disconnect(); this.browseObserver = null; }
+      this.browseSentinel = null;
+      this.renderCards();
+    },
+    loadMore: function() {
+      if (!this.hasMore) return;
+      this.visibleCount += this.PAGE_SIZE;
+      this.renderCards();
+    },
 
     get weakIds() {
       return Object.entries(this.quizHistory)
@@ -180,8 +196,8 @@ Alpine.store('app', (function() {
       this.searchOpen = !this.searchOpen;
       if (!this.searchOpen) { this.search = ''; this.searchSection = 'all'; this.searchScope = 'both'; this.resetPagination(); }
     },
-    setSearchScope: function(scope) { this.searchScope = scope; this.resetPagination(); },
-    setSearchSection: function(sec) { this.searchSection = sec; this.resetPagination(); },
+    setSearchScope: function(scope) { this.searchScope = scope; this.resetPagination(); this.renderCards(); },
+    setSearchSection: function(sec) { this.searchSection = sec; this.resetPagination(); this.renderCards(); },
     toggleFav: function(id) {
       var idx = this.favorites.indexOf(id);
       if (idx !== -1) { this.favorites.splice(idx, 1); if (window.__showToast) window.__showToast(this.CFG.ui?.unsaved || 'تمت الإزالة'); }
@@ -196,11 +212,7 @@ Alpine.store('app', (function() {
       else this.openCards.push(id);
     },
     toArabic: function(n) { return this.CFG.meta?.numerals === 'arabic' ? String(n).replace(/[0-9]/g, function(d) { return '٠١٢٣٤٥٦٧٨٩'[d]; }) : String(n); },
-    resetPagination: function() {
-      this.visibleCount = this.PAGE_SIZE;
-      if (this.browseObserver) { this.browseObserver.disconnect(); this.browseObserver = null; }
-      this.browseSentinel = null;    },
-    loadMore: function() { if (!this.hasMore) return; this.visibleCount += this.PAGE_SIZE; },
+
     initSentinel: function(el) {
       var self = this;
       if (this.browseObserver) this.browseObserver.disconnect();
@@ -227,6 +239,7 @@ Alpine.store('app', (function() {
         storage.loadStorage();
         storage.loadQuizHistory();
       } catch(e) { return; }
+      this.renderCards();
       this.view = 'browse';
     },
     applyFontSize: function(size) {

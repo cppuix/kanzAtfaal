@@ -98,10 +98,9 @@ function init() {
     loadQuizHistory();
     applyFontSize(currentFontSize);
     applyContrast(highContrast);
-    // Populate browse cards and force Alpine re-evaluation
+    // Populate cards and re-render
     var store = Alpine.store('app');
-    if (store && store.refreshCards) store.refreshCards();
-    Alpine.initTree(document.body);
+    if (store && store.renderCards) store.renderCards();
     hideSplash();
   });
 }
