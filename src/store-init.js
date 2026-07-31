@@ -25,6 +25,42 @@ Alpine.store('app', (function() {
   }
   const FUZZY_THRESHOLD = 0.5;
 
+  // Longest contiguous substring of the query that actually appears in the text,
+  // mirroring fuzzyScore's partial-match rules so highlighting is consistent
+  // with what the filter actually matched.
+  function bestContiguousMatch(t, q) {
+    if (!q || q.length < 2) return '';
+    if (t.includes(q)) return q;
+    const minLen = Math.ceil(q.length * 0.75);
+    for (let len = q.length - 1; len >= minLen; len--)
+      for (let start = 0; start <= q.length - len; start++) {
+        const sub = q.slice(start, start + len);
+        if (sub.length >= 2 && t.includes(sub)) return sub;
+      }
+    return '';
+  }
+
+  // Walk the original text and produce one unit per normalized character, each
+  // tagged with the original char index it came from. Whitespace runs collapse
+  // into a single space unit (matching normalizeAr's \s+ -> ' '), diacritics are
+  // dropped. This keeps a precise normalized-index -> original-index mapping.
+  function normUnits(text) {
+    const units = [];
+    let prevWs = false;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (/\s/.test(ch)) {
+        if (!prevWs) units.push({ norm: ' ', origIndex: i });
+        prevWs = true;
+      } else {
+        const nc = normalizeAr(ch);
+        if (nc) for (let k = 0; k < nc.length; k++) units.push({ norm: nc[k], origIndex: i });
+        prevWs = false;
+      }
+    }
+    return units;
+  }
+
   // ── SVG CONSTANTS (local consts; exposed to templates via store getters) ──
   const CHEST_SVG = '<svg class="chest-icon" viewBox="0 0 28 21" fill="none" xmlns="http://www.w3.org/2000/svg"><g class="chest-coins"><ellipse cx="9" cy="14" rx="3.5" ry="2" fill="#c9982a" opacity="0.9"/><ellipse cx="14" cy="13" rx="4" ry="2.2" fill="#e8bf5a" opacity="0.95"/><ellipse cx="19" cy="14" rx="3.5" ry="2" fill="#c9982a" opacity="0.9"/></g><rect x="2" y="11" width="24" height="9" rx="2" fill="#5a3a1a" stroke="#c9982a" stroke-width="1.2"/><rect x="4" y="13" width="20" height="5" rx="1" fill="#3a2208" stroke="#a07820" stroke-width="0.8"/><rect x="11" y="9.5" width="6" height="5" rx="1.5" fill="#c9982a" stroke="#a07820" stroke-width="0.8"/><circle cx="14" cy="12" r="1.2" fill="#172a1e" stroke="#a07820" stroke-width="0.5"/><rect x="2" y="10.5" width="24" height="2" rx="0.5" fill="#c9982a" opacity="0.55"/><rect class="chest-lid" x="2" y="2" width="24" height="10" rx="3" fill="#6a4520" stroke="#c9982a" stroke-width="1.2"/><rect x="4.5" y="4" width="19" height="6" rx="1.5" fill="#4a2e0e" stroke="#a07820" stroke-width="0.7"/></svg>';
   const PLAY_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
@@ -327,38 +363,26 @@ Alpine.store('app', (function() {
     },
     normalizeAr: function(str) { return normalizeAr(str); },
     buildHighlight: function(text, query) {
-      if (!query.trim()) return this.escHtml(text);
-      const normText  = this.normalizeAr(text);
-      const normQuery = this.normalizeAr(query);
-      const idx = normText.indexOf(normQuery);
-      if (idx !== -1) {
-        let origStart = -1, origEnd = -1;
-        let ni = 0;
-        for (let i = 0; i < text.length; i++) {
-          const nc = this.normalizeAr(text[i]);
-          if (ni === idx && origStart === -1) origStart = i;
-          ni += nc.length;
-          if (ni === idx + normQuery.length) { origEnd = i + 1; break; }
-        }
-        if (origStart !== -1 && origEnd !== -1) {
-          return this.escHtml(text.slice(0, origStart))
-            + '<mark>' + this.escHtml(text.slice(origStart, origEnd)) + '</mark>'
-            + this.escHtml(text.slice(origEnd));
-        }
+      const q = normalizeAr(query);
+      if (!q) return this.escHtml(text);
+      const units = normUnits(text);
+      const t = units.map(u => u.norm).join('');
+      const sub = bestContiguousMatch(t, q);
+      if (!sub) return this.escHtml(text);
+      // All occurrences of the matched substring, mapped back to original chars
+      const ranges = [];
+      let pos = t.indexOf(sub);
+      while (pos !== -1) {
+        ranges.push([units[pos].origIndex, units[pos + sub.length - 1].origIndex + 1]);
+        pos = t.indexOf(sub, pos + sub.length);
       }
-      let result = '';
-      let qi = 0;
-      const normQ = this.normalizeAr(query);
-      for (let i = 0; i < text.length; i++) {
-        const nc = this.normalizeAr(text[i]);
-        if (qi < normQ.length && nc === normQ[qi]) {
-          result += '<mark>' + this.escHtml(text[i]) + '</mark>';
-          qi++;
-        } else {
-          result += this.escHtml(text[i]);
-        }
+      let out = '';
+      let cursor = 0;
+      for (const [s, e] of ranges) {
+        out += this.escHtml(text.slice(cursor, s)) + '<mark>' + this.escHtml(text.slice(s, e)) + '</mark>';
+        cursor = e;
       }
-      return result;
+      return out + this.escHtml(text.slice(cursor));
     },
 
     // ── Methods (service dependencies set via window.__ by boot.js) ──
