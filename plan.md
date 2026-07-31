@@ -152,7 +152,7 @@ These functions still exist in `app.js`. They're called by Alpine store methods 
 
 2. **Service worker cache** — Old SW (v6) cached the pre-migration `app.js`. Current SW is v7 with updated files. Users may need a hard refresh to clear stale cache.
 
-3. **`content.en.json`** has 0 items (empty array). Not selected by default (only `content.kanz-en.json` is used for English), but could confuse.
+3. **`content.en.json`** (legacy 0-item stub, never loaded) — REMOVED in post-refactor cleanup.
 
 ---
 

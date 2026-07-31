@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v17'; // bumped for content-popup overflow fix + instant content switching
+const CACHE_NAME = 'muntaqaa-v18'; // bumped: About-body inline tags + drop legacy content.en.json stub
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [
@@ -15,7 +15,6 @@ const SHELL_ASSETS = [
   './src/services/audio.js',
   './src/services/share.js',
   './content.ar.json',
-  './content.en.json',
   './content.kanz-ar.json',
   './content.kanz-en.json',
 ];

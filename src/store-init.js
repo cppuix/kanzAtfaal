@@ -234,7 +234,18 @@ Alpine.store('app', (function() {
     get aboutBodyHtml() {
       var about = this.CFG.about;
       if (!about) return '';
-      var parts = (about.body || []).map(function(p) { return '<p>' + this.escHtml(p) + '</p>'; }.bind(this));
+      // about.body is trusted content: escape everything, then restore a small
+      // allow-list of inline tags so emphasis (<strong>/<em>/<br>) can be used.
+      var esc = this.escHtml.bind(this);
+      var inline = function(p) {
+        return esc(p)
+          .replace(/&lt;strong&gt;/g, '<strong>')
+          .replace(/&lt;\/strong&gt;/g, '</strong>')
+          .replace(/&lt;em&gt;/g, '<em>')
+          .replace(/&lt;\/em&gt;/g, '</em>')
+          .replace(/&lt;br\s*\/?&gt;/g, '<br>');
+      };
+      var parts = (about.body || []).map(function(p) { return '<p>' + inline(p) + '</p>'; });
       if (about.contactTitle && about.contacts) {
         parts.push('<div class="about-divider"></div>'
           + '<h2 class="about-contact-title">' + this.escHtml(about.contactTitle) + '</h2>'

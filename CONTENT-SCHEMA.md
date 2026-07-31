@@ -14,8 +14,8 @@ runtime by `src/services/content.js`.
 | `content.kanz-ar.json`| `kanz-ar`      | Arabic   | rtl       | 1536  | no    |
 | `content.kanz-en.json`| `kanz-en`      | English  | ltr       | 1536  | no    |
 
-> `content.en.json` is a **legacy empty stub** (`items: []`, same `id` as `kanz-en`). It is not
-> registered in `CONTENT_FILES` and is never loaded by the app. It is safe to delete.
+> The repository previously contained a `content.en.json` **legacy empty stub** (`items: []`,
+> same `id` as `kanz-en`, never loaded). It has been removed.
 
 ---
 
@@ -162,13 +162,12 @@ number) and plain text only (no HTML).
 | Field          | Type       | Required | Description |
 |----------------|------------|----------|-------------|
 | `title`        | string     | yes      | Heading shown at the top of the About modal. |
-| `body`         | string[]   | yes      | Paragraphs, each rendered as its own `<p>`. **Plain text only** — the app HTML-escapes every paragraph, so tags like `<strong>` are displayed as literal text (this is current behavior; see note below). |
+| `body`         | string[]   | yes      | Paragraphs, each rendered as its own `<p>`. Text is HTML-escaped, then a small allow-list of inline tags is restored: `<strong>`, `<em>`, `<br>`. Everything else is shown as literal text. |
 | `contactTitle` | string     | no       | Optional heading above the contact links. |
 | `contacts`     | object[]   | no       | Optional list of `{ label, value, href }`; rendered as link rows. `href` is escaped. |
 
-> **Known quirk:** the bundled `content.ar.json` uses `<strong>` markup inside `about.body`, but
-> because the renderer escapes all HTML, those tags currently display as literal text. When
-> authoring new content, write `body` entries as plain text without markup.
+> `about.body` may use the inline tags above (`<strong>`, `<em>`, `<br>`) for emphasis; any
+> other markup is escaped and shown as literal text.
 
 ---
 
