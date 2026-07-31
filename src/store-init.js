@@ -338,6 +338,27 @@ Alpine.store('app', (function() {
     get modeBuildTitle() { return this.lang === 'en' ? 'Arrange the answer words' : 'رتّب كلمات الجواب'; },
     get modeBlankTitle() { return this.lang === 'en' ? 'Complete the missing word' : 'أكمل الكلمة الناقصة'; },
     get modeListenTitle() { return this.lang === 'en' ? 'Listen and choose the question' : 'استمع واختر السؤال'; },
+    // ── Quiz setup sentence (Direction 1: the quiz is a sentence) ──
+    get quizModeLabel() {
+      var m = {
+        mcq: this.CFG.ui?.modeMCQ || (this.lang === 'en' ? 'Multiple Choice' : 'اختيار'),
+        build: this.CFG.ui?.modeBuild || (this.lang === 'en' ? 'Order' : 'ترتيب'),
+        blank: this.CFG.ui?.modeBlank || (this.lang === 'en' ? 'Fill' : 'تكميل'),
+        listen: this.CFG.ui?.modeListen || (this.lang === 'en' ? 'Listen' : 'استماع')
+      };
+      return m[this.quizMode] || '';
+    },
+    get quizSectionLabel() {
+      if (this.quizSection === 'all') return this.CFG.ui?.allChapters || (this.lang === 'en' ? 'All Chapters' : 'جميع الأبواب');
+      if (this.quizSection === '__weak__') return this.weakOptionLabel;
+      return this.quizSection;
+    },
+    get quizSetupIntro() { return this.lang === 'en' ? 'I want' : 'أريد'; },
+    get quizSetupQuestions() { return this.lang === 'en' ? 'questions' : 'أسئلة'; },
+    get quizSetupComma() { return this.lang === 'en' ? ',' : '،'; },
+    get quizSetupAs() { return this.lang === 'en' ? 'as' : 'بنمط'; },
+    get quizSetupFrom() { return this.lang === 'en' ? 'from' : 'من'; },
+    get quizStartLabel() { return this.lang === 'en' ? 'Start' : 'ابدأ'; },
     get fontLabel() { return this.lang === 'en' ? 'Font' : 'الخط'; },
     get fontPreviewLabel() { return this.lang === 'en' ? 'Preview' : 'معاينة الخط'; },
     get fontPresets() {

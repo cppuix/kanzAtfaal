@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v27'; // localized tooltips/aria-labels + answer text uses main font
+const CACHE_NAME = 'muntaqaa-v28'; // quiz setup redesign: sentence + tappable tokens (Direction 1)
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [
