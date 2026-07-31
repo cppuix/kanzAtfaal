@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v21'; // bumped: quiz setup redesign (scrollable chapter shelf)
+const CACHE_NAME = 'muntaqaa-v22'; // bumped: accessibility P1 (rem scaling, dark/light theme, focus)
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [

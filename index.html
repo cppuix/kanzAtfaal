@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" x-data :dir="$store.app.dir" :lang="$store.app.lang" :class="{ 'high-contrast': $store.app.highContrast }" :style="{ '--font-scale': $store.app.fontScale }">
+<html lang="ar" dir="rtl" x-data :dir="$store.app.dir" :lang="$store.app.lang" :data-theme="$store.app.theme" :class="{ 'high-contrast': $store.app.highContrast }" :style="{ '--font-scale': $store.app.fontScale }">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -437,11 +437,19 @@
     <div id="viewSettings" class="view" :class="{ active: $store.app.view === 'settings' }">
       <div class="settings-view">
         <div class="settings-row">
+          <span class="settings-label" x-text="$store.app.themeLabel"></span>
+          <div class="settings-btns">
+            <button class="theme-btn" :class="{ active: $store.app.theme === 'dark' }" @click="$store.app.applyTheme('dark')" aria-label="Dark theme" title="Dark">🌙</button>
+            <button class="theme-btn" :class="{ active: $store.app.theme === 'light' }" @click="$store.app.applyTheme('light')" aria-label="Light theme" title="Light">☀️</button>
+          </div>
+        </div>
+        <div class="settings-row">
           <span class="settings-label" x-text="$store.app.CFG.ui?.fontSizeLabel || 'حجم الخط'"></span>
           <div class="settings-btns">
             <button class="font-btn" :class="{ active: $store.app.fontSize === 'sm' }" @click="$store.app.applyFontSize('sm')">A</button>
             <button class="font-btn" :class="{ active: $store.app.fontSize === 'md' }" @click="$store.app.applyFontSize('md')">A</button>
             <button class="font-btn" :class="{ active: $store.app.fontSize === 'lg' }" @click="$store.app.applyFontSize('lg')">A</button>
+            <button class="font-btn" :class="{ active: $store.app.fontSize === 'xl' }" @click="$store.app.applyFontSize('xl')">A</button>
           </div>
         </div>
         <div class="settings-row">

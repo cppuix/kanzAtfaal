@@ -115,6 +115,7 @@ Alpine.store('app', (function() {
     // Defaults only — persisted values are applied at boot via storage.loadSettings()
     fontSize: 'md',
     highContrast: false,
+    theme: 'dark',
 
     // ── Pagination (browse view) ──
     pageSize: 30,
@@ -223,7 +224,7 @@ Alpine.store('app', (function() {
     },
 
     // ── Theme helpers (CSS consumes these via <html> bindings) ──
-    get fontScale() { return ({ sm: '0.82', md: '1', lg: '1.35' })[this.fontSize] || '1'; },
+    get fontScale() { return ({ sm: '0.82', md: '1', lg: '1.35', xl: '1.7' })[this.fontSize] || '1'; },
     // Document metadata (applied reactively on <html> via :dir / :lang)
     get dir() { return this.CFG.meta?.dir || 'rtl'; },
     get lang() { return this.CFG.meta?.lang || 'ar'; },
@@ -264,6 +265,8 @@ Alpine.store('app', (function() {
       if (this.view === 'settings') return this.CFG.ui?.settingsTitle || '';
       return this.appTitle;
     },
+    // Settings theme label (kept store-side for now — no ui.themeLabel key yet)
+    get themeLabel() { return this.lang === 'en' ? 'Theme' : 'المظهر'; },
 
     // ── SVG constants exposed to templates (replaces window.* globals) ──
     get chestSVG() { return CHEST_SVG; },
@@ -403,10 +406,16 @@ Alpine.store('app', (function() {
       if (window.__saveContrast) window.__saveContrast(on);
     },
     toggleContrast: function() { this.applyContrast(!this.highContrast); },
+    applyTheme: function(theme) {
+      if (theme !== 'dark' && theme !== 'light') theme = 'dark';
+      this.theme = theme;
+      if (window.__saveTheme) window.__saveTheme(theme);
+    },
     // Sets appearance from persisted storage at boot (no re-save)
-    setAppearance: function(font, contrast) {
+    setAppearance: function(font, contrast, theme) {
       if (font) this.fontSize = font;
       if (contrast !== undefined && contrast !== null) this.highContrast = !!contrast;
+      if (theme) this.theme = (theme === 'light') ? 'light' : 'dark';
     },
 
     // ── Toast (reactive — rendered by template, CSS owns the animation) ──

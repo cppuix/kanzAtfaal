@@ -2,7 +2,7 @@
 // Store and Alpine.data components are registered by src/store-init.js (runs before this module)
 
 import { loadContent, applyDeepLink, preloadOthers } from './services/content.js';
-import { loadStorage, loadQuizHistory, loadSettings, loadSavedContent, saveFavorites, recordAnswer, saveFontSize, saveContrast } from './services/storage.js';
+import { loadStorage, loadQuizHistory, loadSettings, loadSavedContent, saveFavorites, recordAnswer, saveFontSize, saveContrast, saveTheme } from './services/storage.js';
 import { playAudio, stopAllAudio, stopListenAudio, playListenAudio } from './services/audio.js';
 import { copyQA, shareAsImage, shareDeepLink } from './services/share.js';
 
@@ -20,6 +20,7 @@ window.__loadStorage = loadStorage;
 window.__loadQuizHistory = loadQuizHistory;
 window.__saveFontSize = saveFontSize;
 window.__saveContrast = saveContrast;
+window.__saveTheme = saveTheme;
 window.__shareDeepLink = shareDeepLink;
 
 // Escaping/search helpers (escHtml, normalizeAr, buildHighlight) live on the
