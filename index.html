@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar" dir="rtl" x-data :dir="$store.app.dir" :lang="$store.app.lang" :class="{ 'high-contrast': $store.app.highContrast }" :style="{ '--font-scale': $store.app.fontScale }">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -19,8 +19,11 @@
   <script type="module" src="src/boot.js"></script></head>
 <body>
 
-<!-- SPLASH SCREEN -->
-<div id="splash">
+<!-- MAIN APP -->
+<div id="app" x-data>
+
+  <!-- SPLASH SCREEN (Alpine-driven — visible until store.appReady) -->
+  <div id="splash" x-show="!$store.app.appReady" x-transition>
   <div class="splash-inner">
     <div class="splash-chest">
       <svg class="chest-svg-splash" viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -49,8 +52,7 @@
   </div>
 </div>
 
-<!-- MAIN APP -->
-<div id="app" class="hidden" x-data>
+  <!-- END SPLASH -->
 
   <!-- TOP BAR -->
   <header class="topbar">
@@ -60,20 +62,20 @@
       </svg>
     </button>
     <div class="topbar-title">
-      <span id="appTitleEl">منتقى كنز الأطفال</span>
+      <span id="appTitleEl" x-text="$store.app.appTitle"></span>
     </div>
-    <div class="content-switch-wrapper" style="display:flex;gap:2px;align-items:center;" x-data="{ menuOpen: false }" @click.outside="menuOpen = false">
+    <div class="content-switch-wrapper" x-data="{ menuOpen: false }" @click.outside="menuOpen = false">
     <button class="icon-btn" id="contentToggle" @click="menuOpen = !menuOpen" :aria-expanded="menuOpen" aria-label="تغيير اللغة" title="تغيير اللغة">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
         <path d="M12,24C5.4,24,0,18.6,0,12S5.4,0,12,0s12,5.4,12,12S18.6,24,12,24z M9.5,17c0.6,3.1,1.7,5,2.5,5s1.9-1.9,2.5-5H9.5z M16.6,17c-0.3,1.7-0.8,3.3-1.4,4.5c2.3-0.8,4.3-2.4,5.5-4.5H16.6z M3.3,17c1.2,2.1,3.2,3.7,5.5,4.5c-0.6-1.2-1.1-2.8-1.4-4.5H3.3 z M16.9,15h4.7c0.2-0.9,0.4-2,0.4-3s-0.2-2.1-0.5-3h-4.7c0.2,1,0.2,2,0.2,3S17,14,16.9,15z M9.2,15h5.7c0.1-0.9,0.2-1.9,0.2-3 S15,9.9,14.9,9H9.2C9.1,9.9,9,10.9,9,12C9,13.1,9.1,14.1,9.2,15z M2.5,15h4.7c-0.1-1-0.1-2-0.1-3s0-2,0.1-3H2.5C2.2,9.9,2,11,2,12 S2.2,14.1,2.5,15z M16.6,7h4.1c-1.2-2.1-3.2-3.7-5.5-4.5C15.8,3.7,16.3,5.3,16.6,7z M9.5,7h5.1c-0.6-3.1-1.7-5-2.5-5 C11.3,2,10.1,3.9,9.5,7z M3.3,7h4.1c0.3-1.7,0.8-3.3,1.4-4.5C6.5,3.3,4.6,4.9,3.3,7z"/>
       </svg>
     </button>
-    <div class="content-popup" :class="{ hidden: !menuOpen }" role="menu" aria-label="اختيار المحتوى">
+    <div class="content-popup" x-show="menuOpen" role="menu" aria-label="اختيار المحتوى">
       <template x-for="cf in $store.app.contentFiles" :key="cf.file">
         <button class="content-option-btn" :class="{ active: cf.file === $store.app.activeContent }" @click="menuOpen = false; $store.app.switchContent(cf.file)" x-text="cf.label" type="button"></button>
       </template>
     </div>
-    <button class="icon-btn" id="settingsToggle" @click="$store.app.settingsOpen = true" aria-label="settings">
+    <button class="icon-btn" id="settingsToggle" @click="$store.app.openSettings()" aria-label="settings">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="3"/>
         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
@@ -88,16 +90,16 @@
   </header>
 
   <!-- SEARCH BAR -->
-  <div id="searchBar" class="search-bar" :class="{ 'hidden': !$store.app.searchOpen }" x-init="$watch('$store.app.search', () => $store.app.resetPagination())">
-    <input type="text" id="searchInput" placeholder="ابحث..." autocomplete="off" x-model="$store.app.search" />
+  <div id="searchBar" class="search-bar" x-show="$store.app.searchOpen" x-init="$watch('$store.app.search', () => $store.app.resetPagination())">
+    <input type="text" id="searchInput" :placeholder="$store.app.CFG.ui?.searchPlaceholder || 'ابحث...'" autocomplete="off" x-model="$store.app.search" />
     <div class="search-scope">
-      <button class="scope-btn" :class="{ 'active': $store.app.searchScope === 'both' }" @click="$store.app.setSearchScope('both')" data-scope="both" id="allSectionsFilter">الكل</button>
-      <button class="scope-btn" :class="{ 'active': $store.app.searchScope === 'q' }" @click="$store.app.setSearchScope('q')" data-scope="q" id="scopeQBtn">س</button>
-      <button class="scope-btn" :class="{ 'active': $store.app.searchScope === 'a' }" @click="$store.app.setSearchScope('a')" data-scope="a" id="scopeABtn">ج</button>
+      <button class="scope-btn" :class="{ 'active': $store.app.searchScope === 'both' }" @click="$store.app.setSearchScope('both')" data-scope="both" id="allSectionsFilter" x-text="$store.app.CFG.ui?.scopeAll || $store.app.CFG.ui?.allSectionsShort || 'الكل'">الكل</button>
+      <button class="scope-btn" :class="{ 'active': $store.app.searchScope === 'q' }" @click="$store.app.setSearchScope('q')" data-scope="q" id="scopeQBtn" x-text="$store.app.CFG.ui?.scopeQ || 'س'">س</button>
+      <button class="scope-btn" :class="{ 'active': $store.app.searchScope === 'a' }" @click="$store.app.setSearchScope('a')" data-scope="a" id="scopeABtn" x-text="$store.app.CFG.ui?.scopeA || 'ج'">ج</button>
     </div>
     <button id="searchClose" @click="$store.app.toggleSearch()">✕</button>
   </div>
-  <div id="searchFilters" class="search-filters" :class="{ 'hidden': !$store.app.searchOpen }">
+  <div id="searchFilters" class="search-filters" x-show="$store.app.searchOpen">
     <button class="filter-pill" :class="{ active: $store.app.searchSection === 'all' }" @click="$store.app.setSearchSection('all')">الكل</button>
     <template x-for="sec in $store.app.SECTIONS" :key="sec">
       <button class="filter-pill" :class="{ active: $store.app.searchSection === sec }" @click="$store.app.setSearchSection(sec)" x-text="sec"></button>
@@ -105,10 +107,10 @@
   </div>
 
   <!-- SIDE DRAWER -->
-  <div id="overlay" class="overlay hidden" :class="{ 'hidden': !$store.app.drawerOpen }" @click="$store.app.closeDrawer()"></div>
+  <div id="overlay" class="overlay" x-show="$store.app.drawerOpen" @click="$store.app.closeDrawer()"></div>
   <nav id="drawer" class="drawer" :class="{ 'open': $store.app.drawerOpen }">
     <div class="drawer-header">
-      <span id="drawerSectionsTitle">الأبواب</span>
+      <span id="drawerSectionsTitle" x-text="$store.app.CFG.ui?.allSectionsShort || 'الأبواب'"></span>
     </div>
     <ul id="sectionList" class="section-list">
       <li class="section-item" :class="{ active: $store.app.section === 'all' }" @click="$store.app.setSection('all')">
@@ -123,10 +125,10 @@
       </template>
     </ul>
     <div class="drawer-footer">
-    <button class="nav-pill" :class="{ 'active': $store.app.view === 'browse' }" @click="$store.app.switchView('browse')" data-view="browse" id="navBrowse"><span id="navBrowseDrawerLabel">تصفح</span></button>
-      <button class="nav-pill" :class="{ 'active': $store.app.view === 'favorites' }" @click="$store.app.switchView('favorites')" data-view="favorites" id="navFavs"><span id="navFavsDrawerLabel">المحفوظات</span></button>
-      <button class="nav-pill" :class="{ 'active': $store.app.view === 'quiz' }" @click="$store.app.switchView('quiz')" data-view="quiz" id="navQuiz"><span id="navQuizDrawerLabel">اختبار</span></button>
-      <button class="nav-pill nav-pill-about" id="navAbout" @click="$store.app.aboutOpen = true; $store.app.closeDrawer()"><span id="navAboutLabel">عن التطبيق</span></button>
+    <button class="nav-pill" :class="{ 'active': $store.app.view === 'browse' }" @click="$store.app.switchView('browse')" data-view="browse" id="navBrowse"><span id="navBrowseDrawerLabel" x-text="$store.app.CFG.ui?.browseNav || 'تصفح'"></span></button>
+      <button class="nav-pill" :class="{ 'active': $store.app.view === 'favorites' }" @click="$store.app.switchView('favorites')" data-view="favorites" id="navFavs"><span id="navFavsDrawerLabel" x-text="$store.app.CFG.ui?.favsNav || 'المحفوظات'"></span></button>
+      <button class="nav-pill" :class="{ 'active': $store.app.view === 'quiz' }" @click="$store.app.switchView('quiz')" data-view="quiz" id="navQuiz"><span id="navQuizDrawerLabel" x-text="$store.app.CFG.ui?.quizNav || 'اختبار'"></span></button>
+      <button class="nav-pill nav-pill-about" id="navAbout" @click="$store.app.openAbout()"><span id="navAboutLabel" x-text="$store.app.CFG.ui?.aboutBtn || 'عن التطبيق'"></span></button>
     </div>
   </nav>
 
@@ -142,14 +144,14 @@
       <!-- CARD LIST -->
       <div id="cardList" class="card-list">
         <template x-for="(item, idx) in $store.app.browseCards" :key="item.qa.id + '-' + $store.app.cardVersion">
-          <div class="qa-card-wrap" :class="{ open: $store.app.openCards.includes(item.qa.id) }" x-data="qaCard(item.qa, item.matchIn)" x-init="$el.style.animationDelay = Math.min(idx * 20, 200) + 'ms'">
+          <div class="qa-card-wrap" :class="{ open: $store.app.openCards.includes(item.qa.id) }" x-data="qaCard(item.qa, item.matchIn)">
             <div class="qa-card-flipper">
               <!-- FRONT FACE -->
               <div class="qa-face qa-face-front">
                 <div class="qa-card-header" @click="toggle()">
                   <span class="qa-num" x-text="$store.app.CFG.ui?.questionNum?.replace('{n}', $store.app.toArabic(qa.id))"></span>
                   <span class="qa-question" x-html="hlQuery ? buildHighlight(qa.q, hlQuery) : escHtml(qa.q)"></span>
-                  <button class="qa-toggle" @click.stop="toggle()" :aria-label="$store.app.CFG.ui?.showAnswer">
+                  <button class="qa-toggle" x-ref="toggleBtn" @click.stop="toggle()" :aria-label="$store.app.CFG.ui?.showAnswer">
                     <span x-html="window.CHEST_SVG || ''"></span>
                   </button>
                 </div>
@@ -172,7 +174,7 @@
                 <div class="qa-back-header">
                   <span class="qa-num" x-text="$store.app.CFG.ui?.questionNum?.replace('{n}', $store.app.toArabic(qa.id))"></span>
                   <span class="qa-back-label" x-text="$store.app.CFG.ui?.answerLabel"></span>
-                  <button class="qa-toggle qa-toggle-back" @click.stop="toggle()" :aria-label="$store.app.CFG.ui?.close">
+                  <button class="qa-toggle qa-toggle-back" x-ref="toggleBtn" @click.stop="toggle()" :aria-label="$store.app.CFG.ui?.close">
                     <span x-html="window.CHEST_SVG || ''"></span>
                   </button>
                 </div>
@@ -203,10 +205,23 @@
             </div>
           </div>
         </template>
-        <!-- IntersectionObserver sentinel for infinite scroll (managed by store) -->
-        <div id="browseSentinel" class="browse-sentinel" x-show="$store.app.hasMore" x-init="$store.app.initSentinel($el)"></div>
       </div>
-      <div id="noResults" class="no-results" :class="{ hidden: $store.app.browseCards.length > 0 }">
+
+      <!-- PAGINATION STRIP (compact for narrow screens) -->
+      <nav class="pagination" x-show="$store.app.pageCount > 1" aria-label="تنقّل الصفحات">
+        <template x-for="(pg, idx) in $store.app.pagerItems" :key="idx + '-' + pg.type">
+          <button
+            class="page-btn"
+            type="button"
+            :class="{ active: pg.type === 'page' && pg.page === $store.app.currentPage, disabled: pg.disabled, 'is-ellipsis': pg.type === 'ellipsis' }"
+            :disabled="pg.disabled"
+            @click="$store.app.goToPage(pg.page)"
+            x-text="pg.label"
+          ></button>
+        </template>
+      </nav>
+
+      <div id="noResults" class="no-results" x-show="$store.app.filteredCards.length === 0">
         <div class="no-results-icon">✦</div>
         <p>لا توجد نتائج</p>
       </div>
@@ -219,14 +234,14 @@
         <div class="counter-pill" x-text="$store.app.toArabic($store.app.favorites.length) + ' ' + ($store.app.CFG.ui?.counterSuffix || '')">٠</div>
       </div>
       <div id="favList" class="card-list">
-        <template x-for="qa in $store.app.QA_DATA.filter(q => $store.app.favorites.includes(q.id))" :key="qa.id">
+        <template x-for="qa in $store.app.QA_DATA.filter(q => $store.app.favorites.includes(q.id))" :key="qa.id + '-' + $store.app.cardVersion">
           <div class="qa-card-wrap" :class="{ open: $store.app.openCards.includes(qa.id) }" x-data="qaCard(qa)">
             <div class="qa-card-flipper">
               <div class="qa-face qa-face-front">
                 <div class="qa-card-header" @click="toggle()">
                   <span class="qa-num" x-text="$store.app.CFG.ui?.questionNum?.replace('{n}', $store.app.toArabic(qa.id))"></span>
                   <span class="qa-question" x-text="qa.q"></span>
-                  <button class="qa-toggle" @click.stop="toggle()">
+                  <button class="qa-toggle" x-ref="toggleBtn" @click.stop="toggle()">
                     <span x-html="window.CHEST_SVG || ''"></span>
                   </button>
                 </div>
@@ -243,7 +258,7 @@
                 <div class="qa-back-header">
                   <span class="qa-num" x-text="$store.app.CFG.ui?.questionNum?.replace('{n}', $store.app.toArabic(qa.id))"></span>
                   <span class="qa-back-label" x-text="$store.app.CFG.ui?.answerLabel"></span>
-                  <button class="qa-toggle qa-toggle-back" @click.stop="toggle()">
+                  <button class="qa-toggle qa-toggle-back" x-ref="toggleBtn" @click.stop="toggle()">
                     <span x-html="window.CHEST_SVG || ''"></span>
                   </button>
                 </div>
@@ -270,7 +285,7 @@
           </div>
         </template>
       </div>
-      <div id="noFavs" class="no-results" :class="{ hidden: $store.app.favorites.length > 0 }">
+      <div id="noFavs" class="no-results" x-show="$store.app.favorites.length === 0">
         <div class="no-results-icon">✦</div>
         <p x-text="$store.app.CFG.ui?.noFavsTitle || 'لا توجد محفوظات بعد!'"></p>
         <small x-text="$store.app.CFG.ui?.noFavsHint || 'اضغط على أي سؤال لحفظه'"></small>
@@ -294,42 +309,45 @@
             <rect x="4" y="26" width="72" height="5" rx="1" fill="#d4a843" opacity="0.6"/>
           </svg>
         </div>
-        <h2 id="quizHeaderLabel">اختبر نفسك!</h2>
-        <p id="quizSubHeaderLabel">اختر البابَ وعدَدَ الأسئلة</p>
+        <h2 id="quizHeaderLabel" x-text="$store.app.CFG.ui?.quizHeader || 'اختبر نفسك!'"></h2>
+        <p id="quizSubHeaderLabel" x-text="$store.app.CFG.ui?.quizSubHeader || 'اختر البابَ وعدَدَ الأسئلة'"></p>
         <select id="quizSection" class="quiz-select" x-model="$store.app.quizSection">
-          <option value="all" id="allChaptersOpt">جميع الأبواب</option>
-          <option value="__weak__" id="weakOption" style="display:none">نقاط الضعف ⚠</option>
+          <option value="all" id="allChaptersOpt" x-text="$store.app.CFG.ui?.allChapters || 'جميع الأبواب'"></option>
+          <template x-for="sec in $store.app.SECTIONS" :key="sec">
+            <option x-bind:value="sec" x-text="sec"></option>
+          </template>
+          <option value="__weak__" id="weakOption" x-show="$store.app.weakPool.length > 0" x-text="$store.app.weakOptionLabel"></option>
         </select>
         <div class="quiz-count-row">
-          <label id="questionCountLabel">عدد الأسئلة:</label>
+          <label id="questionCountLabel" x-text="$store.app.CFG.ui?.questionCount || 'عدد الأسئلة:'"></label>
           <div class="count-btns">
-            <button class="count-btn" :class="{ 'active': $store.app.quizCount === 5 }" @click="$store.app.quizCount = 5">٥</button>
-            <button class="count-btn" :class="{ 'active': $store.app.quizCount === 10 }" @click="$store.app.quizCount = 10">١٠</button>
-            <button class="count-btn" :class="{ 'active': $store.app.quizCount === 20 }" @click="$store.app.quizCount = 20">٢٠</button>
+            <button class="count-btn" :class="{ 'active': $store.app.quizCount === 5 }" @click="$store.app.setQuizCount(5)">٥</button>
+            <button class="count-btn" :class="{ 'active': $store.app.quizCount === 10 }" @click="$store.app.setQuizCount(10)">١٠</button>
+            <button class="count-btn" :class="{ 'active': $store.app.quizCount === 20 }" @click="$store.app.setQuizCount(20)">٢٠</button>
           </div>
         </div>
         <div class="quiz-mode-row">
-          <label id="quizTypeLabel">نوع الاختبار:</label>
+          <label id="quizTypeLabel" x-text="$store.app.CFG.ui?.quizType || 'نوع الاختبار:'"></label>
           <div class="mode-btns">
-            <button class="mode-btn" :class="{ 'active': $store.app.quizMode === 'mcq' }" @click="$store.app.quizMode = 'mcq'" title="اختر الجواب الصحيح">
+            <button class="mode-btn" :class="{ 'active': $store.app.quizMode === 'mcq' }" @click="$store.app.setQuizMode('mcq')" title="اختر الجواب الصحيح">
               <span class="mode-icon">؟</span>
-              <span class="mode-label" id="modeMCQLabel">اختيار</span>
+              <span class="mode-label" id="modeMCQLabel" x-text="$store.app.CFG.ui?.modeMCQ || 'اختيار'"></span>
             </button>
-            <button class="mode-btn" :class="{ 'active': $store.app.quizMode === 'build' }" @click="$store.app.quizMode = 'build'" title="رتّب كلمات الجواب">
+            <button class="mode-btn" :class="{ 'active': $store.app.quizMode === 'build' }" @click="$store.app.setQuizMode('build')" title="رتّب كلمات الجواب">
               <span class="mode-icon">⧉</span>
-              <span class="mode-label" id="modeBuildLabel">ترتيب</span>
+              <span class="mode-label" id="modeBuildLabel" x-text="$store.app.CFG.ui?.modeBuild || 'ترتيب'"></span>
             </button>
-            <button class="mode-btn" :class="{ 'active': $store.app.quizMode === 'blank' }" @click="$store.app.quizMode = 'blank'" title="أكمل الكلمة الناقصة">
+            <button class="mode-btn" :class="{ 'active': $store.app.quizMode === 'blank' }" @click="$store.app.setQuizMode('blank')" title="أكمل الكلمة الناقصة">
               <span class="mode-icon">_</span>
-              <span class="mode-label" id="modeBlankLabel">تكميل</span>
+              <span class="mode-label" id="modeBlankLabel" x-text="$store.app.CFG.ui?.modeBlank || 'تكميل'"></span>
             </button>
-            <button class="mode-btn" :class="{ 'active': $store.app.quizMode === 'listen' }" @click="$store.app.quizMode = 'listen'" title="استمع واختر السؤال">
+            <button class="mode-btn" :class="{ 'active': $store.app.quizMode === 'listen' }" @click="$store.app.setQuizMode('listen')" title="استمع واختر السؤال" x-show="$store.app.CFG.meta?.audio">
               <span class="mode-icon">♪</span>
-              <span class="mode-label" id="modeListenLabel">استماع</span>
+              <span class="mode-label" id="modeListenLabel" x-text="$store.app.CFG.ui?.modeListen || 'استماع'"></span>
             </button>
           </div>
         </div>
-        <button id="startQuiz" class="start-btn" @click="$store.app.initQuiz()">ابدأ الاختبار</button>
+        <button id="startQuiz" class="start-btn" @click="$store.app.initQuiz()" x-text="$store.app.CFG.ui?.startQuiz || 'ابدأ الاختبار'"></button>
       </div>
 
       <div id="quizGame" class="quiz-game" x-show="$store.app.quizPhase === 'game'">
@@ -338,49 +356,49 @@
           <span id="quizProgressText" x-text="$store.app.toArabic($store.app.quizCurrent + 1) + ' / ' + $store.app.toArabic($store.app.quizQuestions.length)"></span>
         </div>
         <div class="quiz-score-badge" x-text="($store.app.CFG.ui?.score || 'النقاط') + ': ' + $store.app.toArabic($store.app.quizScore)"></div>
-        <div class="quiz-card">
+        <div class="quiz-card" x-ref="quizCard">
           <div class="quiz-q-num" x-text="$store.app.CFG.ui?.questionNum?.replace('{n}', $store.app.toArabic($store.app.currentQuestion?.id || 0))"></div>
           <div class="quiz-q-text" x-text="$store.app.currentQuestion?.q || ''"></div>
 
           <!-- MCQ MODE -->
           <div id="quizChoices" class="quiz-choices" x-show="$store.app.quizMode === 'mcq'">
-            <template x-for="(choice, idx) in $store.app.quizChoices" :key="idx">
+            <template x-for="(choice, idx) in $store.app.quizChoices" :key="choice.text">
               <button class="choice-btn"
                 :class="{ correct: $store.app.quizAnswered && choice.isCorrect, wrong: $store.app.quizAnswered && !choice.isCorrect && choice.selected }"
                 :disabled="$store.app.quizAnswered"
                 x-text="choice.text"
-                @click="$store.app.selectMCQChoice(choice)"></button>
+                @click="$store.app.selectMCQChoice(choice, $refs.quizCard)"></button>
             </template>
           </div>
 
           <!-- BUILD MODE -->
           <div id="buildZone" class="build-zone" x-show="$store.app.quizMode === 'build'">
-            <div id="buildAnswer" class="build-answer" :class="{ 'build-correct': $store.app.quizFeedbackType === 'correct', 'build-wrong': $store.app.quizFeedbackType === 'wrong' }">
+            <div id="buildAnswer" class="build-answer" x-ref="buildAnswer" :class="{ 'build-correct': $store.app.quizFeedbackType === 'correct', 'build-wrong': $store.app.quizFeedbackType === 'wrong' }">
               <template x-if="$store.app.buildPlaced.length === 0">
                 <span class="build-placeholder" x-text="$store.app.CFG.ui?.placeTilesHint || 'اضغط الكلمات بالترتيب'"></span>
               </template>
-              <template x-for="(pw, idx) in $store.app.buildPlaced" :key="idx">
+              <template x-for="(pw, idx) in $store.app.buildPlaced" :key="pw.id">
                 <span class="build-placed-tile removable" @click="$store.app.removeBuildTile(idx)" x-text="pw.word"></span>
               </template>
             </div>
             <div class="build-divider"></div>
             <div id="buildPool" class="build-pool">
-              <template x-for="(pw, idx) in $store.app.buildPool" :key="idx">
+              <template x-for="(pw, idx) in $store.app.buildPool" :key="pw.id">
                 <button class="build-tile" :class="{ placed: pw.placed }" :disabled="$store.app.quizAnswered" @click="$store.app.placeBuildTile(idx)" x-text="pw.word"></button>
               </template>
             </div>
-            <button id="buildCheck" class="build-check-btn" :class="{ hidden: $store.app.buildPlaced.length < ($store.app.currentQuestion?.a?.trim().split(/\\s+/).length || 0) || $store.app.quizAnswered }" @click="$store.app.checkBuildAnswer()"><span id="buildCheckLabel">تحقق ✓</span></button>
+            <button id="buildCheck" class="build-check-btn" x-show="$store.app.buildPlaced.length >= ($store.app.currentQuestion?.a?.trim().split(/\s+/).length || 0) && !$store.app.quizAnswered" @click="$store.app.checkBuildAnswer($refs.buildAnswer)"><span id="buildCheckLabel">تحقق ✓</span></button>
           </div>
 
           <!-- BLANK MODE -->
           <div id="blankZone" class="blank-zone" x-show="$store.app.quizMode === 'blank'">
             <div id="blankText" class="blank-text" x-html="$store.app.blankHtml()"></div>
             <div id="blankChoices" class="blank-choices">
-              <template x-for="(word, idx) in $store.app.blankOptions" :key="idx">
+              <template x-for="(word, idx) in $store.app.blankOptions" :key="idx + '-' + word">
                 <button class="blank-choice-btn"
                   :class="{ correct: $store.app.quizAnswered && word === $store.app.blankCorrect, wrong: $store.app.quizAnswered && word === $store.app.blankFilled && word !== $store.app.blankCorrect }"
                   :disabled="$store.app.quizAnswered"
-                  @click="$store.app.selectBlankChoice(word)"
+                  @click="$store.app.selectBlankChoice(word, $refs.quizCard)"
                   x-text="word"></button>
               </template>
             </div>
@@ -393,19 +411,19 @@
               <span id="listenBtnLabel" x-text="$store.app.listenBtnText || ($store.app.CFG.ui?.listen || 'استمع')"></span>
             </button>
             <div id="listenChoices" class="listen-choices">
-              <template x-for="(choice, idx) in $store.app.listenChoices" :key="idx">
+              <template x-for="(choice, idx) in $store.app.listenChoices" :key="choice.text">
                 <button class="choice-btn listen-q-choice"
                   :class="{ correct: $store.app.quizAnswered && choice.isCorrect, wrong: $store.app.quizAnswered && !choice.isCorrect && choice.selected }"
                   :disabled="$store.app.quizAnswered"
-                  @click="$store.app.selectListenChoice(choice)"
+                  @click="$store.app.selectListenChoice(choice, $refs.quizCard)"
                   x-text="choice.text"></button>
               </template>
             </div>
           </div>
 
-          <div id="quizFeedback" class="quiz-feedback" :class="{ hidden: !$store.app.quizFeedbackType, correct: $store.app.quizFeedbackType === 'correct', wrong: $store.app.quizFeedbackType === 'wrong' }" x-html="$store.app.quizFeedbackText"></div>
+          <div id="quizFeedback" class="quiz-feedback" x-show="$store.app.quizFeedbackType" :class="{ correct: $store.app.quizFeedbackType === 'correct', wrong: $store.app.quizFeedbackType === 'wrong' }" x-html="$store.app.quizFeedbackText"></div>
         </div>
-        <button id="nextQuizBtn" class="next-btn" :class="{ 'hidden': !$store.app.quizAnswered }" @click="$store.app.nextQuizQuestion()">التالي ←</button>
+        <button id="nextQuizBtn" class="next-btn" x-show="$store.app.quizAnswered" @click="$store.app.nextQuizQuestion()" x-text="$store.app.CFG.ui?.next || 'التالي ←'"></button>
       </div>
 
       <div id="quizResult" class="quiz-result" x-show="$store.app.quizPhase === 'result'">
@@ -425,7 +443,7 @@
         <h2 x-text="$store.app.quizResultTitle || 'أحسنت!'">أحسنت!</h2>
         <div class="result-score" x-text="$store.app.quizResultScore"></div>
         <p x-text="$store.app.quizResultMsg"></p>
-        <button class="start-btn" @click="$store.app.retryQuiz()">مرة أخرى</button>
+        <button class="start-btn" @click="$store.app.retryQuiz()" x-text="$store.app.CFG.ui?.retry || 'مرة أخرى'"></button>
       </div>
     </div>
 
@@ -435,22 +453,22 @@
   <nav class="bottom-nav">
     <button class="bnav-btn" :class="{ 'active': $store.app.view === 'browse' }" @click="$store.app.switchView('browse')" data-view="browse">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-      <span id="navBrowseLabel">تصفح</span>
+      <span id="navBrowseLabel" x-text="$store.app.CFG.ui?.browseNav || 'تصفح'"></span>
     </button>
     <button class="bnav-btn" :class="{ 'active': $store.app.view === 'favorites' }" @click="$store.app.switchView('favorites')" data-view="favorites">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-      <span id="navFavsLabel">محفوظات</span>
+      <span id="navFavsLabel" x-text="$store.app.CFG.ui?.favsNav || 'محفوظات'"></span>
     </button>
     <button class="bnav-btn" :class="{ 'active': $store.app.view === 'quiz' }" @click="$store.app.switchView('quiz')" data-view="quiz">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      <span id="navQuizLabel">اختبار</span>
+      <span id="navQuizLabel" x-text="$store.app.CFG.ui?.quizNav || 'اختبار'"></span>
     </button>
   </nav>
 
   <!-- ABOUT MODAL -->
-  <div id="aboutOverlay" class="about-overlay" x-show="$store.app.aboutOpen" @click="$store.app.aboutOpen = false">
+  <div id="aboutOverlay" class="about-overlay" x-show="$store.app.aboutOpen" @click="$store.app.closeAbout()">
     <div class="about-modal" @click.stop>
-      <button class="about-close" id="aboutClose" @click="$store.app.aboutOpen = false" aria-label="close">
+      <button class="about-close" id="aboutClose" @click="$store.app.closeAbout()" aria-label="close">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
 
@@ -468,25 +486,52 @@
         </svg>
       </div>
 
-      <h1 class="about-title" id="aboutTitle"></h1>
+      <h1 class="about-title" id="aboutTitle" x-text="$store.app.CFG.about?.title || ''"></h1>
       <div class="about-divider"></div>
-      <div class="about-body" id="aboutBody"></div>
+      <div class="about-body" id="aboutBody" x-html="$store.app.aboutBodyHtml"></div>
 
     </div>
   </div>
 
   <!-- SETTINGS OVERLAY -->
-  <div id="settingsOverlay" class="settings-overlay" x-show="$store.app.settingsOpen" @click="$store.app.settingsOpen = false">
+  <div id="settingsOverlay" class="settings-overlay" x-show="$store.app.settingsOpen" @click="$store.app.closeSettings()">
     <div class="settings-modal" @click.stop>
       <div class="settings-header">
-        <span id="settingsTitleEl">الإعدادات</span>
-        <button class="settings-close-btn" id="settingsClose" @click="$store.app.settingsOpen = false">
+        <span id="settingsTitleEl" x-text="$store.app.CFG.ui?.settingsTitle || 'الإعدادات'"></span>
+        <button class="settings-close-btn" id="settingsClose" @click="$store.app.closeSettings()">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
-      <div id="settingsPanel"></div>
+      <div id="settingsPanel">
+        <div class="settings-row">
+          <span class="settings-label" x-text="$store.app.CFG.ui?.fontSizeLabel || 'حجم الخط'"></span>
+          <div class="settings-btns">
+            <button class="font-btn" :class="{ active: $store.app.fontSize === 'sm' }" @click="$store.app.applyFontSize('sm')">A</button>
+            <button class="font-btn" :class="{ active: $store.app.fontSize === 'md' }" @click="$store.app.applyFontSize('md')">A</button>
+            <button class="font-btn" :class="{ active: $store.app.fontSize === 'lg' }" @click="$store.app.applyFontSize('lg')">A</button>
+          </div>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label" x-text="$store.app.CFG.ui?.contrastLabel || 'وضع التباين'"></span>
+          <button class="settings-toggle" :class="{ active: $store.app.highContrast }" @click="$store.app.toggleContrast()">
+            <span class="toggle-knob"></span>
+          </button>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label" x-text="$store.app.CFG.ui?.shareAppUrl || 'مشاركة رابط التطبيق'"></span>
+          <button class="settings-action-btn" @click="$store.app.shareAppUrl()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          </button>
+        </div>
+      </div>
     </div>
   </div>
+
+  <!-- TOAST (reactive — CSS owns the animation via .show) -->
+  <div class="toast" :class="{ show: $store.app.toastVisible }" x-text="$store.app.toastMessage"></div>
+
+  <!-- SPARKLE LAYER (reactive effect owner — renders particles from store trigger) -->
+  <div class="sparkle-layer" x-data="sparkleLayer()" aria-hidden="true"></div>
 
 </div>
 

@@ -1,13 +1,12 @@
 // ===== BOOT — Service Registration + Init =====
 // Store and Alpine.data components are registered by src/store-init.js (runs before this module)
 
-import { loadContent, loadSavedContent, applyDeepLink, activeContent, applyFontSize, applyContrast, currentFontSize, highContrast } from './services/content.js';
-import { loadStorage, loadQuizHistory } from './services/storage.js';
+import { loadContent, applyDeepLink } from './services/content.js';
+import { loadStorage, loadQuizHistory, loadSettings, loadSavedContent, saveFavorites, recordAnswer, saveFontSize, saveContrast } from './services/storage.js';
 import { playAudio, stopAllAudio, stopListenAudio, playListenAudio } from './services/audio.js';
 import { showToast } from './services/toast.js';
 import { spawnSparkles } from './services/sparkles.js';
-import { copyQA, shareAsImage } from './services/share.js';
-import { saveFavorites, recordAnswer } from './services/storage.js';
+import { copyQA, shareAsImage, shareDeepLink } from './services/share.js';
 
 // Expose service functions to window so store-init.js methods can call them
 window.__playAudio = playAudio;
@@ -20,6 +19,12 @@ window.__shareAsImage = shareAsImage;
 window.__saveFavorites = saveFavorites;
 window.__recordAnswer = recordAnswer;
 window.__normalizeAr = normalizeAr;
+window.__loadContent = loadContent;
+window.__loadStorage = loadStorage;
+window.__loadQuizHistory = loadQuizHistory;
+window.__saveFontSize = saveFontSize;
+window.__saveContrast = saveContrast;
+window.__shareDeepLink = shareDeepLink;
 
 // Utilities exposed to Alpine templates
 function escHtml(s) {
@@ -76,32 +81,18 @@ window.buildHighlight = buildHighlight;
 window.escHtml = escHtml;
 window.normalizeAr = normalizeAr;
 
-// ===== SPLASH =====
-function hideSplash() {
-  const splash = document.getElementById('splash');
-  const app = document.getElementById('app');
-  setTimeout(() => {
-    splash.classList.add('fade-out');
-    setTimeout(() => {
-      splash.style.display = 'none';
-      app.classList.remove('hidden');
-    }, 800);
-  }, 1800);
-}
-
 // ===== INIT =====
 function init() {
   loadSavedContent();
   applyDeepLink();
-  loadContent(activeContent).then(() => {
+  const store = Alpine.store('app');
+  loadContent(store && store.activeContent ? store.activeContent : 'content.ar.json').then(() => {
     loadStorage();
     loadQuizHistory();
-    applyFontSize(currentFontSize);
-    applyContrast(highContrast);
-    // Populate cards and re-render
-    var store = Alpine.store('app');
+    loadSettings();
     if (store && store.renderCards) store.renderCards();
-    hideSplash();
+    // Splash is Alpine-driven: flipping appReady fades the splash out
+    if (store && store.setAppReady) store.setAppReady(true);
   });
 }
 

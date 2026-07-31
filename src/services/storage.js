@@ -1,48 +1,51 @@
-import { CFG, toArabic } from './content.js';
+// ===== STORAGE SERVICE =====
+// Owns ALL persistence (localStorage). Reads/writes app state only via store actions.
+import { CONTENT_FILES } from './content.js';
 
 let quizHistory = {};
 
+// Keys are namespaced per content dataset (meta.id), read from the store's CFG
+function contentKey(suffix) {
+  let id = 'default';
+  try {
+    const store = Alpine.store('app');
+    id = (store && store.CFG && store.CFG.meta && store.CFG.meta.id) || 'default';
+  } catch(e) {}
+  return suffix + '_' + id;
+}
+
 export function loadStorage() {
   try {
-    const favs = JSON.parse(localStorage.getItem('favs_' + (CFG.meta && CFG.meta.id || 'default')) || '[]');
-    try { Alpine.store('app').favorites = favs; } catch(e) {}
+    const favs = JSON.parse(localStorage.getItem(contentKey('favs')) || '[]');
+    const store = Alpine.store('app');
+    if (store) store.setFavorites(favs);
   } catch(e) {}
 }
 
 export function saveFavorites() {
-  let favs;
+  let favs = [];
   try {
     const store = Alpine.store('app');
     if (store && store.favorites) favs = store.favorites;
   } catch(e) {}
-  if (!favs) favs = [];
-  localStorage.setItem('favs_' + (CFG.meta && CFG.meta.id || 'default'), JSON.stringify(favs));
+  localStorage.setItem(contentKey('favs'), JSON.stringify(favs));
 }
 
 export function loadQuizHistory() {
   try {
-    quizHistory = JSON.parse(localStorage.getItem('hist_' + (CFG.meta && CFG.meta.id || 'default')) || '{}');
+    quizHistory = JSON.parse(localStorage.getItem(contentKey('hist')) || '{}');
   } catch(e) { quizHistory = {}; }
-  updateWeakOption();
+  syncQuizHistory();
 }
 
-export function updateWeakOption() {
-  const opt = document.getElementById('weakOption');
-  if (!opt) return;
-  const weakCount = getWeakIds().length;
-  if (weakCount > 0) {
-    opt.style.display = '';
-    opt.textContent = CFG.ui.weakSpotsLabel.replace("{n}", toArabic(weakCount));
-  } else {
-    opt.style.display = 'none';
-    const sel = document.getElementById('quizSection');
-    if (sel && sel.value === '__weak__') sel.value = 'all';
-  }
+function syncQuizHistory() {
+  const store = Alpine.store('app');
+  if (store) store.setQuizHistory(quizHistory);
 }
 
 export function saveQuizHistory() {
-  localStorage.setItem('hist_' + (CFG.meta && CFG.meta.id || 'default'), JSON.stringify(quizHistory));
-  updateWeakOption();
+  localStorage.setItem(contentKey('hist'), JSON.stringify(quizHistory));
+  syncQuizHistory();
 }
 
 export function recordAnswer(id, correct) {
@@ -52,10 +55,54 @@ export function recordAnswer(id, correct) {
   saveQuizHistory();
 }
 
-export function getWeakIds() {
-  return Object.entries(quizHistory)
-    .filter(([, v]) => v.wrong > v.correct)
-    .map(([id]) => parseInt(id));
+// ===== CONTENT CHOICE =====
+// Moved here from content.js so ALL localStorage lives in this service.
+
+export function loadSavedContent() {
+  try {
+    const saved = getSavedContentChoice();
+    const store = Alpine.store('app');
+    if (!store) return;
+    if (saved && CONTENT_FILES.some(f => f.file === saved)) {
+      store.setActiveContent(saved);
+    } else {
+      const userLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
+      if (userLang.startsWith('en')) {
+        store.setActiveContent('content.kanz-en.json');
+        saveContentChoice('content.kanz-en.json');
+      } else if (userLang.startsWith('ar')) {
+        store.setActiveContent('content.kanz-ar.json');
+        saveContentChoice('content.kanz-ar.json');
+      }
+    }
+  } catch(e) {}
+}
+
+export function saveContentChoice(file) {
+  try { localStorage.setItem('activeContent', file); } catch(e) {}
+}
+
+function getSavedContentChoice() {
+  try { return localStorage.getItem('activeContent'); } catch(e) { return null; }
+}
+
+// ===== APPEARANCE SETTINGS (localStorage only here, per architecture rules) =====
+
+export function loadSettings() {
+  try {
+    const font = localStorage.getItem('muntaqaa_font') || 'md';
+    const contrast = localStorage.getItem('muntaqaa_contrast') === 'true';
+    const store = Alpine.store('app');
+    if (store) store.setAppearance(font, contrast);
+  } catch(e) {}
+}
+
+export function saveFontSize(size) {
+  try { localStorage.setItem('muntaqaa_font', size); } catch(e) {}
+}
+
+export function saveContrast(on) {
+  try { localStorage.setItem('muntaqaa_contrast', on); } catch(e) {}
 }
 
 

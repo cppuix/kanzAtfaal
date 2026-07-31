@@ -39,7 +39,6 @@ body {
 }
 
 .hidden { display: none !important; }
-.active { display: flex !important; }
 
 /* SPLASH */
 #splash {
@@ -110,6 +109,9 @@ body {
 
 .content-switch-wrapper {
   position: relative;
+  display: flex;
+  gap: 2px;
+  align-items: center;
 }
 .content-popup {
   position: absolute;
@@ -244,6 +246,19 @@ main { flex: 1; padding-bottom: calc(80px + env(safe-area-inset-bottom)); }
   from { opacity: 0; }
   to   { opacity: 1; }
 }
+
+/* Entrance stagger — replaces the removed inline style (CSS owns animations) */
+.qa-card-wrap:nth-child(1)  { animation-delay: 0ms; }
+.qa-card-wrap:nth-child(2)  { animation-delay: 20ms; }
+.qa-card-wrap:nth-child(3)  { animation-delay: 40ms; }
+.qa-card-wrap:nth-child(4)  { animation-delay: 60ms; }
+.qa-card-wrap:nth-child(5)  { animation-delay: 80ms; }
+.qa-card-wrap:nth-child(6)  { animation-delay: 100ms; }
+.qa-card-wrap:nth-child(7)  { animation-delay: 120ms; }
+.qa-card-wrap:nth-child(8)  { animation-delay: 140ms; }
+.qa-card-wrap:nth-child(9)  { animation-delay: 160ms; }
+.qa-card-wrap:nth-child(10) { animation-delay: 180ms; }
+.qa-card-wrap:nth-child(n+11) { animation-delay: 200ms; }
 
 .qa-card-flipper {
   /* CSS Grid trick: both faces occupy the same grid cell,
@@ -984,3 +999,44 @@ body { font-size: calc(var(--font-size-base) * var(--font-scale)); }
   transition: color var(--transition), background var(--transition);
 }
 .copy-btn:hover, .share-img-btn:hover { color: var(--gold2); background: var(--gold-dim); }
+
+/* ===== PAGINATION ===== */
+.pagination {
+  display: flex;
+  justify-content: center;
+  justify-content: safe center;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 12px 10px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.pagination::-webkit-scrollbar { display: none; }
+.page-btn {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 6px;
+  border-radius: 9px;
+  background: var(--bg3);
+  border: 1px solid rgba(255,255,255,0.06);
+  color: var(--text2);
+  font-family: var(--font-main);
+  font-size: 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: color var(--transition), background var(--transition), border-color var(--transition);
+}
+.page-btn:hover:not(:disabled):not(.is-ellipsis) {
+  color: var(--gold2); background: var(--card); border-color: var(--gold-mid);
+}
+.page-btn.active {
+  background: var(--gold-dim); border-color: var(--gold); color: var(--gold2);
+}
+.page-btn.disabled { opacity: 0.35; cursor: default; }
+.page-btn.is-ellipsis {
+  background: none; border-color: transparent; cursor: default; opacity: 0.7;
+}

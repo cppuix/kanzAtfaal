@@ -25,21 +25,30 @@ Alpine.store('app', (function() {
   }
   const FUZZY_THRESHOLD = 0.5;
 
-  // ── SVG CONSTANTS (exposed to Alpine templates) ──
-  window.CHEST_SVG = '<svg class="chest-icon" viewBox="0 0 28 21" fill="none" xmlns="http://www.w3.org/2000/svg"><g class="chest-coins"><ellipse cx="9" cy="14" rx="3.5" ry="2" fill="#c9982a" opacity="0.9"/><ellipse cx="14" cy="13" rx="4" ry="2.2" fill="#e8bf5a" opacity="0.95"/><ellipse cx="19" cy="14" rx="3.5" ry="2" fill="#c9982a" opacity="0.9"/></g><rect x="2" y="11" width="24" height="9" rx="2" fill="#5a3a1a" stroke="#c9982a" stroke-width="1.2"/><rect x="4" y="13" width="20" height="5" rx="1" fill="#3a2208" stroke="#a07820" stroke-width="0.8"/><rect x="11" y="9.5" width="6" height="5" rx="1.5" fill="#c9982a" stroke="#a07820" stroke-width="0.8"/><circle cx="14" cy="12" r="1.2" fill="#172a1e" stroke="#a07820" stroke-width="0.5"/><rect x="2" y="10.5" width="24" height="2" rx="0.5" fill="#c9982a" opacity="0.55"/><rect class="chest-lid" x="2" y="2" width="24" height="10" rx="3" fill="#6a4520" stroke="#c9982a" stroke-width="1.2"/><rect x="4.5" y="4" width="19" height="6" rx="1.5" fill="#4a2e0e" stroke="#a07820" stroke-width="0.7"/></svg>';
-  window.PLAY_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
-  window.STOP_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>';
-  window.favStarSVG = function(isFav) {
+  // ── SVG CONSTANTS (local consts; exposed to templates via store getters) ──
+  const CHEST_SVG = '<svg class="chest-icon" viewBox="0 0 28 21" fill="none" xmlns="http://www.w3.org/2000/svg"><g class="chest-coins"><ellipse cx="9" cy="14" rx="3.5" ry="2" fill="#c9982a" opacity="0.9"/><ellipse cx="14" cy="13" rx="4" ry="2.2" fill="#e8bf5a" opacity="0.95"/><ellipse cx="19" cy="14" rx="3.5" ry="2" fill="#c9982a" opacity="0.9"/></g><rect x="2" y="11" width="24" height="9" rx="2" fill="#5a3a1a" stroke="#c9982a" stroke-width="1.2"/><rect x="4" y="13" width="20" height="5" rx="1" fill="#3a2208" stroke="#a07820" stroke-width="0.8"/><rect x="11" y="9.5" width="6" height="5" rx="1.5" fill="#c9982a" stroke="#a07820" stroke-width="0.8"/><circle cx="14" cy="12" r="1.2" fill="#172a1e" stroke="#a07820" stroke-width="0.5"/><rect x="2" y="10.5" width="24" height="2" rx="0.5" fill="#c9982a" opacity="0.55"/><rect class="chest-lid" x="2" y="2" width="24" height="10" rx="3" fill="#6a4520" stroke="#c9982a" stroke-width="1.2"/><rect x="4.5" y="4" width="19" height="6" rx="1.5" fill="#4a2e0e" stroke="#a07820" stroke-width="0.7"/></svg>';
+  const PLAY_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+  const STOP_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>';
+  function favStarSVG(isFav) {
     return '<svg width="18" height="18" viewBox="0 0 24 24" fill="' + (isFav ? '#c9982a' : 'none') + '" stroke="' + (isFav ? '#c9982a' : '#6e6048') + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
-  };
+  }
+  // Kept as aliases until templates switch to $store.app.* getters (Phase 2)
+  window.CHEST_SVG = CHEST_SVG;
+  window.PLAY_SVG = PLAY_SVG;
+  window.STOP_SVG = STOP_SVG;
+  window.favStarSVG = favStarSVG;
 
   return {
     // ── Content data ──
     CFG: {},
     QA_DATA: [],
     SECTIONS: [],
-    activeContent: 'content.kanz-ar.json',
+    activeContent: 'content.ar.json',
+    contentLoading: false,
     contentLoaded: false,
+    // Version counter: bump whenever the dataset identity changes (content switch)
+    // and include it in x-for keys so Alpine re-creates items with fresh data.
+    cardVersion: 0,
     contentFiles: [
       { file: 'content.ar.json',      label: 'منتقى عربي' },
       { file: 'content.kanz-ar.json', label: 'كنز عربي' },
@@ -56,6 +65,18 @@ Alpine.store('app', (function() {
     searchSection: 'all',
     aboutOpen: false,
     settingsOpen: false,
+    // Boot state: set to true once content + storage are ready (hides splash)
+    appReady: false,
+
+    // ── Toast (reactive — rendered by template) ──
+    toastMessage: '',
+    toastVisible: false,
+    _toastTimer: null,
+
+    // ── Sparkles (trigger only — sparkleLayer component renders particles) ──
+    sparkleTrigger: 0,
+    sparkleTarget: null,
+    sparkleBig: false,
 
     // ── Favorites & open cards ──
     favorites: [],
@@ -87,15 +108,13 @@ Alpine.store('app', (function() {
     quizResultScore: '',
 
     // ── Settings ──
-    fontSize: localStorage.getItem('muntaqaa_font') || 'md',
-    highContrast: localStorage.getItem('muntaqaa_contrast') === 'true',
+    // Defaults only — persisted values are applied at boot via storage.loadSettings()
+    fontSize: 'md',
+    highContrast: false,
 
-    // ── Pagination ──
-    visibleCount: 30,
-    PAGE_SIZE: 30,
-    browseSentinel: null,
-    browseObserver: null,
-    browseCards: [],
+    // ── Pagination (browse view) ──
+    pageSize: 30,
+    currentPage: 1,
 
     // ── Computed ──
     get filteredCards() {
@@ -118,23 +137,46 @@ Alpine.store('app', (function() {
         .sort(function(a, b) { return b.score - a.score; });
     },
 
-    get hasMore() { return this.visibleCount < this.filteredCards.length; },
-
-    // ── Render cards explicitly (plain property, not getter — ensures Alpine reactivity) ──
-    renderCards: function() {
-      this.browseCards = this.filteredCards.slice(0, this.visibleCount);
+    // ── Pagination: browseCards exposes only the current page slice ──
+    get pageCount() {
+      return Math.max(1, Math.ceil(this.filteredCards.length / this.pageSize));
     },
-    resetPagination: function() {
-      this.visibleCount = this.PAGE_SIZE;
-      if (this.browseObserver) { this.browseObserver.disconnect(); this.browseObserver = null; }
-      this.browseSentinel = null;
-      this.renderCards();
+    get browseCards() {
+      var start = (this.currentPage - 1) * this.pageSize;
+      return this.filteredCards.slice(start, start + this.pageSize);
     },
-    loadMore: function() {
-      if (!this.hasMore) return;
-      this.visibleCount += this.PAGE_SIZE;
-      this.renderCards();
+    // Pre-computed page strip for the pager (first / prev / pages / next / last)
+    get pagerItems() {
+      var total = this.pageCount;
+      var cur = this.currentPage;
+      if (total <= 1) return [];
+      var items = [];
+      items.push({ type: 'first', label: '«', page: 1, disabled: cur === 1 });
+      items.push({ type: 'prev', label: '‹', page: cur - 1, disabled: cur === 1 });
+      var start = Math.max(1, cur - 1);
+      var end = Math.min(total, start + 2);
+      start = Math.max(1, end - 2);
+      if (start > 1) items.push({ type: 'ellipsis', label: '…', page: null, disabled: true });
+      for (var p = start; p <= end; p++) items.push({ type: 'page', label: this.toArabic(p), page: p, disabled: false });
+      if (end < total) items.push({ type: 'ellipsis', label: '…', page: null, disabled: true });
+      items.push({ type: 'next', label: '›', page: cur + 1, disabled: cur === total });
+      items.push({ type: 'last', label: '»', page: total, disabled: cur === total });
+      return items;
     },
+    renderCards: function() { /* no-op — Alpine reactivity handles rendering */ },
+    resetPagination: function() { this.currentPage = 1; },
+    goToPage: function(p) {
+      if (typeof p !== 'number' || p < 1) return;
+      var max = this.pageCount;
+      if (p > max) p = max;
+      if (p === this.currentPage) return;
+      this.currentPage = p;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    },
+    nextPage: function() { this.goToPage(this.currentPage + 1); },
+    prevPage: function() { this.goToPage(this.currentPage - 1); },
+    firstPage: function() { this.goToPage(1); },
+    lastPage: function() { this.goToPage(this.pageCount); },
 
     get weakIds() {
       return Object.entries(this.quizHistory)
@@ -162,18 +204,85 @@ Alpine.store('app', (function() {
       return counts;
     },
 
+    // ── Theme helpers (CSS consumes these via <html> bindings) ──
+    get fontScale() { return ({ sm: '0.82', md: '1', lg: '1.35' })[this.fontSize] || '1'; },
+    // Document metadata (applied reactively on <html> via :dir / :lang)
+    get dir() { return this.CFG.meta?.dir || 'rtl'; },
+    get lang() { return this.CFG.meta?.lang || 'ar'; },
+    get fonts() { return (this.CFG.meta?.fonts || []).join(',').toLowerCase(); },
+    get appTitle() { return this.CFG.ui?.appTitle || 'منتقى كنز الأطفال'; },
+    get weakOptionLabel() {
+      return (this.CFG.ui?.weakSpotsLabel || 'نقاط الضعف {n}').replace('{n}', this.toArabic(this.weakIds.length));
+    },
+    get aboutBodyHtml() {
+      var about = this.CFG.about;
+      if (!about) return '';
+      var parts = (about.body || []).map(function(p) { return '<p>' + this.escHtml(p) + '</p>'; }.bind(this));
+      if (about.contactTitle && about.contacts) {
+        parts.push('<div class="about-divider"></div>'
+          + '<h2 class="about-contact-title">' + this.escHtml(about.contactTitle) + '</h2>'
+          + '<ul class="about-contact">'
+          + about.contacts.map(function(c) {
+              return '<li><span class="about-contact-label">' + this.escHtml(c.label) + '</span>'
+                + '<a href="' + this.escHtml(c.href) + '">' + this.escHtml(c.value) + '</a></li>';
+            }.bind(this)).join('')
+          + '</ul>');
+      }
+      return parts.join('');
+    },
+
+    // ── SVG constants exposed to templates (replaces window.* globals) ──
+    get chestSVG() { return CHEST_SVG; },
+    get playSVG() { return PLAY_SVG; },
+    get stopSVG() { return STOP_SVG; },
+    favStarSVG: function(isFav) { return favStarSVG(isFav); },
+
+    // ── Escaping / search helpers (moved off window; templates use $store.app.*) ──
+    escHtml: function(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    },
+    normalizeAr: function(str) { return normalizeAr(str); },
+    buildHighlight: function(text, query) {
+      if (!query.trim()) return this.escHtml(text);
+      const normText  = this.normalizeAr(text);
+      const normQuery = this.normalizeAr(query);
+      const idx = normText.indexOf(normQuery);
+      if (idx !== -1) {
+        let origStart = -1, origEnd = -1;
+        let ni = 0;
+        for (let i = 0; i < text.length; i++) {
+          const nc = this.normalizeAr(text[i]);
+          if (ni === idx && origStart === -1) origStart = i;
+          ni += nc.length;
+          if (ni === idx + normQuery.length) { origEnd = i + 1; break; }
+        }
+        if (origStart !== -1 && origEnd !== -1) {
+          return this.escHtml(text.slice(0, origStart))
+            + '<mark>' + this.escHtml(text.slice(origStart, origEnd)) + '</mark>'
+            + this.escHtml(text.slice(origEnd));
+        }
+      }
+      let result = '';
+      let qi = 0;
+      const normQ = this.normalizeAr(query);
+      for (let i = 0; i < text.length; i++) {
+        const nc = this.normalizeAr(text[i]);
+        if (qi < normQ.length && nc === normQ[qi]) {
+          result += '<mark>' + this.escHtml(text[i]) + '</mark>';
+          qi++;
+        } else {
+          result += this.escHtml(text[i]);
+        }
+      }
+      return result;
+    },
+
     // ── Methods (service dependencies set via window.__ by boot.js) ──
     toggleDrawer: function() {
       this.drawerOpen = !this.drawerOpen;
-      var d = document.getElementById('drawer'), o = document.getElementById('overlay');
-      if (d) d.classList.toggle('open', this.drawerOpen);
-      if (o) o.classList.toggle('hidden', !this.drawerOpen);
     },
     closeDrawer: function() {
       this.drawerOpen = false;
-      var d = document.getElementById('drawer'), o = document.getElementById('overlay');
-      if (d) d.classList.remove('open');
-      if (o) o.classList.add('hidden');
     },
     switchView: function(view) {
       if (window.__stopAllAudio) window.__stopAllAudio();
@@ -187,8 +296,6 @@ Alpine.store('app', (function() {
       this.search = '';
       this.drawerOpen = false;
       this.resetPagination();
-      var si = document.getElementById('searchInput');
-      if (si) si.value = '';
       this.closeDrawer();
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },
@@ -200,8 +307,8 @@ Alpine.store('app', (function() {
     setSearchSection: function(sec) { this.searchSection = sec; this.resetPagination(); this.renderCards(); },
     toggleFav: function(id) {
       var idx = this.favorites.indexOf(id);
-      if (idx !== -1) { this.favorites.splice(idx, 1); if (window.__showToast) window.__showToast(this.CFG.ui?.unsaved || 'تمت الإزالة'); }
-      else { this.favorites.push(id); if (window.__showToast) window.__showToast(this.CFG.ui?.saved || 'تمت الحفظ'); }
+      if (idx !== -1) { this.favorites.splice(idx, 1); this.showToast(this.CFG.ui?.unsaved || 'تمت الإزالة'); }
+      else { this.favorites.push(id); this.showToast(this.CFG.ui?.saved || 'تمت الحفظ'); }
       if (window.__saveFavorites) window.__saveFavorites();
     },
     isFav: function(id) { return this.favorites.includes(id); },
@@ -213,46 +320,92 @@ Alpine.store('app', (function() {
     },
     toArabic: function(n) { return this.CFG.meta?.numerals === 'arabic' ? String(n).replace(/[0-9]/g, function(d) { return '٠١٢٣٤٥٦٧٨٩'[d]; }) : String(n); },
 
-    initSentinel: function(el) {
-      var self = this;
-      if (this.browseObserver) this.browseObserver.disconnect();
-      this.browseSentinel = el;
-      this.browseObserver = new IntersectionObserver(function(entries) {
-        if (entries[0].isIntersecting) self.loadMore();
-      }, { rootMargin: '200px' });
-      this.browseObserver.observe(el);
-    },
+    initSentinel: function() { /* no-op — infinite scroll removed */ },
     switchContent: async function(file) {
-      var self = this;
       if (file === this.activeContent) return;
+      this.contentLoading = true;
       this.section = 'all'; this.search = ''; this.searchScope = 'both'; this.searchSection = 'all';
       this.openCards = []; this.quizQuestions = []; this.quizCurrent = 0; this.quizScore = 0; this.quizAnswered = false;
       this.resetPagination();
       if (window.__stopAllAudio) window.__stopAllAudio();
       if (window.__stopListenAudio) window.__stopListenAudio();
       this.searchOpen = false;
-      // Load content via content.js (single fetch, syncs to store)
       try {
-        var mod = await import('./services/content.js');
-        var storage = await import('./services/storage.js');
-        await mod.loadContent(file);
-        storage.loadStorage();
-        storage.loadQuizHistory();
-      } catch(e) { return; }
+        await window.__loadContent(file);
+        window.__loadStorage();
+        window.__loadQuizHistory();
+      } catch(e) {
+        this.contentLoading = false;
+        this.showToast('فشل تحميل المحتوى');
+        return;
+      }
+      // Dataset identity changed — bump so x-for keys change and cards re-render fresh
+      this.cardVersion++;
       this.renderCards();
+      this.contentLoading = false;
       this.view = 'browse';
     },
     applyFontSize: function(size) {
       this.fontSize = size;
-      document.documentElement.style.setProperty('--font-scale', ({ sm: '0.82', md: '1', lg: '1.35' })[size] || '1');
-      localStorage.setItem('muntaqaa_font', size);
+      if (window.__saveFontSize) window.__saveFontSize(size);
     },
     applyContrast: function(on) {
       this.highContrast = on;
-      document.documentElement.classList.toggle('high-contrast', on);
-      localStorage.setItem('muntaqaa_contrast', on);
+      if (window.__saveContrast) window.__saveContrast(on);
     },
     toggleContrast: function() { this.applyContrast(!this.highContrast); },
+    // Sets appearance from persisted storage at boot (no re-save)
+    setAppearance: function(font, contrast) {
+      if (font) this.fontSize = font;
+      if (contrast !== undefined && contrast !== null) this.highContrast = !!contrast;
+    },
+
+    // ── Toast (reactive — rendered by template, CSS owns the animation) ──
+    showToast: function(msg) {
+      this.toastMessage = msg;
+      this.toastVisible = true;
+      clearTimeout(this._toastTimer);
+      var self = this;
+      this._toastTimer = setTimeout(function() { self.toastVisible = false; }, 2000);
+    },
+
+    // ── Sparkles (trigger only — sparkleLayer component renders particles) ──
+    triggerSparkles: function(el, big) {
+      this.sparkleTarget = el || null;
+      this.sparkleBig = !!big;
+      this.sparkleTrigger++;
+    },
+
+    // ── Modal / settings actions ──
+    openSettings: function() { this.settingsOpen = true; },
+    closeSettings: function() { this.settingsOpen = false; },
+    openAbout: function() { this.aboutOpen = true; this.closeDrawer(); },
+    closeAbout: function() { this.aboutOpen = false; },
+
+    // ── Quiz setup actions ──
+    setQuizCount: function(n) { this.quizCount = n; },
+    setQuizMode: function(mode) { this.quizMode = mode; },
+
+    // ── Data actions (services hand data to the store through these) ──
+    setContentData: function(cfg, qaData, sections, file) {
+      this.CFG = cfg;
+      this.QA_DATA = qaData;
+      this.SECTIONS = sections;
+      this.activeContent = file;
+      this.contentLoaded = true;
+      // Isolated page-metadata write — <title> cannot be Alpine-bound
+      document.title = cfg?.ui?.appTitle || this.appTitle;
+    },
+    setFavorites: function(favs) { this.favorites = favs || []; },
+    setActiveContent: function(file) { this.activeContent = file; },
+    setQuizHistory: function(hist) {
+      // Copy so reactivity fires even when the same source object is mutated in place
+      this.quizHistory = hist ? { ...hist } : {};
+      // If the weak section is selected but no weak items remain, fall back to 'all'
+      if (this.quizSection === '__weak__' && this.weakPool.length === 0) this.quizSection = 'all';
+    },
+    setAppReady: function(ready) { this.appReady = !!ready; },
+    shareAppUrl: function() { if (window.__shareDeepLink) window.__shareDeepLink(); },
 
     // ── QUIZ ──
     initQuiz: function() {
@@ -262,7 +415,7 @@ Alpine.store('app', (function() {
       else pool = this.QA_DATA.filter(function(q) { return q.section === sec; });
       if (this.quizMode === 'build') pool = pool.filter(function(q) { return q.a.trim().split(/\s+/).length >= (this.CFG.meta?.buildMinWords || 4); }.bind(this));
       else if (this.quizMode === 'blank') pool = pool.filter(function(q) { return q.a.trim().split(/\s+/).length >= (this.CFG.meta?.blankMinWords || 3); }.bind(this));
-      if (pool.length === 0) { if (window.__showToast) window.__showToast(this.CFG.ui?.notEnoughQuestions || 'لا توجد أسئلة كافية'); return; }
+      if (pool.length === 0) { this.showToast(this.CFG.ui?.notEnoughQuestions || 'لا توجد أسئلة كافية'); return; }
       pool = [...pool].sort(function() { return Math.random() - 0.5; }).slice(0, Math.min(count, pool.length));
       this.quizQuestions = pool; this.quizCurrent = 0; this.quizScore = 0; this.quizAnswered = false; this.quizPhase = 'game';
       this.quizFeedbackType = ''; this.quizFeedbackText = '';
@@ -290,7 +443,7 @@ Alpine.store('app', (function() {
       var choices = [qa, ...others].sort(function() { return Math.random() - 0.5; });
       this.quizChoices = choices.map(function(c) { return { text: c.a, isCorrect: c.id === qa.id, selected: false }; });
     },
-    selectMCQChoice: function(choice) {
+    selectMCQChoice: function(choice, el) {
       if (this.quizAnswered) return;
       this.quizAnswered = true;
       choice.selected = true;
@@ -300,11 +453,11 @@ Alpine.store('app', (function() {
         this.quizScore++;
         this.quizFeedbackType = 'correct';
         this.quizFeedbackText = this.CFG.ui?.correctMCQFeedback || 'أحسنت! إجابة صحيحة';
-        if (window.__spawnSparkles) window.__spawnSparkles(document.querySelector('.quiz-card'), true);
+        this.triggerSparkles(el, true);
       } else {
         this.quizFeedbackType = 'wrong';
         var correctText = this.quizChoices.filter(function(c) { return c.isCorrect; })[0]?.text || '';
-        this.quizFeedbackText = (this.CFG.ui?.wrongMCQFeedback || 'الإجابة الصحيحة:') + ' <strong>' + window.escHtml(correctText) + '</strong>';
+        this.quizFeedbackText = (this.CFG.ui?.wrongMCQFeedback || 'الإجابة الصحيحة:') + ' <strong>' + this.escHtml(correctText) + '</strong>';
       }
     },
 
@@ -335,22 +488,22 @@ Alpine.store('app', (function() {
       this.buildPool = this.buildPool.slice();
       this.buildPlaced = this.buildPlaced.slice();
     },
-    checkBuildAnswer: function() {
+    checkBuildAnswer: function(el) {
       if (this.quizAnswered) return;
       var qa = this.currentQuestion;
       if (!qa) return;
       var userAnswer = this.buildPlaced.map(function(p) { return p.word; }).join(' ');
-      var correct = window.__normalizeAr ? window.__normalizeAr(userAnswer) === window.__normalizeAr(qa.a) : (userAnswer === qa.a);
+      var correct = this.normalizeAr(userAnswer) === this.normalizeAr(qa.a);
       this.quizAnswered = true;
       if (window.__recordAnswer) window.__recordAnswer(qa.id, correct);
       if (correct) {
         this.quizScore++;
         this.quizFeedbackType = 'correct';
         this.quizFeedbackText = this.CFG.ui?.correctFeedback || 'أحسنت!';
-        if (window.__spawnSparkles) window.__spawnSparkles(document.getElementById('buildAnswer'), true);
+        this.triggerSparkles(el, true);
       } else {
         this.quizFeedbackType = 'wrong';
-        this.quizFeedbackText = (this.CFG.ui?.wrongOrderFeedback || 'الإجابة الصحيحة:') + ' <strong>' + window.escHtml(qa.a) + '</strong>';
+        this.quizFeedbackText = (this.CFG.ui?.wrongOrderFeedback || 'الإجابة الصحيحة:') + ' <strong>' + this.escHtml(qa.a) + '</strong>';
       }
     },
 
@@ -375,7 +528,7 @@ Alpine.store('app', (function() {
       var distractors = [...new Set(allWords)].sort(function() { return Math.random() - 0.5; }).slice(0, 3);
       this.blankOptions = [keyWord, ...distractors].sort(function() { return Math.random() - 0.5; });
     },
-    selectBlankChoice: function(word) {
+    selectBlankChoice: function(word, el) {
       if (this.quizAnswered) return;
       var qa = this.currentQuestion;
       if (!qa) return;
@@ -387,10 +540,10 @@ Alpine.store('app', (function() {
         this.quizScore++;
         this.quizFeedbackType = 'correct';
         this.quizFeedbackText = this.CFG.ui?.correctBlankFeedback || 'أحسنت!';
-        if (window.__spawnSparkles) window.__spawnSparkles(document.querySelector('.blank-choice-btn.correct'), true);
+        this.triggerSparkles(el, true);
       } else {
         this.quizFeedbackType = 'wrong';
-        this.quizFeedbackText = (this.CFG.ui?.wrongBlankFeedback || 'الإجابة الصحيحة:') + ' <strong>' + window.escHtml(this.blankCorrect) + '</strong>';
+        this.quizFeedbackText = (this.CFG.ui?.wrongBlankFeedback || 'الإجابة الصحيحة:') + ' <strong>' + this.escHtml(this.blankCorrect) + '</strong>';
       }
     },
 
@@ -404,7 +557,7 @@ Alpine.store('app', (function() {
     playListenAudio: function() {
       var qa = this.currentQuestion;
       if (!qa) return;
-      // Stop previous audio
+      if (window.__stopListenAudio) window.__stopListenAudio();
       if (this._currentListenAudio) { this._currentListenAudio.pause(); this._currentListenAudio = null; }
       var audio = new Audio((this.CFG.meta?.audioPath || 'audios/{id}.opus').replace('{id}', qa.id));
       this._currentListenAudio = audio;
@@ -418,7 +571,7 @@ Alpine.store('app', (function() {
         self.listenBtnText = self.CFG.ui?.audioError || 'خطأ';
       });
     },
-    selectListenChoice: function(choice) {
+    selectListenChoice: function(choice, el) {
       if (this.quizAnswered) return;
       var qa = this.currentQuestion;
       if (!qa) return;
@@ -431,11 +584,11 @@ Alpine.store('app', (function() {
         this.quizScore++;
         this.quizFeedbackType = 'correct';
         this.quizFeedbackText = this.CFG.ui?.correctListenFeedback || 'أحسنت!';
-        if (window.__spawnSparkles) window.__spawnSparkles(document.querySelector('.quiz-card'), true);
+        this.triggerSparkles(el, true);
       } else {
         this.quizFeedbackType = 'wrong';
         var correctText = this.listenChoices.filter(function(c) { return c.isCorrect; })[0]?.text || '';
-        this.quizFeedbackText = (this.CFG.ui?.wrongListenFeedback || 'الإجابة الصحيحة:') + ' <strong>' + window.escHtml(correctText) + '</strong>';
+        this.quizFeedbackText = (this.CFG.ui?.wrongListenFeedback || 'الإجابة الصحيحة:') + ' <strong>' + this.escHtml(correctText) + '</strong>';
       }
     },
 
@@ -446,10 +599,10 @@ Alpine.store('app', (function() {
       var self = this;
       return words.map(function(w, i) {
         if (i === self.blankKeyIdx && self.blankFilled) {
-          return '<span class="blank-filled ' + (self.blankFilled === self.blankCorrect ? 'correct' : 'wrong') + '">' + window.escHtml(self.blankFilled) + '</span>';
+          return '<span class="blank-filled ' + (self.blankFilled === self.blankCorrect ? 'correct' : 'wrong') + '">' + self.escHtml(self.blankFilled) + '</span>';
         }
         if (i === self.blankKeyIdx) return '<span class="blank-slot">_____</span>';
-        return window.escHtml(w);
+        return self.escHtml(w);
       }).join(' ');
     },
 
@@ -493,8 +646,8 @@ Alpine.data('qaCard', function(qa, matchIn) {
     toggle: function() {
       Alpine.store('app').toggleCard(qa.id);
       if (Alpine.store('app').openCards.includes(qa.id)) {
-        var el = this.$el.querySelector('.qa-toggle');
-        if (el && window.__spawnSparkles) window.__spawnSparkles(el, false);
+        // Source element is passed via $refs (no DOM queries in components)
+        Alpine.store('app').triggerSparkles(this.$refs.toggleBtn, false);
       }
     },
     toggleFav: function(e) { e.stopPropagation(); Alpine.store('app').toggleFav(qa.id); },
@@ -504,6 +657,53 @@ Alpine.data('qaCard', function(qa, matchIn) {
     },
     copyQA: function(e) { e.stopPropagation(); if (window.__copyQA) window.__copyQA(qa); },
     shareImage: function(e) { e.stopPropagation(); if (window.__shareAsImage) window.__shareAsImage(qa); }
+  };
+});
+
+// ── Sparkle Layer component — owns sparkle particle DOM (CSS-animation owner) ──
+Alpine.data('sparkleLayer', function() {
+  return {
+    init() {
+      var self = this;
+      this.$watch('$store.app.sparkleTrigger', function() { self.spawn(); });
+    },
+    spawn() {
+      var store = Alpine.store('app');
+      var sourceEl = store.sparkleTarget;
+      if (!sourceEl || !this.$el) return;
+      var rect = sourceEl.getBoundingClientRect();
+      var cx = rect.left + rect.width / 2;
+      var cy = rect.top + rect.height / 2;
+      var big = store.sparkleBig;
+      var count = big ? 28 : 14;
+      var colors = ['#f5d98a','#e8bf5a','#c9982a','#fff8dc','#ffe066','#f0c96a'];
+      var shapes = ['●','◆','✦','★','·'];
+      for (var i = 0; i < count; i++) {
+        var p = document.createElement('span');
+        p.className = 'sparkle-particle';
+        p.textContent = shapes[Math.floor(Math.random() * shapes.length)];
+        var angle = (Math.PI * 2 * i / count) + (Math.random() - 0.5) * 0.8;
+        var dist = big ? 60 + Math.random() * 90 : 30 + Math.random() * 50;
+        var dx = Math.cos(angle) * dist;
+        var dy = Math.sin(angle) * dist;
+        var size = big ? 10 + Math.random() * 10 : 7 + Math.random() * 7;
+        var dur = big ? 600 + Math.random() * 500 : 450 + Math.random() * 350;
+        var delay = Math.random() * (big ? 120 : 60);
+        p.style.cssText =
+          'left: ' + cx + 'px; top: ' + cy + 'px;' +
+          'font-size: ' + size + 'px; color: ' + colors[Math.floor(Math.random() * colors.length)] + ';' +
+          '--dx: ' + dx + 'px; --dy: ' + dy + 'px;' +
+          'animation: sparklefly ' + dur + 'ms ease-out ' + delay + 'ms forwards;';
+        this.$el.appendChild(p);
+        setTimeout(function() { if (p.parentNode) p.parentNode.removeChild(p); }, dur + delay + 50);
+      }
+      if (big) {
+        var shimmer = document.createElement('div');
+        shimmer.className = 'win-shimmer';
+        this.$el.appendChild(shimmer);
+        setTimeout(function() { if (shimmer.parentNode) shimmer.parentNode.removeChild(shimmer); }, 600);
+      }
+    }
   };
 });
 });
