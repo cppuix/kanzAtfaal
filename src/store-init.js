@@ -316,6 +316,12 @@ Alpine.store('app', (function() {
     get contentSwitchLabel() { return this.lang === 'en' ? 'Language' : 'اللغة'; },
     get searchNavLabel() { return this.lang === 'en' ? 'Search' : 'بحث'; },
     get searchEmptyHint() { return this.lang === 'en' ? 'Type to search questions & answers' : 'اكتب كلمة للبحث في الأسئلة والأجوبة'; },
+    get searchInputLabel() { return this.lang === 'en' ? 'Search questions and answers' : 'ابحث في الأسئلة والأجوبة'; },
+    fontSizeLabel: function(size) {
+      var m = { sm: ['Small', 'صغير'], md: ['Medium', 'متوسط'], lg: ['Large', 'كبير'], xl: ['Extra large', 'كبير جدًا'] };
+      var v = m[size] || ['A', 'A'];
+      return this.lang === 'en' ? v[0] : v[1];
+    },
     get fontLabel() { return this.lang === 'en' ? 'Font' : 'الخط'; },
     get fontPreviewLabel() { return this.lang === 'en' ? 'Preview' : 'معاينة الخط'; },
     get fontPresets() {
@@ -787,6 +793,7 @@ Alpine.data('qaCard', function(id) {
     get qa() { return Alpine.store('app').getCard(this.id) || {}; },
     get hlQuery() { return Alpine.store('app').search || ''; },
     get isFav() { return Alpine.store('app').favorites.includes(this.id); },
+    get isOpen() { return Alpine.store('app').openCards.includes(this.id); },
     toggle: function() {
       Alpine.store('app').toggleCard(this.id);
       if (Alpine.store('app').openCards.includes(this.id)) {

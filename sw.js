@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v25'; // decluttered header: Search tab + Language pill + slim drawer
+const CACHE_NAME = 'muntaqaa-v26'; // screen-reader pass: inert card faces, drawer/search keyboard, live regions, labeled controls
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [

@@ -26,7 +26,7 @@
   <div id="splash" x-show="!$store.app.appReady" x-transition>
   <div class="splash-inner">
     <div class="splash-logo-wrap">
-      <img class="splash-logo" src="icon-512.png" alt="كنز الأطفال">
+      <img class="splash-logo" src="icon-512.png" alt="">
     </div>
     <h1 class="splash-title">كنز<br/>الأطفال</h1>
     <p class="splash-sub">تعلّم العقيدة الإسلامية</p>
@@ -40,7 +40,7 @@
 
   <!-- TOP BAR -->
   <header class="topbar">
-    <button class="icon-btn" id="menuToggle" x-show="$store.app.view !== 'about' && $store.app.view !== 'settings'" @click="$store.app.toggleDrawer()" aria-label="القائمة">
+    <button class="icon-btn" id="menuToggle" x-ref="menuBtn" x-show="$store.app.view !== 'about' && $store.app.view !== 'settings'" @click="$store.app.toggleDrawer()" aria-label="القائمة">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
         <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
       </svg>
@@ -68,7 +68,7 @@
 
   <!-- SIDE DRAWER -->
   <div id="overlay" class="overlay" x-show="$store.app.drawerOpen" @click="$store.app.closeDrawer()"></div>
-  <nav id="drawer" class="drawer" :class="{ 'open': $store.app.drawerOpen }">
+  <nav id="drawer" class="drawer" :class="{ 'open': $store.app.drawerOpen }" tabindex="-1" x-ref="drawerPanel" x-init="$watch('$store.app.drawerOpen', v => { $nextTick(() => { if (v) $refs.drawerPanel.focus(); else if ($refs.menuBtn) $refs.menuBtn.focus(); }); })">
     <div class="drawer-header">
       <span id="drawerSectionsTitle" x-text="$store.app.CFG.ui?.allSectionsShort || 'الأبواب'"></span>
       <div class="drawer-header-actions">
@@ -89,7 +89,7 @@
     </div>
     <ul id="sectionList" class="section-list">
       <template x-for="sec in $store.app.SECTIONS" :key="sec">
-        <li class="section-item" :class="{ active: $store.app.section === sec }" @click="$store.app.setSection(sec)">
+        <li class="section-item" :class="{ active: $store.app.section === sec }" role="button" tabindex="0" @click="$store.app.setSection(sec)" @keydown.enter="$store.app.setSection(sec)" @keydown.space.prevent="$store.app.setSection(sec)">
           <span x-text="sec"></span>
           <span class="count" x-text="$store.app.toArabic($store.app.sectionCounts[sec] || 0)"></span>
         </li>
@@ -112,12 +112,12 @@
           <div class="qa-card-wrap" :class="{ open: $store.app.openCards.includes(item.qa.id) }" x-data="qaCard(item.qa.id)">
             <div class="qa-card-flipper">
               <!-- FRONT FACE -->
-              <div class="qa-face qa-face-front">
+              <div class="qa-face qa-face-front" :inert="isOpen" :aria-hidden="isOpen ? 'true' : 'false'">
                 <div class="qa-card-header" @click="toggle()">
                   <span class="qa-num" x-text="$store.app.CFG.ui?.questionNum?.replace('{n}', $store.app.toArabic(qa.id))"></span>
                   <span class="qa-question" x-text="hlQuery ? '' : qa.q" x-show="!hlQuery"></span>
                   <span class="qa-question" x-html="hlQuery ? $store.app.buildHighlight(qa.q, hlQuery) : ''" x-show="hlQuery"></span>
-                  <button class="qa-toggle" x-ref="toggleBtn" @click.stop="toggle()" :aria-label="$store.app.CFG.ui?.showAnswer">
+                  <button class="qa-toggle" x-ref="toggleBtn" @click.stop="toggle()" :aria-label="$store.app.CFG.ui?.showAnswer" :aria-expanded="isOpen ? 'true' : 'false'">
                     <span x-html="$store.app.chestSVG"></span>
                   </button>
                 </div>
@@ -136,11 +136,11 @@
                 </div>
               </div>
               <!-- BACK FACE -->
-              <div class="qa-face qa-face-back" @click="toggle()">
+              <div class="qa-face qa-face-back" :inert="!isOpen" :aria-hidden="isOpen ? 'false' : 'true'" @click="toggle()">
                 <div class="qa-back-header">
                   <span class="qa-num" x-text="$store.app.CFG.ui?.questionNum?.replace('{n}', $store.app.toArabic(qa.id))"></span>
                   <span class="qa-back-label" x-text="$store.app.CFG.ui?.answerLabel"></span>
-                  <button class="qa-toggle qa-toggle-back" x-ref="toggleBtn" @click.stop="toggle()" :aria-label="$store.app.CFG.ui?.close">
+                  <button class="qa-toggle qa-toggle-back" x-ref="toggleBtn" @click.stop="toggle()" :aria-label="$store.app.CFG.ui?.close" :aria-expanded="isOpen ? 'true' : 'false'">
                     <span x-html="$store.app.chestSVG"></span>
                   </button>
                 </div>
@@ -199,7 +199,7 @@
       <div class="search-view">
         <div class="search-input-row">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" id="searchInput" :placeholder="$store.app.CFG.ui?.searchPlaceholder || 'ابحث...'" autocomplete="off" x-model="$store.app.search" x-init="$watch('$store.app.search', () => $store.app.resetPagination())" />
+          <input type="text" id="searchInput" :placeholder="$store.app.CFG.ui?.searchPlaceholder || 'ابحث...'" :aria-label="$store.app.searchInputLabel" autocomplete="off" x-model="$store.app.search" x-init="$watch('$store.app.search', () => $store.app.resetPagination())" />
         </div>
         <div class="search-scope">
           <button class="scope-btn" :class="{ 'active': $store.app.searchScope === 'both' }" @click="$store.app.setSearchScope('both')" x-text="$store.app.CFG.ui?.scopeAll || $store.app.CFG.ui?.allSectionsShort || 'الكل'">الكل</button>
@@ -227,7 +227,7 @@
           <div class="counter-pill search-count" x-text="$store.app.toArabic($store.app.filteredCards.length) + ' ' + ($store.app.CFG.ui?.counterSuffix || '')"></div>
           <div class="search-result-list">
             <template x-for="item in $store.app.browseCards" :key="item.qa.id">
-              <div class="search-result-card" :class="{ open: $store.app.openCards.includes(item.qa.id) }" @click="$store.app.toggleCard(item.qa.id)">
+              <div class="search-result-card" :class="{ open: $store.app.openCards.includes(item.qa.id) }" role="button" tabindex="0" :aria-expanded="$store.app.openCards.includes(item.qa.id) ? 'true' : 'false'" @click="$store.app.toggleCard(item.qa.id)" @keydown.enter="$store.app.toggleCard(item.qa.id)" @keydown.space.prevent="$store.app.toggleCard(item.qa.id)">
                 <div class="search-result-q" x-html="$store.app.buildHighlight(item.qa.q, $store.app.search)"></div>
                 <div class="search-result-a" x-html="$store.app.buildHighlight(item.qa.a, $store.app.search)"></div>
                 <div class="search-result-meta">
@@ -256,11 +256,11 @@
         <template x-for="qa in $store.app.QA_DATA.filter(q => $store.app.favorites.includes(q.id))" :key="qa.id">
           <div class="qa-card-wrap" :class="{ open: $store.app.openCards.includes(qa.id) }" x-data="qaCard(qa.id)">
             <div class="qa-card-flipper">
-              <div class="qa-face qa-face-front">
+              <div class="qa-face qa-face-front" :inert="isOpen" :aria-hidden="isOpen ? 'true' : 'false'">
                 <div class="qa-card-header" @click="toggle()">
                   <span class="qa-num" x-text="$store.app.CFG.ui?.questionNum?.replace('{n}', $store.app.toArabic(qa.id))"></span>
                   <span class="qa-question" x-text="qa.q"></span>
-                  <button class="qa-toggle" x-ref="toggleBtn" @click.stop="toggle()">
+                  <button class="qa-toggle" x-ref="toggleBtn" @click.stop="toggle()" :aria-label="$store.app.CFG.ui?.showAnswer" :aria-expanded="isOpen ? 'true' : 'false'">
                     <span x-html="$store.app.chestSVG"></span>
                   </button>
                 </div>
@@ -273,11 +273,11 @@
                   </div>
                 </div>
               </div>
-              <div class="qa-face qa-face-back" @click="toggle()">
+              <div class="qa-face qa-face-back" :inert="!isOpen" :aria-hidden="isOpen ? 'false' : 'true'" @click="toggle()">
                 <div class="qa-back-header">
                   <span class="qa-num" x-text="$store.app.CFG.ui?.questionNum?.replace('{n}', $store.app.toArabic(qa.id))"></span>
                   <span class="qa-back-label" x-text="$store.app.CFG.ui?.answerLabel"></span>
-                  <button class="qa-toggle qa-toggle-back" x-ref="toggleBtn" @click.stop="toggle()">
+                  <button class="qa-toggle qa-toggle-back" x-ref="toggleBtn" @click.stop="toggle()" :aria-label="$store.app.CFG.ui?.close" :aria-expanded="isOpen ? 'true' : 'false'">
                     <span x-html="$store.app.chestSVG"></span>
                   </button>
                 </div>
@@ -435,7 +435,7 @@
             </div>
           </div>
 
-          <div id="quizFeedback" class="quiz-feedback" x-show="$store.app.quizFeedbackType" :class="{ correct: $store.app.quizFeedbackType === 'correct', wrong: $store.app.quizFeedbackType === 'wrong' }" x-html="$store.app.quizFeedbackText"></div>
+          <div id="quizFeedback" class="quiz-feedback" aria-live="polite" x-show="$store.app.quizFeedbackType" :class="{ correct: $store.app.quizFeedbackType === 'correct', wrong: $store.app.quizFeedbackType === 'wrong' }" x-html="$store.app.quizFeedbackText"></div>
         </div>
         <button id="nextQuizBtn" class="next-btn" x-show="$store.app.quizAnswered" @click="$store.app.nextQuizQuestion()" x-text="$store.app.CFG.ui?.next || 'التالي ←'"></button>
       </div>
@@ -486,15 +486,15 @@
         <div class="settings-row">
           <span class="settings-label" x-text="$store.app.CFG.ui?.fontSizeLabel || 'حجم الخط'"></span>
           <div class="settings-btns">
-            <button class="font-btn" :class="{ active: $store.app.fontSize === 'sm' }" @click="$store.app.applyFontSize('sm')">A</button>
-            <button class="font-btn" :class="{ active: $store.app.fontSize === 'md' }" @click="$store.app.applyFontSize('md')">A</button>
-            <button class="font-btn" :class="{ active: $store.app.fontSize === 'lg' }" @click="$store.app.applyFontSize('lg')">A</button>
-            <button class="font-btn" :class="{ active: $store.app.fontSize === 'xl' }" @click="$store.app.applyFontSize('xl')">A</button>
+            <button class="font-btn" :class="{ active: $store.app.fontSize === 'sm' }" :aria-label="$store.app.fontSizeLabel('sm')" @click="$store.app.applyFontSize('sm')">A</button>
+            <button class="font-btn" :class="{ active: $store.app.fontSize === 'md' }" :aria-label="$store.app.fontSizeLabel('md')" @click="$store.app.applyFontSize('md')">A</button>
+            <button class="font-btn" :class="{ active: $store.app.fontSize === 'lg' }" :aria-label="$store.app.fontSizeLabel('lg')" @click="$store.app.applyFontSize('lg')">A</button>
+            <button class="font-btn" :class="{ active: $store.app.fontSize === 'xl' }" :aria-label="$store.app.fontSizeLabel('xl')" @click="$store.app.applyFontSize('xl')">A</button>
           </div>
         </div>
         <div class="settings-row">
           <span class="settings-label" x-text="$store.app.CFG.ui?.contrastLabel || 'وضع التباين'"></span>
-          <button class="settings-toggle" :class="{ active: $store.app.highContrast }" @click="$store.app.toggleContrast()">
+          <button class="settings-toggle" role="switch" :class="{ active: $store.app.highContrast }" :aria-checked="$store.app.highContrast ? 'true' : 'false'" :aria-label="$store.app.CFG.ui?.contrastLabel || 'وضع التباين'" @click="$store.app.toggleContrast()">
             <span class="toggle-knob"></span>
           </button>
         </div>
@@ -511,19 +511,19 @@
 
   <!-- BOTTOM NAV (hidden on the About page — replaced by the contact bar) -->
   <nav class="bottom-nav" x-show="$store.app.view !== 'about'">
-    <button class="bnav-btn" :class="{ 'active': $store.app.view === 'browse' }" @click="$store.app.switchView('browse')" data-view="browse">
+    <button class="bnav-btn" :class="{ 'active': $store.app.view === 'browse' }" :aria-current="$store.app.view === 'browse' ? 'page' : null" @click="$store.app.switchView('browse')" data-view="browse">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
       <span id="navBrowseLabel" x-text="$store.app.CFG.ui?.browseNav || 'تصفح'"></span>
     </button>
-    <button class="bnav-btn" :class="{ 'active': $store.app.view === 'search' }" @click="$store.app.switchView('search')" data-view="search">
+    <button class="bnav-btn" :class="{ 'active': $store.app.view === 'search' }" :aria-current="$store.app.view === 'search' ? 'page' : null" @click="$store.app.switchView('search')" data-view="search">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
       <span id="navSearchLabel" x-text="$store.app.searchNavLabel"></span>
     </button>
-    <button class="bnav-btn" :class="{ 'active': $store.app.view === 'favorites' }" @click="$store.app.switchView('favorites')" data-view="favorites">
+    <button class="bnav-btn" :class="{ 'active': $store.app.view === 'favorites' }" :aria-current="$store.app.view === 'favorites' ? 'page' : null" @click="$store.app.switchView('favorites')" data-view="favorites">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
       <span id="navFavsLabel" x-text="$store.app.CFG.ui?.favsNav || 'محفوظات'"></span>
     </button>
-    <button class="bnav-btn" :class="{ 'active': $store.app.view === 'quiz' }" @click="$store.app.switchView('quiz')" data-view="quiz">
+    <button class="bnav-btn" :class="{ 'active': $store.app.view === 'quiz' }" :aria-current="$store.app.view === 'quiz' ? 'page' : null" @click="$store.app.switchView('quiz')" data-view="quiz">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
       <span id="navQuizLabel" x-text="$store.app.CFG.ui?.quizNav || 'اختبار'"></span>
     </button>
@@ -535,7 +535,7 @@
   </nav>
 
   <!-- TOAST (reactive — CSS owns the animation via .show) -->
-  <div class="toast" :class="{ show: $store.app.toastVisible }" x-text="$store.app.toastMessage"></div>
+  <div class="toast" role="status" :class="{ show: $store.app.toastVisible }" x-text="$store.app.toastMessage"></div>
 
   <!-- SPARKLE LAYER (reactive effect owner — renders particles from store trigger) -->
   <div class="sparkle-layer" x-data="sparkleLayer()" aria-hidden="true"></div>
