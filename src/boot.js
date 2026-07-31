@@ -4,8 +4,6 @@
 import { loadContent, applyDeepLink } from './services/content.js';
 import { loadStorage, loadQuizHistory, loadSettings, loadSavedContent, saveFavorites, recordAnswer, saveFontSize, saveContrast } from './services/storage.js';
 import { playAudio, stopAllAudio, stopListenAudio, playListenAudio } from './services/audio.js';
-import { showToast } from './services/toast.js';
-import { spawnSparkles } from './services/sparkles.js';
 import { copyQA, shareAsImage, shareDeepLink } from './services/share.js';
 
 // Expose service functions to window so store-init.js methods can call them
@@ -13,8 +11,6 @@ window.__playAudio = playAudio;
 window.__stopAllAudio = stopAllAudio;
 window.__stopListenAudio = stopListenAudio;
 window.__playListenAudio = playListenAudio;
-window.__showToast = showToast;
-window.__spawnSparkles = spawnSparkles;
 window.__copyQA = copyQA;
 window.__shareAsImage = shareAsImage;
 window.__saveFavorites = saveFavorites;

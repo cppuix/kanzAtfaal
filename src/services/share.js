@@ -1,10 +1,17 @@
-import { CFG, toArabic } from './content.js';
-import { showToast } from './toast.js';
+import { CFG } from './content.js';
+
+// Toast is owned by the store (Alpine template renders it)
+function toast(msg) {
+  try {
+    const st = Alpine.store('app');
+    if (st && st.showToast) st.showToast(msg);
+  } catch(e) {}
+}
 
 export async function copyQA(qa) {
   const text = `${qa.q}\n${qa.a}`;
   await navigator.clipboard.writeText(text);
-  showToast(CFG.ui.copied);
+  toast(CFG.ui.copied);
 }
 
 export function buildDeepLink() {
@@ -20,7 +27,7 @@ export async function shareDeepLink() {
     await navigator.share({ title: CFG.ui.appTitle, url }).catch(() => {});
   } else {
     await navigator.clipboard.writeText(url);
-    showToast(CFG.ui.deepLinkCopied);
+    toast(CFG.ui.deepLinkCopied);
   }
 }
 

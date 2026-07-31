@@ -12,14 +12,6 @@ export const CONTENT_FILES = [
 // ===== CONFIG & DATA (set by loadContent; read by other services) =====
 export let CFG = {};
 
-// ===== ARABIC NUMERALS (kept for share.js formatting) =====
-export function toArabic(n) {
-  if (CFG.meta && CFG.meta.numerals === 'arabic') {
-    return String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
-  }
-  return String(n);
-}
-
 export function applyDeepLink() {
   const params = new URLSearchParams(location.search);
   const content = params.get('content');

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v12'; // bumped for Phase 3 (DOM-free audio service)
+const CACHE_NAME = 'muntaqaa-v13'; // bumped for Phase 4 (drop toast/sparkles services)
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [
@@ -13,8 +13,6 @@ const SHELL_ASSETS = [
   './src/services/content.js',
   './src/services/storage.js',
   './src/services/audio.js',
-  './src/services/toast.js',
-  './src/services/sparkles.js',
   './src/services/share.js',
   './content.ar.json',
   './content.en.json',
