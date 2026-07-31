@@ -327,7 +327,7 @@ main { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: calc(80px + env
 
 /* Answer body on back face */
 .qa-answer-body { padding: 14px 16px 16px; }
-.qa-answer-text { font-size: 1.0333rem; line-height: 1.9; color: var(--text); font-family: var(--font-display); }
+.qa-answer-text { font-size: 1.0333rem; line-height: 1.9; color: var(--text); font-family: var(--font-main); }
 
 /* CHEST TOGGLE */
 .qa-toggle {

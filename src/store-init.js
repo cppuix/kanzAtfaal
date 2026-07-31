@@ -322,6 +322,22 @@ Alpine.store('app', (function() {
       var v = m[size] || ['A', 'A'];
       return this.lang === 'en' ? v[0] : v[1];
     },
+    // ── Localized chrome labels (app UI, not content) — used for title tooltips + aria-labels ──
+    get closeLabel() { return this.lang === 'en' ? 'Close' : 'إغلاق'; },
+    get menuLabel() { return this.lang === 'en' ? 'Menu' : 'القائمة'; },
+    get settingsLabel() { return this.lang === 'en' ? 'Settings' : 'الإعدادات'; },
+    get aboutLabel() { return this.lang === 'en' ? 'About' : 'عن التطبيق'; },
+    get contentSwitchTitle() { return this.lang === 'en' ? 'Switch content / language' : 'تغيير اللغة / المحتوى'; },
+    get chooseContentLabel() { return this.lang === 'en' ? 'Choose content' : 'اختيار المحتوى'; },
+    get paginationLabel() { return this.lang === 'en' ? 'Pagination' : 'تنقّل الصفحات'; },
+    get chooseChapterLabel() { return this.lang === 'en' ? 'Choose a chapter' : 'اختيار الباب'; },
+    get themeDarkLabel() { return this.lang === 'en' ? 'Dark theme' : 'الوضع الداكن'; },
+    get themeLightLabel() { return this.lang === 'en' ? 'Light theme' : 'الوضع الفاتح'; },
+    get contactLabel() { return this.lang === 'en' ? 'Contact' : 'للتواصل'; },
+    get modeMCQTitle() { return this.lang === 'en' ? 'Choose the correct answer' : 'اختر الجواب الصحيح'; },
+    get modeBuildTitle() { return this.lang === 'en' ? 'Arrange the answer words' : 'رتّب كلمات الجواب'; },
+    get modeBlankTitle() { return this.lang === 'en' ? 'Complete the missing word' : 'أكمل الكلمة الناقصة'; },
+    get modeListenTitle() { return this.lang === 'en' ? 'Listen and choose the question' : 'استمع واختر السؤال'; },
     get fontLabel() { return this.lang === 'en' ? 'Font' : 'الخط'; },
     get fontPreviewLabel() { return this.lang === 'en' ? 'Preview' : 'معاينة الخط'; },
     get fontPresets() {

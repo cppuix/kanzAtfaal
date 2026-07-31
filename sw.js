@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v26'; // screen-reader pass: inert card faces, drawer/search keyboard, live regions, labeled controls
+const CACHE_NAME = 'muntaqaa-v27'; // localized tooltips/aria-labels + answer text uses main font
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [
