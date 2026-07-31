@@ -15,7 +15,6 @@ window.__copyQA = copyQA;
 window.__shareAsImage = shareAsImage;
 window.__saveFavorites = saveFavorites;
 window.__recordAnswer = recordAnswer;
-window.__normalizeAr = normalizeAr;
 window.__loadContent = loadContent;
 window.__loadStorage = loadStorage;
 window.__loadQuizHistory = loadQuizHistory;
@@ -23,60 +22,8 @@ window.__saveFontSize = saveFontSize;
 window.__saveContrast = saveContrast;
 window.__shareDeepLink = shareDeepLink;
 
-// Utilities exposed to Alpine templates
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-function normalizeAr(str) {
-  return str
-    .replace(/[ً-ٰٟ]/g, '')
-    .replace(/[أإآ]/g, 'ا')
-    .replace(/ة/g, 'ه')
-    .replace(/ى/g, 'ي')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .toLowerCase();
-}
-
-function buildHighlight(text, query) {
-  if (!query.trim()) return escHtml(text);
-  const normText  = normalizeAr(text);
-  const normQuery = normalizeAr(query);
-  const idx = normText.indexOf(normQuery);
-  if (idx !== -1) {
-    let origStart = -1, origEnd = -1;
-    let ni = 0;
-    for (let i = 0; i < text.length; i++) {
-      const nc = normalizeAr(text[i]);
-      if (ni === idx && origStart === -1) origStart = i;
-      ni += nc.length;
-      if (ni === idx + normQuery.length) { origEnd = i + 1; break; }
-    }
-    if (origStart !== -1 && origEnd !== -1) {
-      return escHtml(text.slice(0, origStart))
-        + '<mark>' + escHtml(text.slice(origStart, origEnd)) + '</mark>'
-        + escHtml(text.slice(origEnd));
-    }
-  }
-  let result = '';
-  let qi = 0;
-  const normQ = normalizeAr(query);
-  for (let i = 0; i < text.length; i++) {
-    const nc = normalizeAr(text[i]);
-    if (qi < normQ.length && nc === normQ[qi]) {
-      result += '<mark>' + escHtml(text[i]) + '</mark>';
-      qi++;
-    } else {
-      result += escHtml(text[i]);
-    }
-  }
-  return result;
-}
-
-window.buildHighlight = buildHighlight;
-window.escHtml = escHtml;
-window.normalizeAr = normalizeAr;
+// Escaping/search helpers (escHtml, normalizeAr, buildHighlight) live on the
+// store (store-init.js) — templates use $store.app.*, so no window globals.
 
 // ===== INIT =====
 function init() {

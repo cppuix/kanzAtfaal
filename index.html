@@ -150,7 +150,7 @@
               <div class="qa-face qa-face-front">
                 <div class="qa-card-header" @click="toggle()">
                   <span class="qa-num" x-text="$store.app.CFG.ui?.questionNum?.replace('{n}', $store.app.toArabic(qa.id))"></span>
-                  <span class="qa-question" x-html="hlQuery ? buildHighlight(qa.q, hlQuery) : escHtml(qa.q)"></span>
+                  <span class="qa-question" x-html="hlQuery ? $store.app.buildHighlight(qa.q, hlQuery) : $store.app.escHtml(qa.q)"></span>
                   <button class="qa-toggle" x-ref="toggleBtn" @click.stop="toggle()" :aria-label="$store.app.CFG.ui?.showAnswer">
                     <span x-html="window.CHEST_SVG || ''"></span>
                   </button>
@@ -180,7 +180,7 @@
                 </div>
                 <div class="qa-back-divider"></div>
                 <div class="qa-answer-body">
-                  <p class="qa-answer-text" x-html="hlQuery ? buildHighlight(qa.a, hlQuery) : escHtml(qa.a)"></p>
+                  <p class="qa-answer-text" x-html="hlQuery ? $store.app.buildHighlight(qa.a, hlQuery) : $store.app.escHtml(qa.a)"></p>
                 </div>
                 <div class="qa-footer">
                   <span class="qa-section-tag" x-text="qa.section"></span>
