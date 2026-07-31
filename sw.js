@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v14'; // bumped for Phase 5 (drop window helper globals)
+const CACHE_NAME = 'muntaqaa-v15'; // bumped for Phase 6 (CSS: logical props, drop .hidden)
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [
