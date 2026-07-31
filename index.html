@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" x-data :dir="$store.app.dir" :lang="$store.app.lang" :data-theme="$store.app.theme" :class="{ 'high-contrast': $store.app.highContrast }" :style="{ '--font-scale': $store.app.fontScale }">
+<html lang="ar" dir="rtl" x-data :dir="$store.app.dir" :lang="$store.app.lang" :data-theme="$store.app.theme" :data-font="$store.app.fontPreset" :class="{ 'high-contrast': $store.app.highContrast }" :style="{ '--font-scale': $store.app.fontScale, '--font-main': $store.app.mainFontStack, '--font-display': $store.app.displayFontStack }">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -442,6 +442,18 @@
             <button class="theme-btn" :class="{ active: $store.app.theme === 'dark' }" @click="$store.app.applyTheme('dark')" aria-label="Dark theme" title="Dark">🌙</button>
             <button class="theme-btn" :class="{ active: $store.app.theme === 'light' }" @click="$store.app.applyTheme('light')" aria-label="Light theme" title="Light">☀️</button>
           </div>
+        </div>
+        <div class="settings-block">
+          <span class="settings-label" x-text="$store.app.fontLabel"></span>
+          <div class="font-preset-chips">
+            <template x-for="p in $store.app.fontPresets" :key="p.id">
+              <button class="font-chip" :class="{ active: $store.app.fontPreset === p.id }" @click="$store.app.setFontPreset(p.id)" x-text="p.label"></button>
+            </template>
+          </div>
+        </div>
+        <div class="settings-block">
+          <span class="settings-label" x-text="$store.app.fontPreviewLabel"></span>
+          <div class="font-preview" :style="{ fontFamily: $store.app.mainFontStack }">أهلاً 123 Aa</div>
         </div>
         <div class="settings-row">
           <span class="settings-label" x-text="$store.app.CFG.ui?.fontSizeLabel || 'حجم الخط'"></span>

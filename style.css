@@ -909,6 +909,16 @@ html[data-theme="light"].high-contrast {
 }
 :focus:not(:focus-visible) { outline: none; }
 
+/* ===== FONT-SPECIFIC TYPOGRAPHY TUNING ===== */
+html[data-font="opendyslexic"] body { line-height: 1.7; letter-spacing: 0.03em; }
+html[data-font="opendyslexic"] .qa-question,
+html[data-font="opendyslexic"] .qa-answer-text,
+html[data-font="opendyslexic"] .quiz-q-text,
+html[data-font="opendyslexic"] .about-body p { line-height: 1.9; }
+html[data-font="firacode"] .qa-question,
+html[data-font="firacode"] .qa-answer-text,
+html[data-font="firacode"] .choice-btn { line-height: 1.8; }
+
 /* ===== SETTINGS VIEW (full page) ===== */
 .settings-view {
   width: 100%; max-width: 480px; margin: 0 auto;
@@ -940,6 +950,36 @@ html[data-theme="light"].high-contrast {
 }
 .theme-btn:hover { border-color: var(--gold-mid); color: var(--gold2); }
 .theme-btn.active { background: var(--gold-dim); border-color: var(--gold); color: var(--gold2); }
+.settings-block {
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 2px 0;
+}
+.font-preset-chips {
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.font-chip {
+  background: var(--bg3);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px;
+  padding: 6px 12px;
+  color: var(--text2);
+  font-family: var(--font-main);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+.font-chip:hover { border-color: var(--gold-mid); color: var(--text); }
+.font-chip.active { background: var(--gold-dim); border-color: var(--gold); color: var(--gold2); }
+.font-preview {
+  background: var(--card);
+  border: 1px solid rgba(201,152,42,0.25);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+  text-align: center;
+  font-size: 1.3rem;
+  color: var(--text);
+  letter-spacing: 0.01em;
+}
 .font-btn.active, .font-btn:hover {
   background: var(--gold-dim); border-color: var(--gold-mid); color: var(--gold2);
 }

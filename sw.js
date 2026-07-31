@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v22'; // bumped: accessibility P1 (rem scaling, dark/light theme, focus)
+const CACHE_NAME = 'muntaqaa-v23'; // bumped: a11y P2 (font presets + local font files)
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [
@@ -8,6 +8,22 @@ const SHELL_ASSETS = [
   './manifest.json',
   './icon-512.png',
   './fonts/fonts.css',
+  './fonts/Tajawal-Regular.ttf',
+  './fonts/AmiriQuran-Regular.ttf',
+  './fonts/Lateef-Regular.ttf',
+  './fonts/Lateef-Light.ttf',
+  './fonts/Lateef-ExtraLight.ttf',
+  './fonts/Lateef-Medium.ttf',
+  './fonts/Lateef-SemiBold.ttf',
+  './fonts/Lateef-Bold.ttf',
+  './fonts/Lateef-ExtraBold.ttf',
+  './fonts/Cinzel-VariableFont_wght.ttf',
+  './fonts/Montserrat-VariableFont_wght.ttf',
+  './fonts/FiraCode-VariableFont_wght.ttf',
+  './fonts/OpenDyslexic-Regular.otf',
+  './fonts/OpenDyslexic-Bold.otf',
+  './fonts/OpenDyslexic-Italic.otf',
+  './fonts/OpenDyslexic-BoldItalic.otf',
   './lib/alpine.min.js',
   './src/store-init.js',
   './src/boot.js',

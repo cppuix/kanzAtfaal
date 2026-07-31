@@ -34,6 +34,16 @@ Alpine.store('app', (function() {
   }
   // SVG constants are exposed to templates via store getters (chestSVG/playSVG/stopSVG/favStarSVG)
 
+  // ── FONT PRESETS (resolved per active content language in mainFontStack/displayFontStack) ──
+  const FONT_PRESETS = [
+    { id: 'tajawal',      labelAr: 'تجوال',         labelEn: 'Tajawal' },
+    { id: 'amiri',        labelAr: 'أميري',         labelEn: 'Amiri' },
+    { id: 'lateef',       labelAr: 'لطيف',          labelEn: 'Lateef' },
+    { id: 'montserrat',   labelAr: 'مونتسيرات',     labelEn: 'Montserrat' },
+    { id: 'firacode',     labelAr: 'فيرا كود',      labelEn: 'Fira Code' },
+    { id: 'opendyslexic', labelAr: 'أوبن ديسلكسيك', labelEn: 'OpenDyslexic' }
+  ];
+
   return {
     // ── Content data ──
     CFG: {},
@@ -116,6 +126,7 @@ Alpine.store('app', (function() {
     fontSize: 'md',
     highContrast: false,
     theme: 'dark',
+    fontPreset: 'tajawal',
 
     // ── Pagination (browse view) ──
     pageSize: 30,
@@ -267,6 +278,32 @@ Alpine.store('app', (function() {
     },
     // Settings theme label (kept store-side for now — no ui.themeLabel key yet)
     get themeLabel() { return this.lang === 'en' ? 'Theme' : 'المظهر'; },
+    get fontLabel() { return this.lang === 'en' ? 'Font' : 'الخط'; },
+    get fontPreviewLabel() { return this.lang === 'en' ? 'Preview' : 'معاينة الخط'; },
+    get fontPresets() {
+      var en = this.lang === 'en';
+      return FONT_PRESETS.map(function(p) { return { id: p.id, label: en ? p.labelEn : p.labelAr }; });
+    },
+    // Resolve the body + display font stacks per preset + active language
+    get mainFontStack() {
+      var p = this.fontPreset;
+      if (p === 'opendyslexic') return "'OpenDyslexic', 'Tajawal', sans-serif";
+      if (this.lang === 'en') {
+        if (p === 'montserrat') return "'Montserrat', sans-serif";
+        if (p === 'firacode') return "'Fira Code', 'Tajawal', monospace";
+        return "'Tajawal', sans-serif";
+      }
+      if (p === 'lateef') return "'Lateef', serif";
+      if (p === 'amiri') return "'AmiriQuran', serif";
+      return "'Tajawal', sans-serif";
+    },
+    get displayFontStack() {
+      var p = this.fontPreset;
+      if (p === 'opendyslexic') return "'OpenDyslexic', 'Tajawal', sans-serif";
+      if (this.lang === 'en') return "'Cinzel', 'Montserrat', serif";
+      if (p === 'lateef') return "'Lateef', serif";
+      return "'AmiriQuran', 'Lateef', serif";
+    },
 
     // ── SVG constants exposed to templates (replaces window.* globals) ──
     get chestSVG() { return CHEST_SVG; },
@@ -411,11 +448,17 @@ Alpine.store('app', (function() {
       this.theme = theme;
       if (window.__saveTheme) window.__saveTheme(theme);
     },
+    setFontPreset: function(preset) {
+      if (!FONT_PRESETS.some(function(p) { return p.id === preset; })) preset = 'tajawal';
+      this.fontPreset = preset;
+      if (window.__saveFontPreset) window.__saveFontPreset(preset);
+    },
     // Sets appearance from persisted storage at boot (no re-save)
-    setAppearance: function(font, contrast, theme) {
+    setAppearance: function(font, contrast, theme, preset) {
       if (font) this.fontSize = font;
       if (contrast !== undefined && contrast !== null) this.highContrast = !!contrast;
       if (theme) this.theme = (theme === 'light') ? 'light' : 'dark';
+      if (preset && FONT_PRESETS.some(function(p) { return p.id === preset; })) this.fontPreset = preset;
     },
 
     // ── Toast (reactive — rendered by template, CSS owns the animation) ──

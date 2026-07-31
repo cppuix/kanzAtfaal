@@ -93,8 +93,9 @@ export function loadSettings() {
     const font = localStorage.getItem('muntaqaa_font') || 'md';
     const contrast = localStorage.getItem('muntaqaa_contrast') === 'true';
     const theme = localStorage.getItem('muntaqaa_theme') || 'dark';
+    const preset = localStorage.getItem('muntaqaa_fontpreset') || 'tajawal';
     const store = Alpine.store('app');
-    if (store) store.setAppearance(font, contrast, theme);
+    if (store) store.setAppearance(font, contrast, theme, preset);
   } catch(e) {}
 }
 
@@ -108,6 +109,10 @@ export function saveContrast(on) {
 
 export function saveTheme(theme) {
   try { localStorage.setItem('muntaqaa_theme', theme); } catch(e) {}
+}
+
+export function saveFontPreset(preset) {
+  try { localStorage.setItem('muntaqaa_fontpreset', preset); } catch(e) {}
 }
 
 
