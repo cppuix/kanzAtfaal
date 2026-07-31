@@ -64,7 +64,7 @@ The quiz section lets you test yourself on any chapter or the full book, with 5,
 - Fully multilingual: switching between Arabic and English flips the entire interface — text direction, font stack, number format, button labels, chapter names, quiz feedback messages, and the about page all update instantly.  
 - Arabic interface uses **Amiri** and **Tajawal** fonts with right-to-left layout.  
 - English interface switches to a Latin font stack with left-to-right layout.  
-- Adding a new language requires only a single JSON file — no code changes.
+- Adding a new language or book requires a JSON content file plus two small registrations (the content list and the offline cache). See **[`CONTENT-SCHEMA.md`](./CONTENT-SCHEMA.md)** for the full schema and step-by-step instructions.
 
 ---
 
