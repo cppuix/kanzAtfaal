@@ -434,6 +434,7 @@ Alpine.store('app', (function() {
     // ── Quiz setup actions ──
     setQuizCount: function(n) { this.quizCount = n; },
     setQuizMode: function(mode) { this.quizMode = mode; },
+    setQuizSection: function(sec) { this.quizSection = sec; },
     // Card audio toggle — audio.js owns playback and updates playingCardId
     playCardAudio: function(id) { if (window.__playAudio) window.__playAudio(id); },
 

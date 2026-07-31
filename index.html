@@ -286,18 +286,8 @@
     <!-- QUIZ VIEW -->
     <div id="viewQuiz" class="view" :class="{ active: $store.app.view === 'quiz' }">
       <div id="quizSetup" class="quiz-setup" x-show="$store.app.quizPhase === 'setup'">
-        <div class="quiz-logo-wrap">
-          <img class="quiz-logo" src="icon-512.png" alt="">
-        </div>
         <h2 id="quizHeaderLabel" x-text="$store.app.CFG.ui?.quizHeader || 'اختبر نفسك!'"></h2>
         <p id="quizSubHeaderLabel" x-text="$store.app.CFG.ui?.quizSubHeader || 'اختر البابَ وعدَدَ الأسئلة'"></p>
-        <select id="quizSection" class="quiz-select" x-model="$store.app.quizSection">
-          <option value="all" id="allChaptersOpt" x-text="$store.app.CFG.ui?.allChapters || 'جميع الأبواب'"></option>
-          <template x-for="sec in $store.app.SECTIONS" :key="sec">
-            <option x-bind:value="sec" x-text="sec"></option>
-          </template>
-          <option value="__weak__" id="weakOption" x-show="$store.app.weakPool.length > 0" x-text="$store.app.weakOptionLabel"></option>
-        </select>
         <div class="quiz-count-row">
           <label id="questionCountLabel" x-text="$store.app.CFG.ui?.questionCount || 'عدد الأسئلة:'"></label>
           <div class="count-btns">
@@ -326,6 +316,22 @@
               <span class="mode-label" id="modeListenLabel" x-text="$store.app.CFG.ui?.modeListen || 'استماع'"></span>
             </button>
           </div>
+        </div>
+        <!-- CHAPTER SHELF — the only scrollable part of the setup -->
+        <div class="quiz-chapters" role="radiogroup" aria-label="اختيار الباب">
+          <button class="chapter-card" role="radio" :aria-checked="$store.app.quizSection === 'all'" :class="{ active: $store.app.quizSection === 'all' }" @click="$store.app.setQuizSection('all')">
+            <span class="chapter-card-name" x-text="$store.app.CFG.ui?.allChapters || 'جميع الأبواب'"></span>
+            <span class="chapter-card-count" x-text="$store.app.toArabic($store.app.QA_DATA.length)"></span>
+          </button>
+          <template x-for="sec in $store.app.SECTIONS" :key="sec">
+            <button class="chapter-card" role="radio" :aria-checked="$store.app.quizSection === sec" :class="{ active: $store.app.quizSection === sec }" @click="$store.app.setQuizSection(sec)">
+              <span class="chapter-card-name" x-text="sec"></span>
+              <span class="chapter-card-count" x-text="$store.app.toArabic($store.app.sectionCounts[sec] || 0)"></span>
+            </button>
+          </template>
+          <button class="chapter-card" role="radio" x-show="$store.app.weakPool.length > 0" :aria-checked="$store.app.quizSection === '__weak__'" :class="{ active: $store.app.quizSection === '__weak__' }" @click="$store.app.setQuizSection('__weak__')">
+            <span class="chapter-card-name" x-text="$store.app.weakOptionLabel"></span>
+          </button>
         </div>
         <button id="startQuiz" class="start-btn" @click="$store.app.initQuiz()" x-text="$store.app.CFG.ui?.startQuiz || 'ابدأ الاختبار'"></button>
       </div>

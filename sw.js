@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v20'; // bumped: app-shell layout (only main scrolls) + bare-email About footer
+const CACHE_NAME = 'muntaqaa-v21'; // bumped: quiz setup redesign (scrollable chapter shelf)
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [
