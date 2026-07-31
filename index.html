@@ -25,24 +25,8 @@
   <!-- SPLASH SCREEN (Alpine-driven — visible until store.appReady) -->
   <div id="splash" x-show="!$store.app.appReady" x-transition>
   <div class="splash-inner">
-    <div class="splash-chest">
-      <svg class="chest-svg-splash" viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <!-- lid -->
-        <rect class="chest-lid-splash" x="4" y="4" width="72" height="26" rx="6" fill="#5a3a1a" stroke="#d4a843" stroke-width="2"/>
-        <rect x="10" y="10" width="60" height="14" rx="3" fill="#3d2510" stroke="#b8902c" stroke-width="1"/>
-        <!-- body -->
-        <rect x="4" y="28" width="72" height="28" rx="4" fill="#4a2e0e" stroke="#d4a843" stroke-width="2"/>
-        <rect x="10" y="33" width="60" height="18" rx="2" fill="#3a2208" stroke="#b8902c" stroke-width="1"/>
-        <!-- lock -->
-        <rect x="33" y="24" width="14" height="12" rx="3" fill="#d4a843" stroke="#b8902c" stroke-width="1.5"/>
-        <circle cx="40" cy="29" r="3" fill="#0f1f18" stroke="#b8902c" stroke-width="1"/>
-        <!-- gold coins peek -->
-        <ellipse cx="26" cy="44" rx="7" ry="4" fill="#d4a843" opacity="0.8"/>
-        <ellipse cx="40" cy="42" rx="8" ry="4.5" fill="#f0c96a" opacity="0.9"/>
-        <ellipse cx="54" cy="44" rx="7" ry="4" fill="#d4a843" opacity="0.8"/>
-        <!-- band -->
-        <rect x="4" y="26" width="72" height="5" rx="1" fill="#d4a843" opacity="0.6"/>
-      </svg>
+    <div class="splash-logo-wrap">
+      <img class="splash-logo" src="icon-512.png" alt="كنز الأطفال">
     </div>
     <h1 class="splash-title">كنز<br/>الأطفال</h1>
     <p class="splash-sub">تعلّم العقيدة الإسلامية</p>
@@ -56,15 +40,18 @@
 
   <!-- TOP BAR -->
   <header class="topbar">
-    <button class="icon-btn" id="menuToggle" @click="$store.app.toggleDrawer()" aria-label="القائمة">
+    <button class="icon-btn" id="menuToggle" x-show="$store.app.view !== 'about' && $store.app.view !== 'settings'" @click="$store.app.toggleDrawer()" aria-label="القائمة">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
         <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
       </svg>
     </button>
+    <button class="icon-btn" id="chromeBack" x-show="$store.app.view === 'about' || $store.app.view === 'settings'" @click="$store.app.goBack()" :aria-label="$store.app.CFG.ui?.close || 'إغلاق'" title="إغلاق">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
     <div class="topbar-title">
-      <span id="appTitleEl" x-text="$store.app.appTitle"></span>
+      <span id="appTitleEl" x-text="$store.app.topbarTitle"></span>
     </div>
-    <div class="content-switch-wrapper" x-data="{ menuOpen: false }" @click.outside="menuOpen = false">
+    <div class="content-switch-wrapper" x-data="{ menuOpen: false }" @click.outside="menuOpen = false" x-show="$store.app.view !== 'about' && $store.app.view !== 'settings'">
     <div class="content-switch-trigger">
       <button class="icon-btn" id="contentToggle" @click="menuOpen = !menuOpen" :aria-expanded="menuOpen" aria-label="تغيير اللغة" title="تغيير اللغة">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -77,7 +64,7 @@
         </template>
       </div>
     </div>
-    <button class="icon-btn" id="settingsToggle" @click="$store.app.openSettings()" aria-label="settings">
+    <button class="icon-btn" id="settingsToggle" @click="$store.app.switchView('settings')" aria-label="settings">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="12" cy="12" r="3"/>
         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
@@ -130,7 +117,7 @@
     <button class="nav-pill" :class="{ 'active': $store.app.view === 'browse' }" @click="$store.app.switchView('browse')" data-view="browse" id="navBrowse"><span id="navBrowseDrawerLabel" x-text="$store.app.CFG.ui?.browseNav || 'تصفح'"></span></button>
       <button class="nav-pill" :class="{ 'active': $store.app.view === 'favorites' }" @click="$store.app.switchView('favorites')" data-view="favorites" id="navFavs"><span id="navFavsDrawerLabel" x-text="$store.app.CFG.ui?.favsNav || 'المحفوظات'"></span></button>
       <button class="nav-pill" :class="{ 'active': $store.app.view === 'quiz' }" @click="$store.app.switchView('quiz')" data-view="quiz" id="navQuiz"><span id="navQuizDrawerLabel" x-text="$store.app.CFG.ui?.quizNav || 'اختبار'"></span></button>
-      <button class="nav-pill nav-pill-about" id="navAbout" @click="$store.app.openAbout()"><span id="navAboutLabel" x-text="$store.app.CFG.ui?.aboutBtn || 'عن التطبيق'"></span></button>
+      <button class="nav-pill nav-pill-about" id="navAbout" :class="{ 'active': $store.app.view === 'about' }" @click="$store.app.switchView('about')"><span id="navAboutLabel" x-text="$store.app.CFG.ui?.aboutBtn || 'عن التطبيق'"></span></button>
     </div>
   </nav>
 
@@ -299,19 +286,8 @@
     <!-- QUIZ VIEW -->
     <div id="viewQuiz" class="view" :class="{ active: $store.app.view === 'quiz' }">
       <div id="quizSetup" class="quiz-setup" x-show="$store.app.quizPhase === 'setup'">
-        <div class="quiz-chest-wrap">
-          <svg class="quiz-chest-svg" viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="4" y="4" width="72" height="26" rx="6" fill="#5a3a1a" stroke="#d4a843" stroke-width="2"/>
-            <rect x="10" y="10" width="60" height="14" rx="3" fill="#3d2510" stroke="#b8902c" stroke-width="1"/>
-            <rect x="4" y="28" width="72" height="28" rx="4" fill="#4a2e0e" stroke="#d4a843" stroke-width="2"/>
-            <rect x="10" y="33" width="60" height="18" rx="2" fill="#3a2208" stroke="#b8902c" stroke-width="1"/>
-            <rect x="33" y="24" width="14" height="12" rx="3" fill="#d4a843" stroke="#b8902c" stroke-width="1.5"/>
-            <circle cx="40" cy="29" r="3" fill="#0f1f18" stroke="#b8902c" stroke-width="1"/>
-            <ellipse cx="26" cy="44" rx="7" ry="4" fill="#d4a843" opacity="0.8"/>
-            <ellipse cx="40" cy="42" rx="8" ry="4.5" fill="#f0c96a" opacity="0.9"/>
-            <ellipse cx="54" cy="44" rx="7" ry="4" fill="#d4a843" opacity="0.8"/>
-            <rect x="4" y="26" width="72" height="5" rx="1" fill="#d4a843" opacity="0.6"/>
-          </svg>
+        <div class="quiz-logo-wrap">
+          <img class="quiz-logo" src="icon-512.png" alt="">
         </div>
         <h2 id="quizHeaderLabel" x-text="$store.app.CFG.ui?.quizHeader || 'اختبر نفسك!'"></h2>
         <p id="quizSubHeaderLabel" x-text="$store.app.CFG.ui?.quizSubHeader || 'اختر البابَ وعدَدَ الأسئلة'"></p>
@@ -432,17 +408,7 @@
 
       <div id="quizResult" class="quiz-result" x-show="$store.app.quizPhase === 'result'">
         <div class="result-emoji-wrap">
-          <svg class="result-chest" viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <ellipse cx="22" cy="46" rx="9" ry="5" fill="#c9982a" opacity="0.85"/>
-            <ellipse cx="40" cy="43" rx="11" ry="6" fill="#e8bf5a" opacity="0.95"/>
-            <ellipse cx="58" cy="46" rx="9" ry="5" fill="#c9982a" opacity="0.85"/>
-            <rect x="4" y="28" width="72" height="28" rx="4" fill="#4a2e0e" stroke="#c9982a" stroke-width="2"/>
-            <rect x="10" y="33" width="60" height="18" rx="2" fill="#3a2208" stroke="#a07820" stroke-width="1"/>
-            <rect x="33" y="24" width="14" height="12" rx="3" fill="#c9982a" stroke="#a07820" stroke-width="1.5"/>
-            <circle cx="40" cy="29" r="3" fill="#0c1a12" stroke="#a07820" stroke-width="1"/>
-            <rect x="4" y="26" width="72" height="5" rx="1" fill="#c9982a" opacity="0.55"/>
-            <rect x="4" y="2" width="72" height="28" rx="6" fill="#6a4520" stroke="#c9982a" stroke-width="2" transform="rotate(-20 40 15)"/>
-          </svg>
+          <img class="result-logo" src="icon-512.png" alt="">
         </div>
         <h2 x-text="$store.app.quizResultTitle || 'أحسنت!'">أحسنت!</h2>
         <div class="result-score" x-text="$store.app.quizResultScore"></div>
@@ -451,62 +417,19 @@
       </div>
     </div>
 
-  </main>
-
-  <!-- BOTTOM NAV -->
-  <nav class="bottom-nav">
-    <button class="bnav-btn" :class="{ 'active': $store.app.view === 'browse' }" @click="$store.app.switchView('browse')" data-view="browse">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-      <span id="navBrowseLabel" x-text="$store.app.CFG.ui?.browseNav || 'تصفح'"></span>
-    </button>
-    <button class="bnav-btn" :class="{ 'active': $store.app.view === 'favorites' }" @click="$store.app.switchView('favorites')" data-view="favorites">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-      <span id="navFavsLabel" x-text="$store.app.CFG.ui?.favsNav || 'محفوظات'"></span>
-    </button>
-    <button class="bnav-btn" :class="{ 'active': $store.app.view === 'quiz' }" @click="$store.app.switchView('quiz')" data-view="quiz">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      <span id="navQuizLabel" x-text="$store.app.CFG.ui?.quizNav || 'اختبار'"></span>
-    </button>
-  </nav>
-
-  <!-- ABOUT MODAL -->
-  <div id="aboutOverlay" class="about-overlay" x-show="$store.app.aboutOpen" @click="$store.app.closeAbout()">
-    <div class="about-modal" @click.stop>
-      <button class="about-close" id="aboutClose" @click="$store.app.closeAbout()" aria-label="close">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-
-      <div class="about-chest">
-        <svg viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <ellipse cx="22" cy="46" rx="9" ry="5" fill="#c9982a" opacity="0.85"/>
-          <ellipse cx="40" cy="43" rx="11" ry="6" fill="#e8bf5a" opacity="0.95"/>
-          <ellipse cx="58" cy="46" rx="9" ry="5" fill="#c9982a" opacity="0.85"/>
-          <rect x="4" y="28" width="72" height="28" rx="4" fill="#4a2e0e" stroke="#c9982a" stroke-width="2"/>
-          <rect x="10" y="33" width="60" height="18" rx="2" fill="#3a2208" stroke="#a07820" stroke-width="1"/>
-          <rect x="33" y="24" width="14" height="12" rx="3" fill="#c9982a" stroke="#a07820" stroke-width="1.5"/>
-          <circle cx="40" cy="29" r="3" fill="#0c1a12" stroke="#a07820" stroke-width="1"/>
-          <rect x="4" y="26" width="72" height="5" rx="1" fill="#c9982a" opacity="0.55"/>
-          <rect x="4" y="2" width="72" height="28" rx="6" fill="#6a4520" stroke="#c9982a" stroke-width="2" transform="rotate(-18 40 15)"/>
-        </svg>
+    <!-- ABOUT VIEW (full page — header in topbar, contact in bottom bar) -->
+    <div id="viewAbout" class="view" :class="{ active: $store.app.view === 'about' }">
+      <div class="about-hero">
+        <img class="about-logo" src="icon-512.png" alt="">
+        <h1 class="about-title" id="aboutTitle" x-text="$store.app.CFG.about?.title || ''"></h1>
       </div>
-
-      <h1 class="about-title" id="aboutTitle" x-text="$store.app.CFG.about?.title || ''"></h1>
       <div class="about-divider"></div>
       <div class="about-body" id="aboutBody" x-html="$store.app.aboutBodyHtml"></div>
-
     </div>
-  </div>
 
-  <!-- SETTINGS OVERLAY -->
-  <div id="settingsOverlay" class="settings-overlay" x-show="$store.app.settingsOpen" @click="$store.app.closeSettings()">
-    <div class="settings-modal" @click.stop>
-      <div class="settings-header">
-        <span id="settingsTitleEl" x-text="$store.app.CFG.ui?.settingsTitle || 'الإعدادات'"></span>
-        <button class="settings-close-btn" id="settingsClose" @click="$store.app.closeSettings()">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </div>
-      <div id="settingsPanel">
+    <!-- SETTINGS VIEW (full page — header in topbar, bottom nav stays) -->
+    <div id="viewSettings" class="view" :class="{ active: $store.app.view === 'settings' }">
+      <div class="settings-view">
         <div class="settings-row">
           <span class="settings-label" x-text="$store.app.CFG.ui?.fontSizeLabel || 'حجم الخط'"></span>
           <div class="settings-btns">
@@ -529,7 +452,35 @@
         </div>
       </div>
     </div>
-  </div>
+
+  </main>
+
+  <!-- BOTTOM NAV (hidden on the About page — replaced by the contact bar) -->
+  <nav class="bottom-nav" x-show="$store.app.view !== 'about'">
+    <button class="bnav-btn" :class="{ 'active': $store.app.view === 'browse' }" @click="$store.app.switchView('browse')" data-view="browse">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      <span id="navBrowseLabel" x-text="$store.app.CFG.ui?.browseNav || 'تصفح'"></span>
+    </button>
+    <button class="bnav-btn" :class="{ 'active': $store.app.view === 'favorites' }" @click="$store.app.switchView('favorites')" data-view="favorites">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      <span id="navFavsLabel" x-text="$store.app.CFG.ui?.favsNav || 'محفوظات'"></span>
+    </button>
+    <button class="bnav-btn" :class="{ 'active': $store.app.view === 'quiz' }" @click="$store.app.switchView('quiz')" data-view="quiz">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span id="navQuizLabel" x-text="$store.app.CFG.ui?.quizNav || 'اختبار'"></span>
+    </button>
+  </nav>
+
+  <!-- ABOUT CONTACT BAR (fixed footer on the About page) -->
+  <nav class="contact-bar" x-show="$store.app.view === 'about'" aria-label="للتواصل">
+    <span class="contact-bar-title" x-show="$store.app.aboutContactTitle" x-text="$store.app.aboutContactTitle"></span>
+    <template x-for="c in $store.app.aboutContacts" :key="c.href">
+      <a class="contact-bar-link" :href="c.href" target="_blank" rel="noopener">
+        <span class="contact-bar-name" x-text="c.label"></span>
+        <span class="contact-bar-value" x-text="c.value"></span>
+      </a>
+    </template>
+  </nav>
 
   <!-- TOAST (reactive — CSS owns the animation via .show) -->
   <div class="toast" :class="{ show: $store.app.toastVisible }" x-text="$store.app.toastMessage"></div>

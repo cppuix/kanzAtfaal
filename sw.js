@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v18'; // bumped: About-body inline tags + drop legacy content.en.json stub
+const CACHE_NAME = 'muntaqaa-v19'; // bumped: About/Settings as full-page views + logo replaces treasure
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [
@@ -6,6 +6,7 @@ const SHELL_ASSETS = [
   './index.html',
   './style.css',
   './manifest.json',
+  './icon-512.png',
   './fonts/fonts.css',
   './lib/alpine.min.js',
   './src/store-init.js',

@@ -61,8 +61,9 @@ Alpine.store('app', (function() {
     search: '',
     searchScope: 'both',
     searchSection: 'all',
-    aboutOpen: false,
-    settingsOpen: false,
+    // Full-page chrome views (About/Settings) use view === 'about' / 'settings';
+    // _prevView is remembered so goBack() returns to the last real screen.
+    _prevView: 'browse',
     // Boot state: set to true once content + storage are ready (hides splash)
     appReady: false,
 
@@ -246,17 +247,16 @@ Alpine.store('app', (function() {
           .replace(/&lt;br\s*\/?&gt;/g, '<br>');
       };
       var parts = (about.body || []).map(function(p) { return '<p>' + inline(p) + '</p>'; });
-      if (about.contactTitle && about.contacts) {
-        parts.push('<div class="about-divider"></div>'
-          + '<h2 class="about-contact-title">' + this.escHtml(about.contactTitle) + '</h2>'
-          + '<ul class="about-contact">'
-          + about.contacts.map(function(c) {
-              return '<li><span class="about-contact-label">' + this.escHtml(c.label) + '</span>'
-                + '<a href="' + this.escHtml(c.href) + '">' + this.escHtml(c.value) + '</a></li>';
-            }.bind(this)).join('')
-          + '</ul>');
-      }
       return parts.join('');
+    },
+    // Contacts live in the fixed About footer (rendered by the template)
+    get aboutContactTitle() { return this.CFG.about?.contactTitle || ''; },
+    get aboutContacts() { return this.CFG.about?.contacts || []; },
+    // Contextual topbar title (About/Settings get their own title)
+    get topbarTitle() {
+      if (this.view === 'about') return this.CFG.about?.title || this.appTitle;
+      if (this.view === 'settings') return this.CFG.ui?.settingsTitle || '';
+      return this.appTitle;
     },
 
     // ── SVG constants exposed to templates (replaces window.* globals) ──
@@ -314,9 +314,13 @@ Alpine.store('app', (function() {
     },
     switchView: function(view) {
       if (window.__stopAllAudio) window.__stopAllAudio();
+      // Remember the last real screen so goBack() can return to it.
+      if (view !== 'about' && view !== 'settings') this._prevView = view;
+      else if (this.view !== 'about' && this.view !== 'settings') this._prevView = this.view;
       this.view = view;
       this.closeDrawer();
       if (view === 'quiz') this.quizPhase = 'setup';
+      if (view === 'about' || view === 'settings') this.searchOpen = false;
       window.scrollTo({ top: 0, behavior: 'smooth' });
     },
     setSection: function(sec) {
@@ -417,11 +421,11 @@ Alpine.store('app', (function() {
       this.sparkleTrigger++;
     },
 
-    // ── Modal / settings actions ──
-    openSettings: function() { this.settingsOpen = true; },
-    closeSettings: function() { this.settingsOpen = false; },
-    openAbout: function() { this.aboutOpen = true; this.closeDrawer(); },
-    closeAbout: function() { this.aboutOpen = false; },
+    // ── Full-page chrome views (About/Settings) ──
+    goBack: function() {
+      var prev = (this._prevView !== 'about' && this._prevView !== 'settings') ? this._prevView : 'browse';
+      this.switchView(prev || 'browse');
+    },
 
     // ── Quiz setup actions ──
     setQuizCount: function(n) { this.quizCount = n; },
