@@ -418,19 +418,20 @@ main { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: calc(80px + env
 
 /* QUIZ SETUP — Direction 1: the quiz is a sentence */
 .quiz-setup {
-  flex: 1; min-height: 0; overflow-y: auto;
+  flex: 1; min-height: 0; overflow: visible;
   display: flex; flex-direction: column; align-items: center;
   justify-content: safe center;
   padding: 24px 16px; gap: 16px; text-align: start;
 }
 .quiz-sentence {
   width: 100%; max-width: 600px; margin: 0;
-  display: flex; flex-direction: column; gap: 10px;
+  display: flex; flex-direction: column; gap: 12px;
   font-size: 1.2667rem; line-height: 1.75;
   color: var(--text);
 }
 .quiz-line {
   margin: 0;
+  position: relative;
   display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
 }
 .quiz-token {
@@ -447,15 +448,24 @@ main { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: calc(80px + env
 .quiz-token:hover, .quiz-token[aria-expanded="true"] { background: var(--gold-mid); border-color: var(--gold); color: var(--text); }
 .quiz-token[aria-expanded="true"]::after { transform: rotate(180deg); }
 
-/* One flat expansion panel at a time (progressive disclosure) */
+/* Anchored floating flyout — positioned relative to its chip, out of flow
+   (opening it never shifts the sentence or the Start button) */
 .quiz-panel {
-  width: min(600px, 100%);
+  position: absolute;
+  top: calc(100% + 10px);
+  inset-inline-start: 0;
+  z-index: 30;
+  width: max-content;
+  max-width: min(300px, calc(100vw - 32px));
+  background: var(--bg2);
+  border: 1px solid var(--gold-mid);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 8px;
   display: flex; flex-direction: column; gap: 2px;
-  border-top: 1px solid var(--gold-mid);
-  padding: 10px 2px 6px;
 }
-.quiz-panel-inline { flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 6px; }
-.quiz-panel-scroll { max-height: 44vh; overflow-y: auto; scrollbar-width: thin; }
+.quiz-panel-inline { flex-direction: row; flex-wrap: wrap; justify-content: flex-start; gap: 6px; }
+.quiz-panel-scroll { max-height: min(40vh, 320px); overflow-y: auto; scrollbar-width: thin; }
 .quiz-opt {
   background: none; border: none;
   font-family: var(--font-main); font-size: 1.0000rem; line-height: 1.45;
@@ -481,7 +491,7 @@ main { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: calc(80px + env
 }
 .quiz-start:hover { color: var(--gold3); border-color: var(--gold3); }
 
-#viewQuiz.active { display: flex; flex-direction: column; height: 100%; min-height: 0; }
+#viewQuiz.active { display: flex; flex-direction: column; height: 100%; min-height: 0; overflow-x: clip; }
 #quizGame, #quizResult { flex: 1; min-height: 0; overflow-y: auto; }
 .start-btn {
   background: none; border: none;

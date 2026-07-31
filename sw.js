@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v29'; // quiz setup: vertical step lines + tappable token chips
+const CACHE_NAME = 'muntaqaa-v30'; // quiz setup: anchored floating flyouts (zero layout shift)
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [
