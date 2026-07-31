@@ -1,89 +1,90 @@
+// ===== AUDIO SERVICE =====
+// Owns ALL <audio> playback. Never touches the DOM — playing state is written to
+// the Alpine store (playingCardId / listenPlaying / listenError / listenBtnText)
+// and rendered by templates via :class / x-text bindings.
+// Public signatures: playAudio(id), stopAllAudio(), playListenAudio(id), stopListenAudio()
 import { CFG } from './content.js';
 
-const PLAY_SVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
-const STOP_SVG = `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>`;
-
-export { PLAY_SVG, STOP_SVG };
-
 let currentAudio = null;
-let currentWrapper = null;
 export let listenAudio = null;
 
-function resetAllPlayBtns(wrapper) {
-  wrapper.querySelectorAll('.play-btn').forEach(b => {
-    b.innerHTML = PLAY_SVG;
-    b.classList.remove('playing');
-  });
-}
-
-export function playAudio(id, btn, wrapper) {
-  if (currentAudio) {
-    currentAudio.pause();
-    currentAudio.currentTime = 0;
-    if (currentWrapper) resetAllPlayBtns(currentWrapper);
-    if (currentWrapper === wrapper) {
-      currentAudio = null;
-      currentWrapper = null;
-      return;
-    }
+// ── Card play button (browse) ──────────────────────────────────────────
+export function playAudio(id) {
+  const store = Alpine.store('app');
+  // Toggle: tapping the already-playing card stops it
+  if (store && store.playingCardId === id) {
+    stopAllAudio();
+    return 'stopped';
   }
+  stopAllAudio();
 
   const audio = new Audio(CFG.meta.audioPath.replace('{id}', id));
   currentAudio = audio;
-  currentWrapper = wrapper;
+  if (store) store.playingCardId = id;
 
-  wrapper.querySelectorAll('.play-btn').forEach(b => {
-    b.innerHTML = STOP_SVG;
-    b.classList.add('playing');
-  });
-
-  function onDone() {
-    resetAllPlayBtns(wrapper);
+  const done = () => {
     currentAudio = null;
-    currentWrapper = null;
-  }
-
-  audio.addEventListener('ended', onDone);
-  audio.addEventListener('error', onDone);
-  audio.play().catch(onDone);
+    if (store && store.playingCardId === id) store.playingCardId = null;
+  };
+  audio.addEventListener('ended', done);
+  audio.addEventListener('error', done);
+  audio.play().catch(done);
+  return 'playing';
 }
 
 export function stopAllAudio() {
   if (currentAudio) {
     currentAudio.pause();
+    currentAudio.currentTime = 0;
     currentAudio = null;
   }
-  if (currentWrapper) {
-    resetAllPlayBtns(currentWrapper);
-    currentWrapper = null;
-  }
+  const store = Alpine.store('app');
+  if (store) store.playingCardId = null;
 }
 
-export function playListenAudio(id, btn) {
+// ── Listen mode (quiz) ─────────────────────────────────────────────────
+export function playListenAudio(id) {
   stopListenAudio();
+  const store = Alpine.store('app');
+
   const audio = new Audio(CFG.meta.audioPath.replace('{id}', id));
   listenAudio = audio;
-  btn.classList.add('playing');
-  const span = btn.querySelector('span');
-  if (span) span.textContent = CFG.ui.listen + '...';
+  if (store) {
+    store.listenPlaying = true;
+    store.listenError = false;
+    store.listenBtnText = (CFG.ui?.listen || 'استمع') + '...';
+  }
+
   audio.addEventListener('ended', () => {
-    btn.classList.remove('playing');
-    if (span) span.textContent = CFG.ui.replay;
+    listenAudio = null;
+    if (store) {
+      store.listenPlaying = false;
+      store.listenBtnText = CFG.ui?.replay || 'إعادة';
+    }
   });
   audio.addEventListener('error', () => {
-    btn.classList.remove('playing');
-    if (span) span.textContent = CFG.ui.audioError;
-    btn.disabled = true;
-    btn.style.opacity = '0.5';
+    listenAudio = null;
+    if (store) {
+      store.listenPlaying = false;
+      store.listenError = true;
+      store.listenBtnText = CFG.ui?.audioError || 'خطأ';
+    }
   });
   audio.play().catch(() => {
-    btn.classList.remove('playing');
-    if (span) span.textContent = CFG.ui.audioError;
-    btn.disabled = true;
-    btn.style.opacity = '0.5';
+    listenAudio = null;
+    if (store) {
+      store.listenPlaying = false;
+      store.listenError = true;
+      store.listenBtnText = CFG.ui?.audioError || 'خطأ';
+    }
   });
 }
 
 export function stopListenAudio() {
-  if (listenAudio) { listenAudio.pause(); listenAudio = null; }
+  if (listenAudio) {
+    listenAudio.pause();
+    listenAudio = null;
+  }
+  const store = Alpine.store('app');
+  if (store) store.listenPlaying = false;
 }

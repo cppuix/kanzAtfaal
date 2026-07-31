@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v11'; // bumped for Phase 2 (reactive content/templates refactor)
+const CACHE_NAME = 'muntaqaa-v12'; // bumped for Phase 3 (DOM-free audio service)
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [

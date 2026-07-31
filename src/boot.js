@@ -12,6 +12,7 @@ import { copyQA, shareAsImage, shareDeepLink } from './services/share.js';
 window.__playAudio = playAudio;
 window.__stopAllAudio = stopAllAudio;
 window.__stopListenAudio = stopListenAudio;
+window.__playListenAudio = playListenAudio;
 window.__showToast = showToast;
 window.__spawnSparkles = spawnSparkles;
 window.__copyQA = copyQA;

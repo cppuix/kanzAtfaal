@@ -107,6 +107,11 @@ Alpine.store('app', (function() {
     quizResultMsg: '',
     quizResultScore: '',
 
+    // ── Audio state (written by audio.js; rendered by templates) ──
+    playingCardId: null,
+    listenPlaying: false,
+    listenError: false,
+
     // ── Settings ──
     // Defaults only — persisted values are applied at boot via storage.loadSettings()
     fontSize: 'md',
@@ -385,6 +390,8 @@ Alpine.store('app', (function() {
     // ── Quiz setup actions ──
     setQuizCount: function(n) { this.quizCount = n; },
     setQuizMode: function(mode) { this.quizMode = mode; },
+    // Card audio toggle — audio.js owns playback and updates playingCardId
+    playCardAudio: function(id) { if (window.__playAudio) window.__playAudio(id); },
 
     // ── Data actions (services hand data to the store through these) ──
     setContentData: function(cfg, qaData, sections, file) {
@@ -557,19 +564,8 @@ Alpine.store('app', (function() {
     playListenAudio: function() {
       var qa = this.currentQuestion;
       if (!qa) return;
-      if (window.__stopListenAudio) window.__stopListenAudio();
-      if (this._currentListenAudio) { this._currentListenAudio.pause(); this._currentListenAudio = null; }
-      var audio = new Audio((this.CFG.meta?.audioPath || 'audios/{id}.opus').replace('{id}', qa.id));
-      this._currentListenAudio = audio;
-      var self = this;
-      self.listenBtnText = (self.CFG.ui?.listen || 'استمع') + '...';
-      audio.play().catch(function() {});
-      audio.addEventListener('ended', function() {
-        self.listenBtnText = self.CFG.ui?.replay || 'إعادة';
-      });
-      audio.addEventListener('error', function() {
-        self.listenBtnText = self.CFG.ui?.audioError || 'خطأ';
-      });
+      // Audio is owned by audio.js — never spawn new Audio() in the store
+      if (window.__playListenAudio) window.__playListenAudio(qa.id);
     },
     selectListenChoice: function(choice, el) {
       if (this.quizAnswered) return;
@@ -577,7 +573,7 @@ Alpine.store('app', (function() {
       if (!qa) return;
       this.quizAnswered = true;
       choice.selected = true;
-      if (this._currentListenAudio) { this._currentListenAudio.pause(); this._currentListenAudio = null; }
+      if (window.__stopListenAudio) window.__stopListenAudio();
       var correct = choice.isCorrect;
       if (window.__recordAnswer) window.__recordAnswer(qa.id, correct);
       if (correct) {
@@ -653,7 +649,7 @@ Alpine.data('qaCard', function(qa, matchIn) {
     toggleFav: function(e) { e.stopPropagation(); Alpine.store('app').toggleFav(qa.id); },
     playAudio: function(e) {
       e.stopPropagation();
-      if (window.__playAudio) window.__playAudio(qa.id, e.currentTarget, this.$el);
+      if (window.__playAudio) window.__playAudio(qa.id);
     },
     copyQA: function(e) { e.stopPropagation(); if (window.__copyQA) window.__copyQA(qa); },
     shareImage: function(e) { e.stopPropagation(); if (window.__shareAsImage) window.__shareAsImage(qa); }

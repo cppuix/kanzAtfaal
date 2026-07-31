@@ -159,8 +159,8 @@
                   <span class="qa-section-tag" x-text="qa.section"></span>
                   <div class="card-actions">
                     <template x-if="$store.app.CFG.meta?.audio">
-                      <button class="play-btn" @click.stop="playAudio($event)" x-data="{ playing: false }" :class="{ playing }" :aria-label="$store.app.CFG.ui?.listen">
-                        <span x-html="playing ? (window.STOP_SVG || '') : (window.PLAY_SVG || '')"></span>
+                      <button class="play-btn" @click.stop="playAudio($event)" :class="{ playing: $store.app.playingCardId === qa.id }" :aria-label="$store.app.CFG.ui?.listen">
+                        <span x-html="$store.app.playingCardId === qa.id ? $store.app.stopSVG : $store.app.playSVG"></span>
                       </button>
                     </template>
                     <button class="fav-btn" :class="{ active: $store.app.favorites.includes(qa.id) }" @click.stop="toggleFav($event)" :aria-label="$store.app.CFG.ui?.save">
@@ -186,8 +186,8 @@
                   <span class="qa-section-tag" x-text="qa.section"></span>
                   <div class="card-actions">
                     <template x-if="$store.app.CFG.meta?.audio">
-                      <button class="play-btn" @click.stop="playAudio($event)" x-data="{ playing: false }" :class="{ playing }" :aria-label="$store.app.CFG.ui?.listen">
-                        <span x-html="playing ? (window.STOP_SVG || '') : (window.PLAY_SVG || '')"></span>
+                      <button class="play-btn" @click.stop="playAudio($event)" :class="{ playing: $store.app.playingCardId === qa.id }" :aria-label="$store.app.CFG.ui?.listen">
+                        <span x-html="$store.app.playingCardId === qa.id ? $store.app.stopSVG : $store.app.playSVG"></span>
                       </button>
                     </template>
                     <button class="fav-btn" :class="{ active: $store.app.favorites.includes(qa.id) }" @click.stop="toggleFav($event)" :aria-label="$store.app.CFG.ui?.save">
@@ -406,7 +406,7 @@
 
           <!-- LISTEN MODE -->
           <div id="listenZone" class="listen-zone" x-show="$store.app.quizMode === 'listen'">
-            <button id="listenPlay" class="listen-play-btn" @click="$store.app.playListenAudio()">
+            <button id="listenPlay" class="listen-play-btn" :class="{ playing: $store.app.listenPlaying }" :disabled="$store.app.listenError" @click="$store.app.playListenAudio()">
               <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
               <span id="listenBtnLabel" x-text="$store.app.listenBtnText || ($store.app.CFG.ui?.listen || 'استمع')"></span>
             </button>
