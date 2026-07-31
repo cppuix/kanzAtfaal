@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v28'; // quiz setup redesign: sentence + tappable tokens (Direction 1)
+const CACHE_NAME = 'muntaqaa-v29'; // quiz setup: vertical step lines + tappable token chips
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [

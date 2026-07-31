@@ -424,19 +424,28 @@ main { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: calc(80px + env
   padding: 24px 16px; gap: 16px; text-align: start;
 }
 .quiz-sentence {
-  max-width: 600px; margin: 0;
-  font-size: 1.3333rem; line-height: 2.2;
+  width: 100%; max-width: 600px; margin: 0;
+  display: flex; flex-direction: column; gap: 10px;
+  font-size: 1.2667rem; line-height: 1.75;
   color: var(--text);
 }
-.quiz-token {
-  display: inline-block; background: none; border: none;
-  font-family: inherit; font-size: inherit; line-height: inherit;
-  color: var(--gold2); font-weight: 700; cursor: pointer;
-  border-bottom: 2px solid var(--gold-mid);
-  padding: 0 1px; margin: 0 2px; border-radius: 0;
-  transition: color var(--transition), border-color var(--transition);
+.quiz-line {
+  margin: 0;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
 }
-.quiz-token:hover, .quiz-token[aria-expanded="true"] { color: var(--gold3); border-color: var(--gold); }
+.quiz-token {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--gold-dim);
+  border: 1px solid var(--gold-mid);
+  border-radius: 14px;
+  color: var(--gold2); font-weight: 700;
+  font-family: var(--font-main); font-size: 1.0667rem;
+  padding: 6px 14px; cursor: pointer;
+  transition: background var(--transition), border-color var(--transition), color var(--transition), transform var(--transition);
+}
+.quiz-token::after { content: '▾'; font-size: 0.75em; opacity: 0.75; transition: transform var(--transition); }
+.quiz-token:hover, .quiz-token[aria-expanded="true"] { background: var(--gold-mid); border-color: var(--gold); color: var(--text); }
+.quiz-token[aria-expanded="true"]::after { transform: rotate(180deg); }
 
 /* One flat expansion panel at a time (progressive disclosure) */
 .quiz-panel {
@@ -466,7 +475,7 @@ main { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: calc(80px + env
   background: none; border: none;
   font-family: var(--font-main); font-size: 1.2000rem; font-weight: 800;
   color: var(--gold2); cursor: pointer;
-  padding: 6px 12px; margin-top: 6px;
+  padding: 6px 12px; margin-top: 14px;
   border-bottom: 2px solid var(--gold);
   transition: color var(--transition), border-color var(--transition);
 }

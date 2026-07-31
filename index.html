@@ -314,19 +314,29 @@
     <!-- QUIZ VIEW -->
     <div id="viewQuiz" class="view" :class="{ active: $store.app.view === 'quiz' }">
       <div id="quizSetup" class="quiz-setup" x-data="{ picker: null }" @click.outside="picker = null" x-show="$store.app.quizPhase === 'setup'">
-        <p class="quiz-sentence">
-          <span x-text="$store.app.quizSetupIntro">I want</span>
-          <button type="button" class="quiz-token" :aria-expanded="picker === 'count' ? 'true' : 'false'" aria-controls="panel-count" @click="picker = picker === 'count' ? null : 'count'">
-            <span x-text="$store.app.toArabic($store.app.quizCount)">10</span>
-          </button>
-          <span x-text="$store.app.quizSetupQuestions">questions</span><span x-text="$store.app.quizSetupComma">,</span> <span x-text="$store.app.quizSetupAs">as</span>
-          <button type="button" class="quiz-token" :aria-expanded="picker === 'mode' ? 'true' : 'false'" aria-controls="panel-mode" @click="picker = picker === 'mode' ? null : 'mode'">
-            <span x-text="$store.app.quizModeLabel"></span>
-          </button><span x-text="$store.app.quizSetupComma">,</span> <span x-text="$store.app.quizSetupFrom">from</span>
-          <button type="button" class="quiz-token" :aria-expanded="picker === 'section' ? 'true' : 'false'" aria-controls="panel-section" @click="picker = picker === 'section' ? null : 'section'">
-            <span x-text="$store.app.quizSectionLabel"></span>
-          </button><span>.</span>
-        </p>
+        <div class="quiz-sentence" role="group">
+          <p class="quiz-line">
+            <span x-text="$store.app.quizSetupIntro">I want</span>
+          </p>
+          <p class="quiz-line">
+            <button type="button" class="quiz-token" :aria-expanded="picker === 'count' ? 'true' : 'false'" aria-controls="panel-count" @click="picker = picker === 'count' ? null : 'count'">
+              <span x-text="$store.app.toArabic($store.app.quizCount)">10</span>
+            </button>
+            <span x-text="$store.app.quizSetupQuestions">questions,</span>
+          </p>
+          <p class="quiz-line">
+            <span x-text="$store.app.quizSetupAs">as</span>
+            <button type="button" class="quiz-token" :aria-expanded="picker === 'mode' ? 'true' : 'false'" aria-controls="panel-mode" @click="picker = picker === 'mode' ? null : 'mode'">
+              <span x-text="$store.app.quizModeLabel"></span>
+            </button>
+          </p>
+          <p class="quiz-line">
+            <span x-text="$store.app.quizSetupFrom">from</span>
+            <button type="button" class="quiz-token" :aria-expanded="picker === 'section' ? 'true' : 'false'" aria-controls="panel-section" @click="picker = picker === 'section' ? null : 'section'">
+              <span x-text="$store.app.quizSectionLabel"></span>
+            </button>
+          </p>
+        </div>
 
         <!-- COUNT panel -->
         <div id="panel-count" class="quiz-panel quiz-panel-inline" x-show="picker === 'count'" role="radiogroup" :aria-label="$store.app.quizSetupQuestions">

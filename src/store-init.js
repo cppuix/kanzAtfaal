@@ -354,8 +354,7 @@ Alpine.store('app', (function() {
       return this.quizSection;
     },
     get quizSetupIntro() { return this.lang === 'en' ? 'I want' : 'أريد'; },
-    get quizSetupQuestions() { return this.lang === 'en' ? 'questions' : 'أسئلة'; },
-    get quizSetupComma() { return this.lang === 'en' ? ',' : '،'; },
+    get quizSetupQuestions() { return this.lang === 'en' ? 'questions,' : 'أسئلة،'; },
     get quizSetupAs() { return this.lang === 'en' ? 'as' : 'بنمط'; },
     get quizSetupFrom() { return this.lang === 'en' ? 'from' : 'من'; },
     get quizStartLabel() { return this.lang === 'en' ? 'Start' : 'ابدأ'; },
