@@ -110,10 +110,14 @@ body {
   gap: 2px;
   align-items: center;
 }
+.content-switch-trigger {
+  position: relative;
+  display: flex;
+}
 .content-popup {
   position: absolute;
   top: calc(100% + 6px);
-  inset-inline-start: 0;
+  inset-inline-end: 0;
   width: min(260px, calc(100vw - 32px));
   background: var(--bg2);
   border: 1px solid var(--gold-mid);
@@ -129,7 +133,7 @@ body {
   content: '';
   position: absolute;
   top: -8px;
-  inset-inline-start: 16px;
+  inset-inline-end: 16px;
   width: 14px;
   height: 14px;
   background: var(--bg2);

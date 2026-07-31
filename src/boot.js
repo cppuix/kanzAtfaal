@@ -1,7 +1,7 @@
 // ===== BOOT — Service Registration + Init =====
 // Store and Alpine.data components are registered by src/store-init.js (runs before this module)
 
-import { loadContent, applyDeepLink } from './services/content.js';
+import { loadContent, applyDeepLink, preloadOthers } from './services/content.js';
 import { loadStorage, loadQuizHistory, loadSettings, loadSavedContent, saveFavorites, recordAnswer, saveFontSize, saveContrast } from './services/storage.js';
 import { playAudio, stopAllAudio, stopListenAudio, playListenAudio } from './services/audio.js';
 import { copyQA, shareAsImage, shareDeepLink } from './services/share.js';
@@ -37,6 +37,8 @@ function init() {
     if (store && store.renderCards) store.renderCards();
     // Splash is Alpine-driven: flipping appReady fades the splash out
     if (store && store.setAppReady) store.setAppReady(true);
+    // Preload other content files in the background so switching is instant
+    preloadOthers(store && store.activeContent);
   });
 }
 

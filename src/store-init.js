@@ -45,6 +45,8 @@ Alpine.store('app', (function() {
     // Version counter: bump whenever the dataset identity changes (content switch)
     // and include it in x-for keys so Alpine re-creates items with fresh data.
     cardVersion: 0,
+    // Internal: dataset version for memoized getters (bumped in setContentData)
+    _qaVersion: 0,
     contentFiles: [
       { file: 'content.ar.json',      label: 'منتقى عربي' },
       { file: 'content.kanz-ar.json', label: 'كنز عربي' },
@@ -118,24 +120,35 @@ Alpine.store('app', (function() {
     currentPage: 1,
 
     // ── Computed ──
+    // Memoized: the 1536-item map is expensive; recompute only when inputs change
     get filteredCards() {
+      var sig = this._qaVersion + '|' + this.search + '|' + this.searchScope + '|' + this.searchSection + '|' + this.section;
+      if (this._fcSig === sig && this._fcQA === this.QA_DATA) return this._fcValue;
       var data = this.QA_DATA;
       var activeSection = this.search.trim() ? this.searchSection : this.section;
       if (activeSection !== 'all') data = data.filter(function(q) { return q.section === activeSection; });
-      if (!this.search.trim()) return data.map(function(qa) { return { qa: qa, matchIn: 'q' }; });
-      var scope = this.searchScope;
-      return data
-        .map(function(qa) {
-          var qScore = (scope === 'both' || scope === 'q') ? fuzzyScore(qa.q, this.search) : 0;
-          var aScore = (scope === 'both' || scope === 'a') ? fuzzyScore(qa.a, this.search) : 0;
-          var score = Math.max(qScore, aScore);
-          var matchIn = 'q';
-          if (aScore > qScore) matchIn = 'a';
-          else if (qScore > 0 && aScore > 0) matchIn = 'both';
-          return { qa: qa, score: score, matchIn: matchIn };
-        }.bind(this))
-        .filter(function(x) { return x.score >= FUZZY_THRESHOLD; })
-        .sort(function(a, b) { return b.score - a.score; });
+      var result;
+      if (!this.search.trim()) {
+        result = data.map(function(qa) { return { qa: qa, matchIn: 'q' }; });
+      } else {
+        var scope = this.searchScope;
+        result = data
+          .map(function(qa) {
+            var qScore = (scope === 'both' || scope === 'q') ? fuzzyScore(qa.q, this.search) : 0;
+            var aScore = (scope === 'both' || scope === 'a') ? fuzzyScore(qa.a, this.search) : 0;
+            var score = Math.max(qScore, aScore);
+            var matchIn = 'q';
+            if (aScore > qScore) matchIn = 'a';
+            else if (qScore > 0 && aScore > 0) matchIn = 'both';
+            return { qa: qa, score: score, matchIn: matchIn };
+          }.bind(this))
+          .filter(function(x) { return x.score >= FUZZY_THRESHOLD; })
+          .sort(function(a, b) { return b.score - a.score; });
+      }
+      this._fcSig = sig;
+      this._fcQA = this.QA_DATA;
+      this._fcValue = result;
+      return result;
     },
 
     // ── Pagination: browseCards exposes only the current page slice ──
@@ -196,12 +209,15 @@ Alpine.store('app', (function() {
       return (this.quizCurrent / this.quizQuestions.length) * 100;
     },
 
-    // ── Pre-computed section counts ──
+    // ── Pre-computed section counts (memoized by QA_DATA identity) ──
     get sectionCounts() {
+      if (this._scQA === this.QA_DATA) return this._scValue;
       var counts = {};
       this.QA_DATA.forEach(function(q) {
         counts[q.section] = (counts[q.section] || 0) + 1;
       });
+      this._scQA = this.QA_DATA;
+      this._scValue = counts;
       return counts;
     },
 
@@ -320,17 +336,27 @@ Alpine.store('app', (function() {
       else this.openCards.push(id);
     },
     toArabic: function(n) { return this.CFG.meta?.numerals === 'arabic' ? String(n).replace(/[0-9]/g, function(d) { return '٠١٢٣٤٥٦٧٨٩'[d]; }) : String(n); },
+    // O(1) card lookup (Map rebuilt only when QA_DATA identity changes)
+    _ensureCardMap: function() {
+      if (this._cardMap && this._cardMapSource === this.QA_DATA) return this._cardMap;
+      var map = new Map();
+      this.QA_DATA.forEach(function(q) { map.set(q.id, q); });
+      this._cardMap = map;
+      this._cardMapSource = this.QA_DATA;
+      return map;
+    },
+    getCard: function(id) {
+      return this._ensureCardMap().get(id) || null;
+    },
 
     initSentinel: function() { /* no-op — infinite scroll removed */ },
     switchContent: async function(file) {
       if (file === this.activeContent) return;
       this.contentLoading = true;
-      this.section = 'all'; this.search = ''; this.searchScope = 'both'; this.searchSection = 'all';
-      this.openCards = []; this.quizQuestions = []; this.quizCurrent = 0; this.quizScore = 0; this.quizAnswered = false;
-      this.resetPagination();
       if (window.__stopAllAudio) window.__stopAllAudio();
       if (window.__stopListenAudio) window.__stopListenAudio();
-      this.searchOpen = false;
+      // Resets are deferred until after the data swap so Alpine performs a single
+      // flush — no intermediate stale/filtered state, no flicker.
       try {
         await window.__loadContent(file);
         window.__loadStorage();
@@ -340,9 +366,12 @@ Alpine.store('app', (function() {
         this.showToast('فشل تحميل المحتوى');
         return;
       }
-      // Dataset identity changed — bump so x-for keys change and cards re-render fresh
-      this.cardVersion++;
-      this.renderCards();
+      this.section = 'all'; this.search = ''; this.searchScope = 'both'; this.searchSection = 'all';
+      this.openCards = []; this.quizQuestions = []; this.quizCurrent = 0; this.quizScore = 0; this.quizAnswered = false;
+      this.resetPagination();
+      this.searchOpen = false;
+      // Dataset identity changed — setContentData bumps cardVersion so x-for
+      // keys change and cards re-render fresh
       this.contentLoading = false;
       this.view = 'browse';
     },
@@ -396,6 +425,9 @@ Alpine.store('app', (function() {
       this.SECTIONS = sections;
       this.activeContent = file;
       this.contentLoaded = true;
+      // Dataset identity changed — bump so memoized getters recompute
+      this._qaVersion++;
+      this.cardVersion++;
       // Isolated page-metadata write — <title> cannot be Alpine-bound
       document.title = cfg?.ui?.appTitle || this.appTitle;
     },
@@ -629,26 +661,28 @@ Alpine.store('app', (function() {
 })());
 
 // ── QA Card component ──
-Alpine.data('qaCard', function(qa, matchIn) {
-  if (matchIn === undefined) matchIn = 'q';
+Alpine.data('qaCard', function(id) {
   return {
-    qa: qa,
-    matchIn: matchIn,
+    id: id,
+    // Read the card reactively from the store (single source of truth) so cards
+    // update in place on content switch instead of being re-created.
+    get qa() { return Alpine.store('app').getCard(this.id) || {}; },
     get hlQuery() { return Alpine.store('app').search || ''; },
+    get isFav() { return Alpine.store('app').favorites.includes(this.id); },
     toggle: function() {
-      Alpine.store('app').toggleCard(qa.id);
-      if (Alpine.store('app').openCards.includes(qa.id)) {
+      Alpine.store('app').toggleCard(this.id);
+      if (Alpine.store('app').openCards.includes(this.id)) {
         // Source element is passed via $refs (no DOM queries in components)
         Alpine.store('app').triggerSparkles(this.$refs.toggleBtn, false);
       }
     },
-    toggleFav: function(e) { e.stopPropagation(); Alpine.store('app').toggleFav(qa.id); },
+    toggleFav: function(e) { e.stopPropagation(); Alpine.store('app').toggleFav(this.id); },
     playAudio: function(e) {
       e.stopPropagation();
-      if (window.__playAudio) window.__playAudio(qa.id);
+      if (window.__playAudio) window.__playAudio(this.id);
     },
-    copyQA: function(e) { e.stopPropagation(); if (window.__copyQA) window.__copyQA(qa); },
-    shareImage: function(e) { e.stopPropagation(); if (window.__shareAsImage) window.__shareAsImage(qa); }
+    copyQA: function(e) { e.stopPropagation(); if (window.__copyQA) window.__copyQA(this.qa); },
+    shareImage: function(e) { e.stopPropagation(); if (window.__shareAsImage) window.__shareAsImage(this.qa); }
   };
 });
 
