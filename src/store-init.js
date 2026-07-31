@@ -67,7 +67,6 @@ Alpine.store('app', (function() {
     view: 'browse',
     section: 'all',
     drawerOpen: false,
-    searchOpen: false,
     search: '',
     searchScope: 'both',
     searchSection: 'all',
@@ -278,6 +277,9 @@ Alpine.store('app', (function() {
     },
     // Settings theme label (kept store-side for now — no ui.themeLabel key yet)
     get themeLabel() { return this.lang === 'en' ? 'Theme' : 'المظهر'; },
+    get contentSwitchLabel() { return this.lang === 'en' ? 'Language' : 'اللغة'; },
+    get searchNavLabel() { return this.lang === 'en' ? 'Search' : 'بحث'; },
+    get searchEmptyHint() { return this.lang === 'en' ? 'Type to search questions & answers' : 'اكتب كلمة للبحث في الأسئلة والأجوبة'; },
     get fontLabel() { return this.lang === 'en' ? 'Font' : 'الخط'; },
     get fontPreviewLabel() { return this.lang === 'en' ? 'Preview' : 'معاينة الخط'; },
     get fontPresets() {
@@ -368,13 +370,24 @@ Alpine.store('app', (function() {
     },
     switchView: function(view) {
       if (window.__stopAllAudio) window.__stopAllAudio();
+      var wasSearch = this.view === 'search';
       // Remember the last real screen so goBack() can return to it.
       if (view !== 'about' && view !== 'settings') this._prevView = view;
       else if (this.view !== 'about' && this.view !== 'settings') this._prevView = this.view;
       this.view = view;
       this.closeDrawer();
       if (view === 'quiz') this.quizPhase = 'setup';
-      if (view === 'about' || view === 'settings') this.searchOpen = false;
+      // Fresh, empty search tab each time it's opened
+      if (view === 'search') {
+        this.search = '';
+        this.searchScope = 'both';
+        this.searchSection = 'all';
+        this.resetPagination();
+      } else if (wasSearch) {
+        // Leaving search: clear the query so other views are never highlighted
+        this.search = '';
+        this.resetPagination();
+      }
     },
     setSection: function(sec) {
       this.section = sec;
@@ -382,10 +395,6 @@ Alpine.store('app', (function() {
       this.drawerOpen = false;
       this.resetPagination();
       this.closeDrawer();
-    },
-    toggleSearch: function() {
-      this.searchOpen = !this.searchOpen;
-      if (!this.searchOpen) { this.search = ''; this.searchSection = 'all'; this.searchScope = 'both'; this.resetPagination(); }
     },
     setSearchScope: function(scope) { this.searchScope = scope; this.resetPagination(); this.renderCards(); },
     setSearchSection: function(sec) { this.searchSection = sec; this.resetPagination(); this.renderCards(); },
@@ -436,7 +445,6 @@ Alpine.store('app', (function() {
       this.section = 'all'; this.search = ''; this.searchScope = 'both'; this.searchSection = 'all';
       this.openCards = []; this.quizQuestions = []; this.quizCurrent = 0; this.quizScore = 0; this.quizAnswered = false;
       this.resetPagination();
-      this.searchOpen = false;
       // Dataset identity changed — setContentData bumps cardVersion so x-for
       // keys change and cards re-render fresh
       this.contentLoading = false;

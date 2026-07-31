@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v24'; // bumped: font preset/preview refinements + green light theme
+const CACHE_NAME = 'muntaqaa-v25'; // decluttered header: Search tab + Language pill + slim drawer
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [
