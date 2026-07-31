@@ -152,7 +152,7 @@
                   <span class="qa-num" x-text="$store.app.CFG.ui?.questionNum?.replace('{n}', $store.app.toArabic(qa.id))"></span>
                   <span class="qa-question" x-html="hlQuery ? $store.app.buildHighlight(qa.q, hlQuery) : $store.app.escHtml(qa.q)"></span>
                   <button class="qa-toggle" x-ref="toggleBtn" @click.stop="toggle()" :aria-label="$store.app.CFG.ui?.showAnswer">
-                    <span x-html="window.CHEST_SVG || ''"></span>
+                    <span x-html="$store.app.chestSVG"></span>
                   </button>
                 </div>
                 <div class="qa-footer">
@@ -164,7 +164,7 @@
                       </button>
                     </template>
                     <button class="fav-btn" :class="{ active: $store.app.favorites.includes(qa.id) }" @click.stop="toggleFav($event)" :aria-label="$store.app.CFG.ui?.save">
-                      <span x-html="favStarSVG($store.app.favorites.includes(qa.id))"></span>
+                      <span x-html="$store.app.favStarSVG($store.app.favorites.includes(qa.id))"></span>
                     </button>
                   </div>
                 </div>
@@ -175,7 +175,7 @@
                   <span class="qa-num" x-text="$store.app.CFG.ui?.questionNum?.replace('{n}', $store.app.toArabic(qa.id))"></span>
                   <span class="qa-back-label" x-text="$store.app.CFG.ui?.answerLabel"></span>
                   <button class="qa-toggle qa-toggle-back" x-ref="toggleBtn" @click.stop="toggle()" :aria-label="$store.app.CFG.ui?.close">
-                    <span x-html="window.CHEST_SVG || ''"></span>
+                    <span x-html="$store.app.chestSVG"></span>
                   </button>
                 </div>
                 <div class="qa-back-divider"></div>
@@ -191,7 +191,7 @@
                       </button>
                     </template>
                     <button class="fav-btn" :class="{ active: $store.app.favorites.includes(qa.id) }" @click.stop="toggleFav($event)" :aria-label="$store.app.CFG.ui?.save">
-                      <span x-html="favStarSVG($store.app.favorites.includes(qa.id))"></span>
+                      <span x-html="$store.app.favStarSVG($store.app.favorites.includes(qa.id))"></span>
                     </button>
                     <button class="copy-btn" @click.stop="copyQA($event)" :aria-label="$store.app.CFG.ui?.copyText">
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
@@ -242,14 +242,14 @@
                   <span class="qa-num" x-text="$store.app.CFG.ui?.questionNum?.replace('{n}', $store.app.toArabic(qa.id))"></span>
                   <span class="qa-question" x-text="qa.q"></span>
                   <button class="qa-toggle" x-ref="toggleBtn" @click.stop="toggle()">
-                    <span x-html="window.CHEST_SVG || ''"></span>
+                    <span x-html="$store.app.chestSVG"></span>
                   </button>
                 </div>
                 <div class="qa-footer">
                   <span class="qa-section-tag" x-text="qa.section"></span>
                   <div class="card-actions">
                     <button class="fav-btn active" @click.stop="toggleFav($event)">
-                      <span x-html="favStarSVG(true)"></span>
+                      <span x-html="$store.app.favStarSVG(true)"></span>
                     </button>
                   </div>
                 </div>
@@ -259,7 +259,7 @@
                   <span class="qa-num" x-text="$store.app.CFG.ui?.questionNum?.replace('{n}', $store.app.toArabic(qa.id))"></span>
                   <span class="qa-back-label" x-text="$store.app.CFG.ui?.answerLabel"></span>
                   <button class="qa-toggle qa-toggle-back" x-ref="toggleBtn" @click.stop="toggle()">
-                    <span x-html="window.CHEST_SVG || ''"></span>
+                    <span x-html="$store.app.chestSVG"></span>
                   </button>
                 </div>
                 <div class="qa-back-divider"></div>
@@ -270,7 +270,7 @@
                   <span class="qa-section-tag" x-text="qa.section"></span>
                   <div class="card-actions">
                     <button class="fav-btn active" @click.stop="toggleFav($event)">
-                      <span x-html="favStarSVG(true)"></span>
+                      <span x-html="$store.app.favStarSVG(true)"></span>
                     </button>
                     <button class="copy-btn" @click.stop="copyQA($event)" :aria-label="$store.app.CFG.ui?.copyText">
                       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>

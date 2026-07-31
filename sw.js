@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v15'; // bumped for Phase 6 (CSS: logical props, drop .hidden)
+const CACHE_NAME = 'muntaqaa-v16'; // bumped for Phase 7 (final compliance sweep)
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [
