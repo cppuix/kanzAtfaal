@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v35'; // wide-screen quiz setup (Direction 3) + weak-leaf status
+const CACHE_NAME = 'muntaqaa-v36'; // quiz rows: aligned label/value columns (RTL/LTR) + more row spacing
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [
