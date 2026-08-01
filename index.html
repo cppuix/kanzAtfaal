@@ -316,29 +316,6 @@
       <div id="quizSetup" class="quiz-setup" x-data="{ picker: null }" @click.outside="picker = null" x-show="$store.app.quizPhase === 'setup'">
         <div class="quiz-fields" role="group">
           <div class="quiz-line">
-            <span class="quiz-field-label" x-text="$store.app.quizCountLabel">Number of questions:</span>
-            <button type="button" class="quiz-token" :aria-expanded="picker === 'count' ? 'true' : 'false'" aria-controls="panel-count" @click="picker = picker === 'count' ? null : 'count'">
-              <span x-text="$store.app.toArabic($store.app.quizCount)">10</span>
-            </button>
-            <div id="panel-count" class="quiz-panel quiz-panel-inline" x-show="picker === 'count'" role="radiogroup" :aria-label="$store.app.quizCountLabel">
-              <button type="button" class="quiz-opt" role="radio" :aria-checked="$store.app.quizCount === 5 ? 'true' : 'false'" @click="$store.app.setQuizCount(5); picker = null"><span x-text="$store.app.toArabic(5)">5</span></button>
-              <button type="button" class="quiz-opt" role="radio" :aria-checked="$store.app.quizCount === 10 ? 'true' : 'false'" @click="$store.app.setQuizCount(10); picker = null"><span x-text="$store.app.toArabic(10)">10</span></button>
-              <button type="button" class="quiz-opt" role="radio" :aria-checked="$store.app.quizCount === 20 ? 'true' : 'false'" @click="$store.app.setQuizCount(20); picker = null"><span x-text="$store.app.toArabic(20)">20</span></button>
-            </div>
-          </div>
-          <div class="quiz-line">
-            <span class="quiz-field-label" x-text="$store.app.quizTypeLabel">Type:</span>
-            <button type="button" class="quiz-token" :aria-expanded="picker === 'mode' ? 'true' : 'false'" aria-controls="panel-mode" @click="picker = picker === 'mode' ? null : 'mode'">
-              <span x-text="$store.app.quizModeLabel"></span>
-            </button>
-            <div id="panel-mode" class="quiz-panel quiz-panel-inline" x-show="picker === 'mode'" role="radiogroup" :aria-label="$store.app.quizTypeLabel">
-              <button type="button" class="quiz-opt" role="radio" :aria-checked="$store.app.quizMode === 'mcq' ? 'true' : 'false'" @click="$store.app.setQuizMode('mcq'); picker = null"><span x-text="$store.app.CFG.ui?.modeMCQ || 'اختيار'"></span></button>
-              <button type="button" class="quiz-opt" role="radio" :aria-checked="$store.app.quizMode === 'build' ? 'true' : 'false'" @click="$store.app.setQuizMode('build'); picker = null"><span x-text="$store.app.CFG.ui?.modeBuild || 'ترتيب'"></span></button>
-              <button type="button" class="quiz-opt" role="radio" :aria-checked="$store.app.quizMode === 'blank' ? 'true' : 'false'" @click="$store.app.setQuizMode('blank'); picker = null"><span x-text="$store.app.CFG.ui?.modeBlank || 'تكميل'"></span></button>
-              <button type="button" class="quiz-opt" role="radio" x-show="$store.app.CFG.meta?.audio" :aria-checked="$store.app.quizMode === 'listen' ? 'true' : 'false'" @click="$store.app.setQuizMode('listen'); picker = null"><span x-text="$store.app.CFG.ui?.modeListen || 'استماع'"></span></button>
-            </div>
-          </div>
-          <div class="quiz-line">
             <span class="quiz-field-label" x-text="$store.app.quizChapterLabel">Chapter:</span>
             <button type="button" class="quiz-token" :aria-expanded="picker === 'section' ? 'true' : 'false'" aria-controls="panel-section" @click="picker = picker === 'section' ? null : 'section'">
               <span x-text="$store.app.quizSectionLabel"></span>
@@ -357,6 +334,30 @@
               <button type="button" class="quiz-opt" role="radio" x-show="$store.app.weakPool.length > 0" :aria-checked="$store.app.quizSection === '__weak__' ? 'true' : 'false'" @click="$store.app.setQuizSection('__weak__'); picker = null">
                 <span x-text="$store.app.weakOptionLabel"></span>
               </button>
+            </div>
+          </div>
+          <div class="quiz-line">
+            <span class="quiz-field-label" x-text="$store.app.quizCountLabel">Number of questions:</span>
+            <button type="button" class="quiz-token" :aria-expanded="picker === 'count' ? 'true' : 'false'" aria-controls="panel-count" @click="picker = picker === 'count' ? null : 'count'">
+              <span x-text="$store.app.toArabic($store.app.quizCount)">10</span>
+            </button>
+            <div id="panel-count" class="quiz-panel quiz-panel-inline" x-show="picker === 'count'" role="radiogroup" :aria-label="$store.app.quizCountLabel">
+              <button type="button" class="quiz-opt" role="radio" :aria-checked="$store.app.quizCount === 5 ? 'true' : 'false'" @click="$store.app.setQuizCount(5); picker = null"><span x-text="$store.app.toArabic(5)">5</span></button>
+              <button type="button" class="quiz-opt" role="radio" :aria-checked="$store.app.quizCount === 10 ? 'true' : 'false'" @click="$store.app.setQuizCount(10); picker = null"><span x-text="$store.app.toArabic(10)">10</span></button>
+              <button type="button" class="quiz-opt" role="radio" :aria-checked="$store.app.quizCount === 20 ? 'true' : 'false'" @click="$store.app.setQuizCount(20); picker = null"><span x-text="$store.app.toArabic(20)">20</span></button>
+            </div>
+          </div>
+          <div class="quiz-line">
+            <span class="quiz-field-label" x-text="$store.app.quizTypeLabel">Type:</span>
+            <button type="button" class="quiz-token" :aria-expanded="picker === 'mode' ? 'true' : 'false'" aria-controls="panel-mode" @click="picker = picker === 'mode' ? null : 'mode'">
+              <span x-text="$store.app.quizModeLabel"></span>
+            </button>
+            <div id="panel-mode" class="quiz-panel quiz-panel-inline" x-show="picker === 'mode'" role="radiogroup" :aria-label="$store.app.quizTypeLabel">
+              <template x-for="m in $store.app.quizModeOptions" :key="m.id">
+                <button type="button" class="quiz-opt" role="radio" :aria-checked="$store.app.quizMode === m.id ? 'true' : 'false'" x-show="$store.app.CFG.meta?.audio || m.id !== 'listen'" @click="$store.app.setQuizMode(m.id); picker = null">
+                  <span x-text="m.label"></span>
+                </button>
+              </template>
             </div>
           </div>
         </div>

@@ -339,14 +339,20 @@ Alpine.store('app', (function() {
     get modeBlankTitle() { return this.lang === 'en' ? 'Complete the missing word' : 'أكمل الكلمة الناقصة'; },
     get modeListenTitle() { return this.lang === 'en' ? 'Listen and choose the question' : 'استمع واختر السؤال'; },
     // ── Quiz setup sentence (Direction 1: the quiz is a sentence) ──
+    // Clear, descriptive quiz-mode labels (content ui.mode* are terse acronyms
+    // like 'اختيار' which reads vaguely — these are the display labels).
+    get quizModeOptions() {
+      var en = this.lang === 'en';
+      return [
+        { id: 'mcq',    label: en ? 'Multiple Choice' : 'اختيار من متعدد' },
+        { id: 'build',  label: en ? 'Order Words'     : 'ترتيب الكلمات' },
+        { id: 'blank',  label: en ? 'Fill the Blank'  : 'أكمل الفراغ' },
+        { id: 'listen', label: en ? 'Listen'          : 'استماع' }
+      ];
+    },
     get quizModeLabel() {
-      var m = {
-        mcq: this.CFG.ui?.modeMCQ || (this.lang === 'en' ? 'Multiple Choice' : 'اختيار'),
-        build: this.CFG.ui?.modeBuild || (this.lang === 'en' ? 'Order' : 'ترتيب'),
-        blank: this.CFG.ui?.modeBlank || (this.lang === 'en' ? 'Fill' : 'تكميل'),
-        listen: this.CFG.ui?.modeListen || (this.lang === 'en' ? 'Listen' : 'استماع')
-      };
-      return m[this.quizMode] || '';
+      var opt = this.quizModeOptions.filter(function(m) { return m.id === this.quizMode; }.bind(this))[0];
+      return opt ? opt.label : '';
     },
     get quizSectionLabel() {
       if (this.quizSection === 'all') return this.CFG.ui?.allChapters || (this.lang === 'en' ? 'All Chapters' : 'جميع الأبواب');

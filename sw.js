@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v31'; // quiz setup: label+value rows (avoids Arabic number-noun agreement)
+const CACHE_NAME = 'muntaqaa-v32'; // quiz setup: breathing room + Chapter-first + clearer mode labels + footer-safe popup
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [
