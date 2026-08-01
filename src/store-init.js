@@ -353,10 +353,9 @@ Alpine.store('app', (function() {
       if (this.quizSection === '__weak__') return this.weakOptionLabel;
       return this.quizSection;
     },
-    get quizSetupIntro() { return this.lang === 'en' ? 'I want' : 'أريد'; },
-    get quizSetupQuestions() { return this.lang === 'en' ? 'questions,' : 'أسئلة،'; },
-    get quizSetupAs() { return this.lang === 'en' ? 'as' : 'بنمط'; },
-    get quizSetupFrom() { return this.lang === 'en' ? 'from' : 'من'; },
+    get quizCountLabel() { return this.lang === 'en' ? 'Number of questions:' : 'عدد الأسئلة:'; },
+    get quizTypeLabel() { return this.lang === 'en' ? 'Type:' : 'النمط:'; },
+    get quizChapterLabel() { return this.lang === 'en' ? 'Chapter:' : 'الباب:'; },
     get quizStartLabel() { return this.lang === 'en' ? 'Start' : 'ابدأ'; },
     get fontLabel() { return this.lang === 'en' ? 'Font' : 'الخط'; },
     get fontPreviewLabel() { return this.lang === 'en' ? 'Preview' : 'معاينة الخط'; },

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v30'; // quiz setup: anchored floating flyouts (zero layout shift)
+const CACHE_NAME = 'muntaqaa-v31'; // quiz setup: label+value rows (avoids Arabic number-noun agreement)
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [

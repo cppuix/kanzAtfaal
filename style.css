@@ -423,12 +423,13 @@ main { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: calc(80px + env
   justify-content: safe center;
   padding: 24px 16px; gap: 16px; text-align: start;
 }
-.quiz-sentence {
+.quiz-fields {
   width: 100%; max-width: 600px; margin: 0;
-  display: flex; flex-direction: column; gap: 12px;
-  font-size: 1.2667rem; line-height: 1.75;
+  display: flex; flex-direction: column; gap: 14px;
+  font-size: 1.2000rem; line-height: 1.75;
   color: var(--text);
 }
+.quiz-field-label { color: var(--text2); }
 .quiz-line {
   margin: 0;
   position: relative;
