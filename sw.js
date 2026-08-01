@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v37'; // quiz fields flush to rail edge (no centering)
+const CACHE_NAME = 'muntaqaa-v38'; // localize Order-words "verify" button (was hardcoded Arabic)
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [

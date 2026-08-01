@@ -456,7 +456,7 @@
                 <button class="build-tile" :class="{ placed: pw.placed }" :disabled="$store.app.quizAnswered" @click="$store.app.placeBuildTile(idx)" x-text="pw.word"></button>
               </template>
             </div>
-            <button id="buildCheck" class="build-check-btn" x-show="$store.app.buildPlaced.length >= ($store.app.currentQuestion?.a?.trim().split(/\s+/).length || 0) && !$store.app.quizAnswered" @click="$store.app.checkBuildAnswer($refs.buildAnswer)"><span id="buildCheckLabel">تحقق ✓</span></button>
+            <button id="buildCheck" class="build-check-btn" x-show="$store.app.buildPlaced.length >= ($store.app.currentQuestion?.a?.trim().split(/\s+/).length || 0) && !$store.app.quizAnswered" @click="$store.app.checkBuildAnswer($refs.buildAnswer)"><span x-text="$store.app.buildCheckLabel"></span></button>
           </div>
 
           <!-- BLANK MODE -->

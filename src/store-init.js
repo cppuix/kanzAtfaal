@@ -378,6 +378,10 @@ Alpine.store('app', (function() {
     get statsWrongLabel() { return this.lang === 'en' ? 'Wrong' : 'خطأ'; },
     get statsAccuracyLabel() { return this.lang === 'en' ? 'Accuracy' : 'الدقة'; },
     get statsEmptyLabel() { return this.lang === 'en' ? 'No quiz data yet' : 'لا توجد بيانات اختبار بعد'; },
+    // Order-words "verify" button — content-driven, lang-aware fallback
+    get buildCheckLabel() {
+      return this.CFG?.ui?.checkAnswer || (this.lang === 'en' ? 'Check' : 'تحقق');
+    },
     get statsSummary() {
       var correct = 0, wrong = 0, answered = 0;
       Object.values(this.quizHistory || {}).forEach(function(h) {
