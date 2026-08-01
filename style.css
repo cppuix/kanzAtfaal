@@ -420,12 +420,14 @@ main { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: calc(80px + env
 .quiz-setup {
   flex: 1; min-height: 0; overflow: visible;
   display: flex; flex-direction: column; align-items: center;
-  justify-content: safe center;
-  padding: 36px 20px; gap: 22px; text-align: start;
+  justify-content: flex-start;
+  padding: 14px 20px 20px; gap: 16px; text-align: start;
 }
 .quiz-fields {
-  width: 100%; max-width: 640px; margin: 0;
-  display: flex; flex-direction: column; gap: 28px;
+  flex: 1 1 auto; min-height: 0;
+  width: 100%; max-width: 680px; margin: 0;
+  display: flex; flex-direction: column; justify-content: safe center;
+  gap: 28px;
   font-size: 1.2000rem; line-height: 1.75;
   color: var(--text);
 }
@@ -492,12 +494,14 @@ main { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: calc(80px + env
 }
 .quiz-start:hover { color: var(--gold3); border-color: var(--gold3); }
 
-/* Quiz tabs (normal / weak / stats) */
+/* Quiz tabs (normal / weak / stats) — sticky at top */
 .quiz-tabs {
-  width: 100%; max-width: 640px;
+  position: sticky; top: 0; z-index: 6;
+  width: 100%; max-width: 680px;
+  background: var(--bg);
   display: flex; gap: 4px;
   border-bottom: 1px solid var(--gold-mid);
-  padding: 0 4px;
+  padding: 6px 4px 0;
 }
 .quiz-tab {
   background: none; border: none;
@@ -510,15 +514,20 @@ main { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: calc(80px + env
 .quiz-tab:hover { color: var(--text); }
 .quiz-tab[aria-selected="true"] { color: var(--gold2); font-weight: 700; border-bottom-color: var(--gold); }
 
-/* Weak + stats panes */
+/* Weak + stats panes — fill the middle area */
 .quiz-pane {
-  width: 100%; max-width: 640px;
+  flex: 1 1 auto; min-height: 0;
+  width: 100%; max-width: 680px;
   display: flex; flex-direction: column; gap: 14px;
 }
-.quiz-pane-inner { display: flex; flex-direction: column; gap: 14px; }
+.quiz-pane-inner {
+  flex: 1 1 auto; min-height: 0; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 14px;
+}
 .quiz-pane-title { font-family: var(--font-display); font-size: 1.1333rem; font-weight: 700; color: var(--gold2); margin: 0; }
 .quiz-weak-list {
-  max-height: 42vh; overflow-y: auto; scrollbar-width: thin;
+  flex: 1 1 auto; min-height: 0;
+  overflow-y: auto; scrollbar-width: thin;
   display: flex; flex-direction: column; gap: 8px;
   border: 1px solid var(--gold-mid); border-radius: 14px; padding: 10px;
 }
@@ -529,8 +538,9 @@ main { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: calc(80px + env
 .quiz-weak-q { font-size: 0.9333rem; line-height: 1.6; color: var(--text); }
 .quiz-weak-item .qa-section-tag { align-self: flex-start; }
 .quiz-empty {
-  display: flex; flex-direction: column; gap: 8px;
-  padding: 40px 20px; text-align: center; color: var(--text2);
+  flex: 1 1 auto; min-height: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 8px; text-align: center; color: var(--text2);
 }
 .quiz-empty-title { font-size: 1.1333rem; font-weight: 700; color: var(--text2); margin: 0; }
 .quiz-empty-hint { font-size: 0.9333rem; color: var(--text3); margin: 0; }
@@ -542,6 +552,16 @@ main { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: calc(80px + env
 }
 .stats-value { font-family: var(--font-display); font-size: 1.7333rem; font-weight: 800; color: var(--gold2); }
 .stats-label { font-size: 0.8333rem; color: var(--text3); }
+.stats-rows { display: flex; flex-direction: column; gap: 8px; }
+.stats-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 12px; border-radius: 10px; background: var(--bg3);
+}
+.stats-row-label { flex: 0 0 auto; min-width: 132px; font-size: 0.9333rem; color: var(--text); }
+.stats-row-track { flex: 1; height: 6px; border-radius: 3px; background: var(--bg2); overflow: hidden; }
+.stats-row-fill { display: block; height: 100%; background: linear-gradient(90deg, var(--gold), var(--gold3)); border-radius: 3px; transition: width 0.4s ease; }
+.stats-row-acc { flex: 0 0 auto; width: 48px; text-align: end; font-family: var(--font-display); font-size: 0.9rem; color: var(--gold2); }
+.stats-row-counts { flex: 0 0 auto; min-width: 64px; text-align: end; font-size: 0.8rem; color: var(--text3); }
 
 #viewQuiz.active { display: flex; flex-direction: column; height: 100%; min-height: 0; overflow-x: clip; }
 #quizGame, #quizResult { flex: 1; min-height: 0; overflow-y: auto; }

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v33'; // quiz tabs (weak/stats) + persist content choice
+const CACHE_NAME = 'muntaqaa-v34'; // quiz setup stability (sticky tabs, full middle) + stats by activity type
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [

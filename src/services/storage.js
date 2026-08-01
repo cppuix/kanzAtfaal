@@ -3,6 +3,7 @@
 import { CONTENT_FILES } from './content.js';
 
 let quizHistory = {};
+let modeStats = {};
 
 // Keys are namespaced per content dataset (meta.id), read from the store's CFG
 function contentKey(suffix) {
@@ -48,11 +49,33 @@ export function saveQuizHistory() {
   syncQuizHistory();
 }
 
-export function recordAnswer(id, correct) {
+export function recordAnswer(id, correct, mode) {
   if (!quizHistory[id]) quizHistory[id] = { correct: 0, wrong: 0 };
   if (correct) quizHistory[id].correct++;
   else quizHistory[id].wrong++;
+  if (mode) {
+    if (!modeStats[mode]) modeStats[mode] = { correct: 0, wrong: 0 };
+    if (correct) modeStats[mode].correct++;
+    else modeStats[mode].wrong++;
+    saveModeStats();
+  }
   saveQuizHistory();
+}
+
+// ===== PER-ACTIVITY-TYPE STATS =====
+export function loadModeStats() {
+  try {
+    modeStats = JSON.parse(localStorage.getItem(contentKey('modestats')) || '{}');
+  } catch(e) { modeStats = {}; }
+  syncModeStats();
+}
+function syncModeStats() {
+  const store = Alpine.store('app');
+  if (store) store.setModeStats(modeStats);
+}
+export function saveModeStats() {
+  localStorage.setItem(contentKey('modestats'), JSON.stringify(modeStats));
+  syncModeStats();
 }
 
 // ===== CONTENT CHOICE =====

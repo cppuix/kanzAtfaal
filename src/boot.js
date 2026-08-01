@@ -2,7 +2,7 @@
 // Store and Alpine.data components are registered by src/store-init.js (runs before this module)
 
 import { loadContent, applyDeepLink, preloadOthers } from './services/content.js';
-import { loadStorage, loadQuizHistory, loadSettings, loadSavedContent, saveContentChoice, saveFavorites, recordAnswer, saveFontSize, saveContrast, saveTheme, saveFontPreset } from './services/storage.js';
+import { loadStorage, loadQuizHistory, loadSettings, loadSavedContent, saveContentChoice, loadModeStats, saveFavorites, recordAnswer, saveFontSize, saveContrast, saveTheme, saveFontPreset } from './services/storage.js';
 import { playAudio, stopAllAudio, stopListenAudio, playListenAudio } from './services/audio.js';
 import { copyQA, shareAsImage, shareDeepLink } from './services/share.js';
 
@@ -18,6 +18,7 @@ window.__recordAnswer = recordAnswer;
 window.__loadContent = loadContent;
 window.__loadStorage = loadStorage;
 window.__loadQuizHistory = loadQuizHistory;
+window.__loadModeStats = loadModeStats;
 window.__saveContentChoice = saveContentChoice;
 window.__saveFontSize = saveFontSize;
 window.__saveContrast = saveContrast;
@@ -36,6 +37,7 @@ function init() {
   loadContent(store && store.activeContent ? store.activeContent : 'content.ar.json').then(() => {
     loadStorage();
     loadQuizHistory();
+    loadModeStats();
     loadSettings();
     if (store && store.renderCards) store.renderCards();
     // Splash is Alpine-driven: flipping appReady fades the splash out

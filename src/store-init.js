@@ -136,6 +136,8 @@ Alpine.store('app', (function() {
     quizAnswered: false,
     quizPhase: 'setup',
     quizHistory: {},
+    // Per-activity-type tally (mcq/build/blank/listen) — updated by recordAnswer
+    modeStats: {},
     // Quiz data (populated by initQuiz for each mode)
     quizChoices: [],       // MCQ: [{text, isCorrect}]
     buildPool: [],         // Build: [{word, id}]
@@ -389,6 +391,20 @@ Alpine.store('app', (function() {
         accuracy: attempts ? Math.round((correct / attempts) * 100) : 0
       };
     },
+    // Per-activity-type breakdown (mcq/build/blank/listen) with labels
+    get statsByMode() {
+      var self = this;
+      return this.quizModeOptions
+        .filter(function(m) { return !(m.id === 'listen' && !(self.CFG.meta && self.CFG.meta.audio)); })
+        .map(function(m) {
+          var s = self.modeStats[m.id] || {};
+          var correct = s.correct || 0, wrong = s.wrong || 0, attempts = correct + wrong;
+          return {
+            id: m.id, label: m.label, correct: correct, wrong: wrong, attempts: attempts,
+            accuracy: attempts ? Math.round((correct / attempts) * 100) : null
+          };
+        });
+    },
     get fontLabel() { return this.lang === 'en' ? 'Font' : 'الخط'; },
     get fontPreviewLabel() { return this.lang === 'en' ? 'Preview' : 'معاينة الخط'; },
     get fontPresets() {
@@ -632,6 +648,7 @@ Alpine.store('app', (function() {
       // If the weak section is selected but no weak items remain, fall back to 'all'
       if (this.quizSection === '__weak__' && this.weakPool.length === 0) this.quizSection = 'all';
     },
+    setModeStats: function(ms) { this.modeStats = ms ? { ...ms } : {}; },
     setAppReady: function(ready) { this.appReady = !!ready; },
     shareAppUrl: function() { if (window.__shareDeepLink) window.__shareDeepLink(); },
 
@@ -676,7 +693,7 @@ Alpine.store('app', (function() {
       this.quizAnswered = true;
       choice.selected = true;
       var correct = choice.isCorrect;
-      if (window.__recordAnswer) window.__recordAnswer(this.currentQuestion.id, correct);
+      if (window.__recordAnswer) window.__recordAnswer(this.currentQuestion.id, correct, 'mcq');
       if (correct) {
         this.quizScore++;
         this.quizFeedbackType = 'correct';
@@ -723,7 +740,7 @@ Alpine.store('app', (function() {
       var userAnswer = this.buildPlaced.map(function(p) { return p.word; }).join(' ');
       var correct = this.normalizeAr(userAnswer) === this.normalizeAr(qa.a);
       this.quizAnswered = true;
-      if (window.__recordAnswer) window.__recordAnswer(qa.id, correct);
+      if (window.__recordAnswer) window.__recordAnswer(qa.id, correct, 'build');
       if (correct) {
         this.quizScore++;
         this.quizFeedbackType = 'correct';
@@ -763,7 +780,7 @@ Alpine.store('app', (function() {
       this.quizAnswered = true;
       this.blankFilled = word;
       var correct = word === this.blankCorrect;
-      if (window.__recordAnswer) window.__recordAnswer(qa.id, correct);
+      if (window.__recordAnswer) window.__recordAnswer(qa.id, correct, 'blank');
       if (correct) {
         this.quizScore++;
         this.quizFeedbackType = 'correct';
@@ -796,7 +813,7 @@ Alpine.store('app', (function() {
       choice.selected = true;
       if (window.__stopListenAudio) window.__stopListenAudio();
       var correct = choice.isCorrect;
-      if (window.__recordAnswer) window.__recordAnswer(qa.id, correct);
+      if (window.__recordAnswer) window.__recordAnswer(qa.id, correct, 'listen');
       if (correct) {
         this.quizScore++;
         this.quizFeedbackType = 'correct';

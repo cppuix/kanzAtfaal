@@ -399,6 +399,16 @@
               <div class="stats-card"><span class="stats-value" x-text="$store.app.toArabic($store.app.statsSummary.correct)"></span><span class="stats-label" x-text="$store.app.statsCorrectLabel"></span></div>
               <div class="stats-card"><span class="stats-value" x-text="$store.app.toArabic($store.app.statsSummary.wrong)"></span><span class="stats-label" x-text="$store.app.statsWrongLabel"></span></div>
             </div>
+            <div class="stats-rows">
+              <template x-for="m in $store.app.statsByMode" :key="m.id">
+                <div class="stats-row">
+                  <span class="stats-row-label" x-text="m.label"></span>
+                  <span class="stats-row-track"><span class="stats-row-fill" :style="{ width: (m.accuracy ? m.accuracy : 0) + '%' }"></span></span>
+                  <span class="stats-row-acc" x-text="m.attempts ? $store.app.toArabic(m.accuracy) + '%' : '—'"></span>
+                  <span class="stats-row-counts" x-text="m.attempts ? $store.app.toArabic(m.correct) + ' / ' + $store.app.toArabic(m.attempts) : ''"></span>
+                </div>
+              </template>
+            </div>
           </div>
           <div class="quiz-empty" x-show="$store.app.statsSummary.attempts === 0">
             <p class="quiz-empty-title" x-text="$store.app.statsEmptyLabel"></p>
