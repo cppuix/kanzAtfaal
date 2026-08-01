@@ -313,8 +313,13 @@
 
     <!-- QUIZ VIEW -->
     <div id="viewQuiz" class="view" :class="{ active: $store.app.view === 'quiz' }">
-      <div id="quizSetup" class="quiz-setup" x-data="{ picker: null }" @click.outside="picker = null" x-show="$store.app.quizPhase === 'setup'">
-        <div class="quiz-fields" role="group">
+      <div id="quizSetup" class="quiz-setup" x-data="{ picker: null, tab: 'normal' }" @click.outside="picker = null" x-show="$store.app.quizPhase === 'setup'">
+        <div class="quiz-tabs" role="tablist" :aria-label="$store.app.quizTabsLabel">
+          <button type="button" class="quiz-tab" role="tab" :aria-selected="tab === 'normal' ? 'true' : 'false'" @click="tab = 'normal'; picker = null; if ($store.app.quizSection === '__weak__') $store.app.setQuizSection('all')" x-text="$store.app.quizTabNormalLabel">Quiz</button>
+          <button type="button" class="quiz-tab" role="tab" :aria-selected="tab === 'weak' ? 'true' : 'false'" @click="tab = 'weak'; picker = null" x-text="$store.app.quizTabWeakLabel">Weak</button>
+          <button type="button" class="quiz-tab" role="tab" :aria-selected="tab === 'stats' ? 'true' : 'false'" @click="tab = 'stats'; picker = null" x-text="$store.app.quizTabStatsLabel">Stats</button>
+        </div>
+        <div class="quiz-fields" role="group" x-show="tab === 'normal'">
           <div class="quiz-line">
             <span class="quiz-field-label" x-text="$store.app.quizChapterLabel">Chapter:</span>
             <button type="button" class="quiz-token" :aria-expanded="picker === 'section' ? 'true' : 'false'" aria-controls="panel-section" @click="picker = picker === 'section' ? null : 'section'">
@@ -331,9 +336,6 @@
                   <span class="quiz-opt-count" x-text="$store.app.toArabic($store.app.sectionCounts[sec] || 0)"></span>
                 </button>
               </template>
-              <button type="button" class="quiz-opt" role="radio" x-show="$store.app.weakPool.length > 0" :aria-checked="$store.app.quizSection === '__weak__' ? 'true' : 'false'" @click="$store.app.setQuizSection('__weak__'); picker = null">
-                <span x-text="$store.app.weakOptionLabel"></span>
-              </button>
             </div>
           </div>
           <div class="quiz-line">
@@ -362,9 +364,46 @@
           </div>
         </div>
 
-        <button id="startQuiz" class="quiz-start" @click="picker = null; $store.app.initQuiz()">
+        <button id="startQuiz" class="quiz-start" x-show="tab === 'normal'" @click="picker = null; $store.app.initQuiz()">
           <span x-text="$store.app.quizStartLabel">Start</span>
         </button>
+
+        <!-- WEAK TAB -->
+        <div class="quiz-pane" x-show="tab === 'weak'">
+          <div class="quiz-pane-inner" x-show="$store.app.weakPool.length > 0">
+            <p class="quiz-pane-title" x-text="$store.app.weakOptionLabel"></p>
+            <div class="quiz-weak-list">
+              <template x-for="q in $store.app.weakPool" :key="q.id">
+                <div class="quiz-weak-item">
+                  <span class="quiz-weak-q" x-text="q.q"></span>
+                  <span class="qa-section-tag" x-text="q.section"></span>
+                </div>
+              </template>
+            </div>
+            <button class="quiz-start" @click="$store.app.setQuizSection('__weak__'); $store.app.initQuiz()">
+              <span x-text="$store.app.weakStartLabel"></span>
+            </button>
+          </div>
+          <div class="quiz-empty" x-show="$store.app.weakPool.length === 0">
+            <p class="quiz-empty-title" x-text="$store.app.weakEmptyTitle"></p>
+            <p class="quiz-empty-hint" x-text="$store.app.weakEmptyHint"></p>
+          </div>
+        </div>
+
+        <!-- STATS TAB -->
+        <div class="quiz-pane" x-show="tab === 'stats'">
+          <div class="quiz-pane-inner" x-show="$store.app.statsSummary.attempts > 0">
+            <div class="stats-grid">
+              <div class="stats-card"><span class="stats-value" x-text="$store.app.toArabic($store.app.statsSummary.accuracy) + '%'"></span><span class="stats-label" x-text="$store.app.statsAccuracyLabel"></span></div>
+              <div class="stats-card"><span class="stats-value" x-text="$store.app.toArabic($store.app.statsSummary.answered)"></span><span class="stats-label" x-text="$store.app.statsAnsweredLabel"></span></div>
+              <div class="stats-card"><span class="stats-value" x-text="$store.app.toArabic($store.app.statsSummary.correct)"></span><span class="stats-label" x-text="$store.app.statsCorrectLabel"></span></div>
+              <div class="stats-card"><span class="stats-value" x-text="$store.app.toArabic($store.app.statsSummary.wrong)"></span><span class="stats-label" x-text="$store.app.statsWrongLabel"></span></div>
+            </div>
+          </div>
+          <div class="quiz-empty" x-show="$store.app.statsSummary.attempts === 0">
+            <p class="quiz-empty-title" x-text="$store.app.statsEmptyLabel"></p>
+          </div>
+        </div>
       </div>
 
       <div id="quizGame" class="quiz-game" x-show="$store.app.quizPhase === 'game'">

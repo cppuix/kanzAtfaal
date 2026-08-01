@@ -363,6 +363,32 @@ Alpine.store('app', (function() {
     get quizTypeLabel() { return this.lang === 'en' ? 'Type:' : 'النمط:'; },
     get quizChapterLabel() { return this.lang === 'en' ? 'Chapter:' : 'الباب:'; },
     get quizStartLabel() { return this.lang === 'en' ? 'Start' : 'ابدأ'; },
+    // ── Quiz tabs (normal / weak / stats) ──
+    get quizTabsLabel() { return this.lang === 'en' ? 'Quiz options' : 'خيارات الاختبار'; },
+    get quizTabNormalLabel() { return this.lang === 'en' ? 'Quiz' : 'الاختبار'; },
+    get quizTabWeakLabel() { return this.lang === 'en' ? 'Weak' : 'نقاط الضعف'; },
+    get quizTabStatsLabel() { return this.lang === 'en' ? 'Stats' : 'الإحصائيات'; },
+    get weakStartLabel() { return this.lang === 'en' ? 'Start Weak Quiz' : 'ابدأ اختبار نقاط الضعف'; },
+    get weakEmptyTitle() { return this.lang === 'en' ? 'No weak questions yet' : 'لا توجد أسئلة ضعيفة بعد'; },
+    get weakEmptyHint() { return this.lang === 'en' ? 'Take a quiz — questions you miss will appear here.' : 'اخضِع لاختبار — الأسئلة التي تخطئ فيها ستظهر هنا.'; },
+    get statsAnsweredLabel() { return this.lang === 'en' ? 'Answered' : 'تمت الإجابة'; },
+    get statsCorrectLabel() { return this.lang === 'en' ? 'Correct' : 'صحيح'; },
+    get statsWrongLabel() { return this.lang === 'en' ? 'Wrong' : 'خطأ'; },
+    get statsAccuracyLabel() { return this.lang === 'en' ? 'Accuracy' : 'الدقة'; },
+    get statsEmptyLabel() { return this.lang === 'en' ? 'No quiz data yet' : 'لا توجد بيانات اختبار بعد'; },
+    get statsSummary() {
+      var correct = 0, wrong = 0, answered = 0;
+      Object.values(this.quizHistory || {}).forEach(function(h) {
+        correct += h.correct || 0;
+        wrong += h.wrong || 0;
+        answered++;
+      });
+      var attempts = correct + wrong;
+      return {
+        answered: answered, attempts: attempts, correct: correct, wrong: wrong,
+        accuracy: attempts ? Math.round((correct / attempts) * 100) : 0
+      };
+    },
     get fontLabel() { return this.lang === 'en' ? 'Font' : 'الخط'; },
     get fontPreviewLabel() { return this.lang === 'en' ? 'Preview' : 'معاينة الخط'; },
     get fontPresets() {
@@ -519,6 +545,8 @@ Alpine.store('app', (function() {
       // Dataset identity changed — setContentData bumps cardVersion so x-for
       // keys change and cards re-render fresh
       this.contentLoading = false;
+      // Persist the chosen content so it survives reload (storage.js owns the key)
+      if (window.__saveContentChoice) window.__saveContentChoice(file);
       this.view = 'browse';
     },
     applyFontSize: function(size) {

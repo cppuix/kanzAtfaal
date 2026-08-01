@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v32'; // quiz setup: breathing room + Chapter-first + clearer mode labels + footer-safe popup
+const CACHE_NAME = 'muntaqaa-v33'; // quiz tabs (weak/stats) + persist content choice
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [
