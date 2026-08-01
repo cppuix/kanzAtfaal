@@ -649,6 +649,11 @@ Alpine.store('app', (function() {
       if (this.quizSection === '__weak__' && this.weakPool.length === 0) this.quizSection = 'all';
     },
     setModeStats: function(ms) { this.modeStats = ms ? { ...ms } : {}; },
+    // True once a weak item has at least one correct attempt (leaf "watered")
+    weakWatering: function(id) {
+      var h = this.quizHistory[id];
+      return !!(h && h.correct > 0);
+    },
     setAppReady: function(ready) { this.appReady = !!ready; },
     shareAppUrl: function() { if (window.__shareDeepLink) window.__shareDeepLink(); },
 

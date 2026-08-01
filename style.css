@@ -425,13 +425,14 @@ main { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: calc(80px + env
 }
 .quiz-fields {
   flex: 1 1 auto; min-height: 0;
-  width: 100%; max-width: 680px; margin: 0;
+  width: 100%; max-width: 760px; margin: 0;
   display: flex; flex-direction: column; justify-content: safe center;
   gap: 28px;
-  font-size: 1.2000rem; line-height: 1.75;
+  font-size: clamp(1.2rem, 1.05rem + 0.6vw, 1.7rem);
+  line-height: 1.75;
   color: var(--text);
 }
-.quiz-field-label { color: var(--text2); }
+.quiz-field-label { color: var(--text2); font-size: clamp(0.95rem, 0.9rem + 0.3vw, 1.2rem); }
 .quiz-line {
   margin: 0;
   position: relative;
@@ -443,7 +444,7 @@ main { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: calc(80px + env
   border: 1px solid var(--gold-mid);
   border-radius: 14px;
   color: var(--gold2); font-weight: 700;
-  font-family: var(--font-main); font-size: 1.0667rem;
+  font-family: var(--font-main); font-size: clamp(1.0667rem, 1rem + 0.35vw, 1.35rem);
   padding: 6px 14px; cursor: pointer;
   transition: background var(--transition), border-color var(--transition), color var(--transition), transform var(--transition);
 }
@@ -480,13 +481,21 @@ main { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: calc(80px + env
 .quiz-opt:hover { color: var(--text); background: var(--bg3); }
 .quiz-opt[aria-checked="true"] { color: var(--gold2); font-weight: 700; }
 .quiz-opt[aria-checked="true"]::before { content: '✓'; font-weight: 800; color: var(--gold); }
-.quiz-opt-count { margin-inline-start: auto; font-family: var(--font-display); font-size: 0.8000rem; color: var(--text3); }
+.quiz-opt-count {
+  margin-inline-start: auto; display: inline-flex; align-items: center;
+  font-family: var(--font-display); font-size: 0.8000rem; color: var(--text3);
+}
+.quiz-opt-count::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+  background: var(--gold-mid); margin-inline-end: 7px;
+}
 .quiz-opt[aria-checked="true"] .quiz-opt-count { color: var(--gold); }
+.quiz-opt[aria-checked="true"] .quiz-opt-count::before { background: var(--gold); }
 
 /* Start — flat text action (setup + result screen) */
 .quiz-start {
   background: none; border: none;
-  font-family: var(--font-main); font-size: 1.2000rem; font-weight: 800;
+  font-family: var(--font-main); font-size: clamp(1.2rem, 1.1rem + 0.4vw, 1.5rem); font-weight: 800;
   color: var(--gold2); cursor: pointer;
   padding: 6px 12px; margin-top: 14px;
   border-bottom: 2px solid var(--gold);
@@ -497,7 +506,7 @@ main { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: calc(80px + env
 /* Quiz tabs (normal / weak / stats) — sticky at top */
 .quiz-tabs {
   position: sticky; top: 0; z-index: 6;
-  width: 100%; max-width: 680px;
+  width: 100%;
   background: var(--bg);
   display: flex; gap: 4px;
   border-bottom: 1px solid var(--gold-mid);
@@ -517,7 +526,7 @@ main { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: calc(80px + env
 /* Weak + stats panes — fill the middle area */
 .quiz-pane {
   flex: 1 1 auto; min-height: 0;
-  width: 100%; max-width: 680px;
+  width: 100%;
   display: flex; flex-direction: column; gap: 14px;
 }
 .quiz-pane-inner {
@@ -535,8 +544,18 @@ main { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: calc(80px + env
   display: flex; flex-direction: column; gap: 6px;
   padding: 10px 12px; border-radius: 10px; background: var(--bg3);
 }
-.quiz-weak-q { font-size: 0.9333rem; line-height: 1.6; color: var(--text); }
+.quiz-weak-line { display: flex; align-items: flex-start; gap: 10px; }
+.quiz-weak-q { flex: 1; font-size: 0.9333rem; line-height: 1.6; color: var(--text); }
 .quiz-weak-item .qa-section-tag { align-self: flex-start; }
+/* Young shoots — a leaf that turns gold once the weak item is corrected */
+.quiz-weak-leaf {
+  flex: 0 0 auto; width: 13px; height: 13px; margin-top: 3px;
+  border-radius: 2px 100% 2px 100%;
+  background: var(--gold-dim); border: 1px solid var(--gold-mid);
+  transform: rotate(-8deg);
+  transition: background var(--transition), border-color var(--transition);
+}
+.quiz-weak-leaf.watered { background: var(--gold); border-color: var(--gold3); box-shadow: 0 0 6px rgba(201,152,42,0.35); }
 .quiz-empty {
   flex: 1 1 auto; min-height: 0;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -630,9 +649,23 @@ main { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: calc(80px + env
 
 @media (min-width: 600px) {
   .card-list  { max-width: 640px; margin: 0 auto; }
-  .quiz-setup { max-width: 640px; margin: 0 auto; }
   .quiz-game  { max-width: 600px; margin: 0 auto; }
   .quiz-result{ max-width: 480px; margin: 0 auto; }
+}
+
+/* Wide screens — quiz setup uses the full width (no shrunken centered strip) */
+@media (min-width: 900px) {
+  /* Chapter picker opens as a wide two-column sheet */
+  #panel-section.quiz-panel-scroll {
+    width: min(620px, calc(100vw - 48px));
+    max-width: min(620px, calc(100vw - 48px));
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2px 18px;
+  }
+  /* Stats summary reads as a four-cell band, weak questions as a two-column grid */
+  .stats-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .quiz-weak-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 }
 
 /* ===== ABOUT VIEW (full page — logo + title hero, scrollable body) ===== */

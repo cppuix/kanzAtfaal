@@ -375,7 +375,10 @@
             <div class="quiz-weak-list">
               <template x-for="q in $store.app.weakPool" :key="q.id">
                 <div class="quiz-weak-item">
-                  <span class="quiz-weak-q" x-text="q.q"></span>
+                  <div class="quiz-weak-line">
+                    <span class="quiz-weak-leaf" :class="{ watered: $store.app.weakWatering(q.id) }" aria-hidden="true"></span>
+                    <span class="quiz-weak-q" x-text="q.q"></span>
+                  </div>
                   <span class="qa-section-tag" x-text="q.section"></span>
                 </div>
               </template>
