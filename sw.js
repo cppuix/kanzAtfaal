@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v38'; // localize Order-words "verify" button (was hardcoded Arabic)
+const CACHE_NAME = 'muntaqaa-v39'; // light theme → Fresh Garden palette (warm gold on soft mint)
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [

@@ -997,20 +997,24 @@ html { font-size: calc(15px * var(--font-scale)); }
 
 /* ===== THEMES ===== */
 /* Dark is the default (root vars). Light overrides the palette via <html data-theme> */
+/* Light = "Fresh Garden" — soft mint surfaces, deep-green ink, warm gold accent */
 [data-theme="light"] {
-  --bg:       #f4f8f3;
-  --bg2:      #fbfdfa;
-  --bg3:      #e8efe6;
-  --card:     #ffffff;
-  --card2:    #edf4ea;
-  --gold:     #2f7d4f;
-  --gold2:    #22663e;
-  --gold3:    #174f2f;
-  --gold-dim: rgba(47,125,79,0.14);
-  --gold-mid: rgba(47,125,79,0.32);
-  --text:     #1e2a21;
-  --text2:    #41523f;
-  --text3:    #7b8a76;
+  --bg:       #f4f7f2;
+  --bg2:      #eef3ea;
+  --bg3:      #e3ebdd;
+  --card:     #fafcf8;
+  --card2:    #ffffff;
+  --gold:     #c49a20;
+  --gold2:    #7a5800;
+  --gold3:    #a37e14;
+  --gold-dim: rgba(196,154,32,0.14);
+  --gold-mid: rgba(196,154,32,0.35);
+  --green:    #3d7a4a;
+  --red:      #c4503a;
+  --text:     #1a2e14;
+  --text2:    #5a7a4a;
+  --text3:    #6f925f;
+  --shadow:   0 6px 20px rgba(26,46,20,0.14);
 }
 
 /* ===== HIGH CONTRAST ===== */
