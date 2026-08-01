@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kanz Al-Aṭfāl — UI + Palette Preview</title>
+<style>
+  /* ══════════════════════════════════════════════════════════════════
+     THE REAL PALETTES (copied verbatim from style.css)
+     Theme switching: dark = default ; light = html[data-theme="light"]
+     high-contrast = html.high-contrast ; hc-light = [data-theme=light].high-contrast
+     ══════════════════════════════════════════════════════════════════ */
+  :root{
+    --bg:#0c1a12; --bg2:#122019; --bg3:#1a2e20;
+    --card:#172a1e; --card2:#1e3326;
+    --gold:#c9982a; --gold2:#e8bf5a; --gold3:#f5d98a;
+    --gold-dim:rgba(201,152,42,.15); --gold-mid:rgba(201,152,42,.35);
+    --green:#2ecc71; --red:#e74c3c;
+    --text:#ecdec4; --text2:#b0a07c; --text3:#6e6048;
+    --shadow:0 6px 24px rgba(0,0,0,.5);
+    --border:rgba(255,255,255,.08); --gold-border:rgba(201,152,42,.2);
+    --font-main:'Tajawal',system-ui,sans-serif; --font-display:'Cinzel','Tajawal',serif;
+    --radius:14px; --radius-sm:9px;
+  }
+  [data-theme="light"]{
+    --bg:#f5f4ee; --bg2:#eeede5; --bg3:#e8e6dd;
+    --card:#fcfbf6; --card2:#ffffff;
+    --gold:#5a7d3a; --gold2:#3f5c2d; --gold3:#7fa05f;
+    --gold-dim:#f1efe7; --gold-mid:rgba(90,125,58,.30);
+    --green:#4a7a3a; --red:#b64a32;
+    --text:#23211b; --text2:#5d594c; --text3:#9b958a;
+    --border:#d9d6cb; --gold-border:rgba(90,125,58,.26);
+    --shadow:0 6px 20px rgba(35,32,25,.12);
+  }
+  [data-theme="light"] .quiz-weak-leaf { background:#dbe5cf; border-color:#a9c290; }
+  .high-contrast{
+    --bg:#000; --bg2:#0a0a0a; --bg3:#111; --card:#0d0d0d; --card2:#1a1a1a;
+    --gold:#ffd700; --gold2:#ffe44d; --gold3:#fff0a0;
+    --gold-dim:rgba(255,215,0,.2); --gold-mid:rgba(255,215,0,.5);
+    --text:#fff; --text2:#ddd; --text3:#999;
+    --border:rgba(255,255,255,.35); --gold-border:rgba(255,215,0,.5);
+  }
+  [data-theme="light"].high-contrast{
+    --bg:#fff; --bg2:#fff; --bg3:#f0f0f0; --card:#fff; --card2:#f0f0f0;
+    --gold:#000; --gold2:#000; --gold3:#1a1a1a;
+    --gold-dim:rgba(0,0,0,.1); --gold-mid:rgba(0,0,0,.4);
+    --text:#000; --text2:#111; --text3:#333;
+    --border:#999; --gold-border:#555;
+  }
+
+  /* ══════════ Preview-page chrome (not part of the app) ══════════ */
+  *{box-sizing:border-box}
+  body{font-family:var(--font-main); background:var(--bg); color:var(--text); margin:0; padding:0 20px 60px; line-height:1.55; transition:background .2s,color .2s}
+  .doc-hdr{max-width:1200px;margin:0 auto;padding:28px 0 6px}
+  .doc-hdr h1{font-family:var(--font-display);font-size:1.5rem;margin:0 0 6px;color:var(--gold2)}
+  .doc-hdr p{margin:0;color:var(--text2);font-size:.9rem}
+  .theme-bar{max-width:1200px;margin:18px auto 0;display:flex;gap:8px;flex-wrap:wrap}
+  .theme-bar button{background:var(--bg3);border:1px solid var(--gold-mid);color:var(--text);border-radius:10px;padding:8px 16px;font-family:var(--font-main);font-size:.85rem;cursor:pointer}
+  .theme-bar button.on{background:var(--gold-dim);border-color:var(--gold);color:var(--gold2);font-weight:700}
+  .section{max-width:1200px;margin:34px auto 0}
+  .section h2{font-family:var(--font-display);font-size:1.05rem;color:var(--gold2);border-bottom:1px solid var(--gold-mid);padding-bottom:8px;margin:0 0 16px}
+
+  /* Palette swatches */
+  #swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+  .sw{display:grid;grid-template-columns:44px 1fr;grid-template-rows:auto auto;column-gap:12px;align-items:center;background:var(--bg3);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:10px 12px}
+  .chip{width:40px;height:40px;border-radius:9px;grid-row:1/3;border:1px solid rgba(128,128,128,.35)}
+  .sw code{font-size:.78rem;color:var(--gold2)}
+  .sw .val{font-size:.72rem;color:var(--text3)}
+  .sw .use{grid-column:2;font-size:.72rem;color:var(--text2)}
+
+  /* ══════════ FAITHFUL APP-COMPONENT STYLES (mirrors style.css) ══════════ */
+  .phone{max-width:420px;margin:0 auto;background:var(--bg);border:1px solid var(--gold-mid);border-radius:22px;overflow:hidden;box-shadow:var(--shadow);position:relative}
+  .screen{padding:14px 16px;border-bottom:1px dashed var(--gold-mid)}
+  .screen:last-child{border-bottom:none}
+  .screen-cap{font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:12px;font-weight:700}
+
+  /* topbar */
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;background:var(--bg2);border-bottom:1px solid var(--gold-mid)}
+  .topbar .h-btn{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;color:var(--text2);border:1px solid transparent}
+  .topbar .title{font-family:var(--font-display);font-size:.98rem;color:var(--gold2);font-weight:700}
+  .topbar .pill{border:1px solid var(--gold-mid);border-radius:16px;padding:4px 12px;font-size:.74rem;color:var(--gold2);background:var(--gold-dim)}
+  /* bottom nav */
+  .bnav{display:flex;background:var(--bg2);border-top:1px solid var(--gold-mid);padding:6px 0}
+  .bnav button{flex:1;background:none;border:none;color:var(--text3);font-family:var(--font-main);font-size:.7rem;padding:8px 4px 10px;cursor:pointer;position:relative;display:flex;flex-direction:column;gap:3px;align-items:center}
+  .bnav button .ico{font-size:1.05rem}
+  .bnav button.on{color:var(--gold2)}
+  .bnav button.on::after{content:'';position:absolute;bottom:0;left:22%;right:22%;height:2px;border-radius:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+  /* drawer list */
+  .drawer{background:var(--bg2);border:1px solid var(--gold-mid);border-radius:14px;overflow:hidden}
+  .drawer .d-head{display:flex;gap:8px;padding:10px 12px;border-bottom:1px solid var(--gold-mid)}
+  .drawer .d-head button{background:none;border:1px solid var(--gold-mid);border-radius:9px;padding:6px 12px;color:var(--text2);font-family:var(--font-main);font-size:.78rem}
+  .s-item{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;color:var(--text2);font-size:.86rem;border-bottom:1px solid rgba(255,255,255,.03)}
+  .s-item .count{font-size:.7rem;background:var(--bg3);padding:2px 9px;border-radius:20px;color:var(--text3)}
+  .s-item.on{background:linear-gradient(90deg,var(--gold-dim) 0%,transparent 100%);color:var(--gold2)}
+  .s-item.on .count{background:var(--gold-dim);color:var(--gold)}
+  /* badge / counter */
+  .badge{display:inline-flex;align-items:center;gap:8px}
+  .section-badge{font-size:.82rem;font-weight:700;color:var(--gold2);background:var(--gold-dim);border:1px solid var(--gold-mid);border-radius:20px;padding:5px 14px}
+  .counter-pill{font-size:.74rem;color:var(--text3);background:var(--bg3);border-radius:20px;padding:4px 10px}
+  /* qa flip card */
+  .qa-card{background:var(--card);border:1px solid rgba(201,152,42,.2);border-radius:var(--radius);padding:16px;position:relative}
+  .qa-card .q-num{font-size:.74rem;color:var(--gold);font-family:var(--font-display);opacity:.85}
+  .qa-card .q-text{font-size:1.02rem;font-weight:600;line-height:1.7;color:var(--text);margin:8px 0 14px}
+  .qa-card .q-row{display:flex;align-items:center;gap:10px}
+  .qa-card .q-row .q-body{font-size:.9rem;color:var(--text2);line-height:1.6}
+  .q-toggle{width:34px;height:34px;border-radius:9px;border:1px solid var(--gold-mid);background:var(--gold-dim);color:var(--gold2);display:flex;align-items:center;justify-content:center;font-size:.9rem;cursor:pointer;margin-inline-start:auto}
+  .qa-section-tag{font-size:.72rem;color:var(--text3);background:var(--bg3);border-radius:7px;padding:3px 10px;border:1px solid rgba(255,255,255,.04);align-self:flex-start}
+  .qa-answer{font-size:.9rem;color:var(--text);line-height:1.65;background:var(--bg3);border-radius:10px;padding:10px 12px;margin-top:10px;display:none}
+  /* search */
+  .search-row{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid rgba(201,152,42,.2);border-radius:12px;padding:10px 12px}
+  .search-row input{flex:1;background:none;border:none;color:var(--text);font-family:var(--font-main);font-size:.9rem;outline:none}
+  .search-row input::placeholder{color:var(--text3)}
+  .search-chip{border:1px solid var(--gold-mid);background:var(--gold-dim);color:var(--gold2);border-radius:16px;padding:4px 12px;font-size:.74rem}
+  .search-chip.on{background:var(--gold);color:#fff}
+  /* quiz tabs + fields */
+  .qtabs{display:flex;gap:4px;border-bottom:1px solid var(--gold-mid);padding:4px 4px 0}
+  .qtabs button{background:none;border:none;font-family:var(--font-main);font-size:.9rem;color:var(--text3);padding:8px 14px;border-bottom:2px solid transparent;cursor:pointer}
+  .qtabs button.on{color:var(--gold2);font-weight:700;border-bottom-color:var(--gold)}
+  .qfield{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:18px 0}
+  .qfield .lbl{color:var(--text2);font-size:.9rem}
+  .qtoken{display:inline-flex;align-items:center;gap:7px;background:var(--gold-dim);border:1px solid var(--gold-mid);border-radius:14px;color:var(--gold2);font-weight:700;font-family:var(--font-main);font-size:.95rem;padding:7px 14px;cursor:pointer}
+  .qstart{background:none;border:none;border-bottom:2px solid var(--gold);color:var(--gold2);font-family:var(--font-main);font-size:1.05rem;font-weight:800;padding:6px 12px;cursor:pointer;margin-top:8px}
+  /* quiz game */
+  .progress{display:flex;align-items:center;gap:10px}
+  .pbar{flex:1;height:7px;background:var(--bg3);border-radius:4px;overflow:hidden;border:1px solid rgba(201,152,42,.12)}
+  .pfill{height:100%;width:60%;background:linear-gradient(90deg,var(--gold),var(--gold3));border-radius:4px}
+  .ptext{font-size:.72rem;color:var(--text3)}
+  .score-badge{background:var(--gold-dim);border:1px solid var(--gold-mid);border-radius:20px;padding:6px 14px;font-size:.8rem;color:var(--gold2);font-weight:700;display:inline-block;margin-top:10px}
+  .quiz-card{background:var(--card);border:1px solid rgba(201,152,42,.2);border-radius:var(--radius);padding:18px;position:relative;margin-top:12px}
+  .quiz-card .qq{font-size:1.05rem;font-weight:600;line-height:1.7;color:var(--text);margin-bottom:14px}
+  .choice-btn{display:block;width:100%;background:var(--bg3);border:1.5px solid rgba(255,255,255,.07);border-radius:var(--radius-sm);padding:12px 16px;color:var(--text);font-family:var(--font-main);font-size:.95rem;text-align:start;margin-bottom:9px}
+  .choice-btn.correct{background:rgba(46,204,113,.12);border-color:#2ecc71;color:#2ecc71}
+  .choice-btn.wrong{background:rgba(231,76,60,.12);border-color:#e74c3c;color:#e98070}
+  /* build zone */
+  .build-answer{min-height:56px;border:1.5px dashed rgba(201,152,42,.3);border-radius:12px;padding:10px;display:flex;flex-wrap:wrap;gap:6px;background:var(--card)}
+  .tile{background:var(--bg3);border:1px solid rgba(201,152,42,.2);border-radius:9px;padding:7px 12px;font-family:var(--font-main);font-size:.88rem;color:var(--text)}
+  .build-divider{height:1px;background:var(--gold-mid);margin:12px 0}
+  .build-pool{display:flex;flex-wrap:wrap;gap:6px}
+  .build-check{display:block;margin:12px auto 0;background:var(--gold-dim);border:1px solid var(--gold-mid);color:var(--gold2);border-radius:12px;padding:10px 28px;font-size:.95rem;font-family:var(--font-main);font-weight:700;cursor:pointer}
+  /* stats */
+  .stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .stats-card{background:var(--bg3);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:5px}
+  .stats-card .v{font-family:var(--font-display);font-size:1.5rem;font-weight:800;color:var(--gold2)}
+  .stats-card .l{font-size:.72rem;color:var(--text3)}
+  .stats-row{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;background:var(--bg3);margin-top:8px}
+  .stats-row .lbl{flex:0 0 128px;font-size:.85rem;color:var(--text)}
+  .stats-row .track{flex:1;height:6px;border-radius:3px;background:var(--bg2);overflow:hidden}
+  .stats-row .fill{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold3));border-radius:3px}
+  .stats-row .acc{flex:0 0 44px;text-align:end;font-family:var(--font-display);font-size:.85rem;color:var(--gold2)}
+  /* weak */
+  .weak-item{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border-radius:10px;background:var(--bg3);margin-bottom:8px}
+  .weak-item .wline{display:flex;align-items:flex-start;gap:10px}
+  .weak-item .wq{flex:1;font-size:.86rem;line-height:1.6;color:var(--text)}
+  .leaf{flex:0 0 auto;width:13px;height:13px;margin-top:3px;border-radius:2px 100% 2px 100%;background:var(--gold-dim);border:1px solid var(--gold-mid);transform:rotate(-8deg)}
+  .leaf.watered{background:var(--gold);border-color:var(--gold3);box-shadow:0 0 6px rgba(201,152,42,.35)}
+  /* toast / extras */
+  .toast{display:inline-block;background:var(--card2);border:1px solid var(--gold-mid);border-radius:20px;padding:9px 18px;font-size:.84rem;color:var(--text);box-shadow:var(--shadow)}
+  .hint{font-size:.72rem;color:var(--text3);margin-top:6px}
+  .note{background:var(--bg3);border-left:3px solid var(--gold);border-radius:8px;padding:12px 14px;font-size:.82rem;color:var(--text2);margin:8px 0}
+  code{background:var(--bg3);padding:1px 6px;border-radius:5px;font-size:.78rem;color:var(--gold2)}
+</style>
+</head>
+<body>
+
+  <div class="doc-hdr">
+    <h1>Kanz Al-Aṭfāl — UI &amp; Palette Preview</h1>
+    <p>This file renders the app's real components (same class names / palette as <code>style.css</code>) so a designer or LLM can see the UI and how color is applied. Use the buttons to switch themes — the palette swatches update live.</p>
+  </div>
+
+  <div class="theme-bar" id="themeBar">
+    <button data-t="dark" onclick="setTheme('dark')">Dark (default)</button>
+    <button data-t="light" class="on" onclick="setTheme('light')">Light</button>
+    <button data-t="hc-dark" onclick="setTheme('hc-dark')">High-contrast dark</button>
+    <button data-t="hc-light" onclick="setTheme('hc-light')">High-contrast light</button>
+  </div>
+
+  <!-- PALETTE -->
+  <div class="section">
+    <h2>Palette — all 16 CSS custom properties (live per theme)</h2>
+    <div id="swatches"></div>
+  </div>
+
+  <!-- UI PREVIEW -->
+  <div class="section">
+    <h2>UI — key screens &amp; components</h2>
+    <div class="phone">
+
+      <!-- TOPBAR -->
+      <div class="topbar">
+        <span class="h-btn">☰</span>
+        <span class="title">كنز الأطفال / Kanz Al-Aṭfāl</span>
+        <span class="pill">اللغة / Language</span>
+      </div>
+
+      <!-- SCREEN: BROWSE -->
+      <div class="screen">
+        <div class="screen-cap">Browse — section badge + flip card</div>
+        <div class="badge"><span class="section-badge">Chapter: Prayer / باب الصلاة</span><span class="counter-pill">141</span></div>
+        <div style="height:10px"></div>
+        <div class="qa-card">
+          <div class="q-num">Q 7 / س ٧</div>
+          <div class="q-text">When is a child commanded to pray?</div>
+          <div class="q-row">
+            <span class="qa-section-tag">Prayer / الصلاة</span>
+            <button class="q-toggle">⚿</button>
+          </div>
+        </div>
+        <div class="qa-card" style="margin-top:10px">
+          <div class="q-num">Q 8 / س ٨</div>
+          <div class="q-text">What is the first thing a Muslim is asked about?</div>
+          <div class="q-row">
+            <span class="qa-section-tag">Faith / الإيمان</span>
+            <button class="q-toggle">⚿</button>
+          </div>
+        </div>
+        <div class="qa-answer" style="display:block">Answer surface — <code>--card</code> + <code>--bg3</code> body.</div>
+      </div>
+
+      <!-- SCREEN: SEARCH -->
+      <div class="screen">
+        <div class="screen-cap">Search — input + scope chips + highlight</div>
+        <div class="search-row"><span style="color:var(--text3)">⌕</span><input placeholder="Search… / بحث…" value="prayer"><span class="search-chip">Q</span><span class="search-chip on">A</span></div>
+        <div style="height:12px"></div>
+        <div class="qa-card">
+          <div class="q-text"><span style="background:var(--gold-dim);color:var(--gold2)">Prayer</span> is the second pillar… (matched term highlighted with <code>--gold-dim</code> bg + <code>--gold2</code> text)</div>
+        </div>
+      </div>
+
+      <!-- SCREEN: QUIZ SETUP -->
+      <div class="screen">
+        <div class="screen-cap">Quiz setup — tabs + label/value rows + chips</div>
+        <div class="qtabs"><button class="on">Quiz</button><button>Weak</button><button>Stats</button></div>
+        <div class="qfield"><span class="lbl">Chapter:</span><span class="qtoken">All Chapters ▾</span></div>
+        <div class="qfield"><span class="lbl">Number of questions:</span><span class="qtoken">5 ▾</span></div>
+        <div class="qfield"><span class="lbl">Type:</span><span class="qtoken">Multiple Choice ▾</span></div>
+        <div class="qstart">Start</div>
+        <p class="hint">Chips = <code>--gold-dim</code> bg + <code>--gold-mid</code> border + <code>--gold2</code> text. Start = gold underline.</p>
+      </div>
+
+      <!-- SCREEN: QUIZ GAME -->
+      <div class="screen">
+        <div class="screen-cap">Quiz game — progress + MCQ + Order-words</div>
+        <div class="progress"><div class="pbar"><div class="pfill"></div></div><span class="ptext">1 / 5</span></div>
+        <span class="score-badge">Score: 0 / النقاط: ٠</span>
+        <div class="quiz-card">
+          <div class="qq">When is a child commanded to pray?</div>
+          <button class="choice-btn">At age seven</button>
+          <button class="choice-btn correct">At age seven</button>
+          <button class="choice-btn wrong">At age ten</button>
+        </div>
+        <div class="quiz-card">
+          <div class="qq">Order the words (build mode):</div>
+          <div class="build-answer"><span class="tile">He</span><span class="tile">is</span></div>
+          <div class="build-divider"></div>
+          <div class="build-pool"><span class="tile">seven</span><span class="tile">old,</span><span class="tile">commanded</span></div>
+          <button class="build-check">Check / تحقق</button>
+        </div>
+      </div>
+
+      <!-- SCREEN: STATS -->
+      <div class="screen">
+        <div class="screen-cap">Stats — summary band + per-activity rows</div>
+        <div class="stats-grid">
+          <div class="stats-card"><span class="v">75%</span><span class="l">Accuracy</span></div>
+          <div class="stats-card"><span class="v">4</span><span class="l">Answered</span></div>
+          <div class="stats-card"><span class="v">3</span><span class="l">Correct</span></div>
+          <div class="stats-card"><span class="v">1</span><span class="l">Wrong</span></div>
+        </div>
+        <div class="stats-row"><span class="lbl">Multiple Choice</span><span class="track"><span class="fill" style="width:50%"></span></span><span class="acc">50%</span></div>
+        <div class="stats-row"><span class="lbl">Order Words</span><span class="track"><span class="fill" style="width:100%"></span></span><span class="acc">100%</span></div>
+        <div class="stats-row"><span class="lbl">Fill the Blank</span><span class="track"><span class="fill" style="width:0%"></span></span><span class="acc">—</span></div>
+      </div>
+
+      <!-- SCREEN: WEAK -->
+      <div class="screen">
+        <div class="screen-cap">Weak spots — young shoots (leaf turns gold once corrected)</div>
+        <div class="weak-item">
+          <div class="wline"><span class="leaf"></span><span class="wq">What are the four issues obligatory upon us to learn?</span></div>
+          <span class="qa-section-tag">Faith / الإيمان</span>
+        </div>
+        <div class="weak-item">
+          <div class="wline"><span class="leaf watered"></span><span class="wq">What are the three principles every Muslim must know?</span></div>
+          <span class="qa-section-tag">Faith / الإيمان</span>
+        </div>
+        <p class="hint">Left leaf needs water (still weak) — right leaf watered (corrected once).</p>
+      </div>
+
+      <!-- SCREEN: DRAWER -->
+      <div class="screen">
+        <div class="screen-cap">Drawer — chapters + counts (gold node dots)</div>
+        <div class="drawer">
+          <div class="d-head"><button>⚙ Settings</button><button>ⓘ About</button></div>
+          <div class="s-item">Faith and Religion Levels <span class="count">111</span></div>
+          <div class="s-item on">Faith in the Angels <span class="count">56</span></div>
+          <div class="s-item">The Belief in the Books <span class="count">11</span></div>
+          <div class="s-item">The Belief in the Messengers <span class="count">198</span></div>
+        </div>
+      </div>
+
+      <!-- TOAST -->
+      <div class="screen">
+        <div class="screen-cap">Toast / feedback</div>
+        <span class="toast">✓ Added to favorites / أُضيفت للمحفوظات</span>
+      </div>
+
+      <!-- BOTTOM NAV -->
+      <div class="bnav">
+        <button class="on"><span class="ico">⌂</span>Browse</button>
+        <button><span class="ico">⌕</span>Search</button>
+        <button><span class="ico">★</span>Favorites</button>
+        <button><span class="ico">?</span>Quiz</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HARDCODED-COLOR CAVEAT -->
+  <div class="section">
+    <h2>Gotcha — colors that are NOT variables (they fight the theme)</h2>
+    <div class="note"><b>Dark-gold borders/glows</b> hardcoded as <code>rgba(201,152,42,…)</code> (~25 spots: QA/quiz cards, dividers, glows, focus rings) — these stay <i>dark gold</i> on a light theme and read as brown.</div>
+    <div class="note"><b>White hairlines</b> <code>rgba(255,255,255,.03–.1)</code> (~13 spots: card borders) — invisible on a light bg, making cards look washed.</div>
+    <div class="note"><b>Feedback</b> hardcoded emerald <code>#2ecc71</code> / red <code>#e74c3c</code> + their <code>rgba(…)</code> tints in choice/feedback/blank/build states (only some use <code>var(--green/--red)</code>).</div>
+    <div class="note"><b>Others:</b> overlay <code>rgba(0,0,0,.65)</code>, splash gradient <code>#2a4a1e→#0a1a0e</code>, switch knob <code>#0c1a12</code>, shadows <code>rgba(0,0,0,.35–.5)</code>. Browser chrome in <code>manifest.json</code>: <code>background_color #0f1f18</code>, <code>theme_color #1a3a2a</code>.</div>
+  </div>
+
+<script>
+  var VARS = [
+    ['--bg','Page background'],
+    ['--bg2','Bottom nav, flyout panels, topbar'],
+    ['--bg3','Hover/inset surfaces, chips, stat cards, choice buttons'],
+    ['--card','Card faces (QA card, quiz card, search card)'],
+    ['--card2','Raised surfaces (toast, next button, tiles)'],
+    ['--gold','Primary accent — underlines, active states, borders, progress, leaf'],
+    ['--gold2','Gold text — headings, values, score'],
+    ['--gold3','Gold gradient end / highlight'],
+    ['--gold-dim','Accent tint (chips, tokens, badges)'],
+    ['--gold-mid','Accent border (tokens, rail, bottom-nav rule)'],
+    ['--green','Correct'],
+    ['--red','Wrong'],
+    ['--text','Primary text'],
+    ['--text2','Secondary text'],
+    ['--text3','Tertiary text'],
+    ['--border','Hairline borders (card/btn outlines)'],
+    ['--gold-border','Card/gold-tinted borders']
+  ];
+  function renderSwatches(){
+    var cs = getComputedStyle(document.documentElement);
+    var el = document.getElementById('swatches');
+    el.innerHTML = VARS.map(function(v){
+      var val = cs.getPropertyValue(v[0]).trim();
+      return '<div class="sw"><div class="chip" style="background:'+val+'"></div><code>'+v[0]+'</code><span class="val">'+val+'</span><span class="use">'+v[1]+'</span></div>';
+    }).join('');
+  }
+  function setTheme(t){
+    var root = document.documentElement;
+    root.removeAttribute('data-theme');
+    root.classList.remove('high-contrast');
+    if (t === 'light') root.setAttribute('data-theme','light');
+    else if (t === 'hc-dark') root.classList.add('high-contrast');
+    else if (t === 'hc-light'){ root.setAttribute('data-theme','light'); root.classList.add('high-contrast'); }
+    Array.prototype.forEach.call(document.querySelectorAll('#themeBar button'), function(b){
+      b.classList.toggle('on', b.getAttribute('data-t') === t);
+    });
+    renderSwatches();
+  }
+  renderSwatches();
+</script>
+</body>
+</html>

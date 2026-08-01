@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v39'; // light theme → Fresh Garden palette (warm gold on soft mint)
+const CACHE_NAME = 'muntaqaa-v40'; // light theme → Arabic Garden (neutral surfaces, olive accent, charcoal ink) + themed borders
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [
