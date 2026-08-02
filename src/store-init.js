@@ -313,8 +313,7 @@ Alpine.store('app', (function() {
       if (this.view === 'settings') return this.CFG.ui?.settingsTitle || '';
       return this.appTitle;
     },
-    // Settings theme label (kept store-side for now — no ui.themeLabel key yet)
-    get themeLabel() { return this.lang === 'en' ? 'Theme' : 'المظهر'; },
+    // Localized chrome labels (app UI, not content) — used for title tooltips + aria-labels ──
     get contentSwitchLabel() { return this.lang === 'en' ? 'Language' : 'اللغة'; },
     get searchNavLabel() { return this.lang === 'en' ? 'Search' : 'بحث'; },
     get searchEmptyHint() { return this.lang === 'en' ? 'Type to search questions & answers' : 'اكتب كلمة للبحث في الأسئلة والأجوبة'; },
@@ -333,8 +332,6 @@ Alpine.store('app', (function() {
     get chooseContentLabel() { return this.lang === 'en' ? 'Choose content' : 'اختيار المحتوى'; },
     get paginationLabel() { return this.lang === 'en' ? 'Pagination' : 'تنقّل الصفحات'; },
     get chooseChapterLabel() { return this.lang === 'en' ? 'Choose a chapter' : 'اختيار الباب'; },
-    get themeDarkLabel() { return this.lang === 'en' ? 'Dark theme' : 'الوضع الداكن'; },
-    get themeLightLabel() { return this.lang === 'en' ? 'Light theme' : 'الوضع الفاتح'; },
     get contactLabel() { return this.lang === 'en' ? 'Contact' : 'للتواصل'; },
     get modeMCQTitle() { return this.lang === 'en' ? 'Choose the correct answer' : 'اختر الجواب الصحيح'; },
     get modeBuildTitle() { return this.lang === 'en' ? 'Arrange the answer words' : 'رتّب كلمات الجواب'; },
@@ -578,10 +575,10 @@ Alpine.store('app', (function() {
       if (window.__saveContrast) window.__saveContrast(on);
     },
     toggleContrast: function() { this.applyContrast(!this.highContrast); },
-    applyTheme: function(theme) {
-      if (theme !== 'dark' && theme !== 'light') theme = 'dark';
-      this.theme = theme;
-      if (window.__saveTheme) window.__saveTheme(theme);
+    applyTheme: function() {
+      // Dark-only app — the light theme was removed (see plan.md). Kept as an action.
+      this.theme = 'dark';
+      if (window.__saveTheme) window.__saveTheme('dark');
     },
     setFontPreset: function(preset) {
       if (!FONT_PRESETS.some(function(p) { return p.id === preset; })) preset = 'tajawal';
@@ -592,7 +589,7 @@ Alpine.store('app', (function() {
     setAppearance: function(font, contrast, theme, preset) {
       if (font) this.fontSize = font;
       if (contrast !== undefined && contrast !== null) this.highContrast = !!contrast;
-      if (theme) this.theme = (theme === 'light') ? 'light' : 'dark';
+      if (theme) this.theme = 'dark'; // dark-only app — a persisted 'light' resolves to dark
       if (preset && FONT_PRESETS.some(function(p) { return p.id === preset; })) this.fontPreset = preset;
     },
 

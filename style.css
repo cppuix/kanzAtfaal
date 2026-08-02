@@ -998,30 +998,8 @@ mark {
 html { font-size: calc(15px * var(--font-scale)); }
 
 /* ===== THEMES ===== */
-/* Dark is the default (root vars). Light overrides the palette via <html data-theme> */
-/* Light = "Arabic Garden" — warm paper, charcoal ink, olive accent, neutral surfaces */
-[data-theme="light"] {
-  --bg:       #f5f4ee;
-  --bg2:      #eeede5;
-  --bg3:      #e8e6dd;
-  --card:     #fcfbf6;
-  --card2:    #ffffff;
-  --gold:     #5a7d3a;
-  --gold2:    #3f5c2d;
-  --gold3:    #7fa05f;
-  --gold-dim: #f1efe7;
-  --gold-mid: rgba(90,125,58,0.30);
-  --green:    #4a7a3a;
-  --red:      #b64a32;
-  --text:     #23211b;
-  --text2:    #5d594c;
-  --text3:    #9b958a;
-  --border:   #d9d6cb;
-  --gold-border: rgba(90,125,58,0.26);
-  --shadow:   0 6px 20px rgba(35,32,25,0.12);
-}
-/* Keep the weak-leaf a leaf in light mode (pale sage, not cream) */
-[data-theme="light"] .quiz-weak-leaf { background: #dbe5cf; border-color: #a9c290; }
+/* Dark-only app — the light theme was removed for now. When a palette is finalized,
+   re-add a [data-theme="light"] block here (prototype palettes live in ui-preview.html). */
 
 /* ===== HIGH CONTRAST ===== */
 /* Dark high-contrast (default theme) */
@@ -1041,24 +1019,6 @@ html { font-size: calc(15px * var(--font-scale)); }
   --text3:    #999999;
   --border:   rgba(255,255,255,0.35);
   --gold-border: rgba(255,215,0,0.5);
-}
-/* Light high-contrast — contrast mode inside the light theme */
-html[data-theme="light"].high-contrast {
-  --bg:       #ffffff;
-  --bg2:      #ffffff;
-  --bg3:      #f0f0f0;
-  --card:     #ffffff;
-  --card2:    #f0f0f0;
-  --gold:     #000000;
-  --gold2:    #000000;
-  --gold3:    #1a1a1a;
-  --gold-dim: rgba(0,0,0,0.1);
-  --gold-mid: rgba(0,0,0,0.4);
-  --text:     #000000;
-  --text2:    #111111;
-  --text3:    #333333;
-  --border:   #999999;
-  --gold-border: #555555;
 }
 
 /* ===== FOCUS (keyboard accessibility) ===== */

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v40'; // light theme → Arabic Garden (neutral surfaces, olive accent, charcoal ink) + themed borders
+const CACHE_NAME = 'muntaqaa-v41'; // dark-only: remove light theme + settings theme toggle
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [

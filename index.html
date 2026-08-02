@@ -519,13 +519,6 @@
     <!-- SETTINGS VIEW (full page — header in topbar, bottom nav stays) -->
     <div id="viewSettings" class="view" :class="{ active: $store.app.view === 'settings' }">
       <div class="settings-view">
-        <div class="settings-row">
-          <span class="settings-label" x-text="$store.app.themeLabel"></span>
-          <div class="settings-btns">
-            <button class="theme-btn" :class="{ active: $store.app.theme === 'dark' }" @click="$store.app.applyTheme('dark')" :aria-label="$store.app.themeDarkLabel" :title="$store.app.themeDarkLabel">🌙</button>
-            <button class="theme-btn" :class="{ active: $store.app.theme === 'light' }" @click="$store.app.applyTheme('light')" :aria-label="$store.app.themeLightLabel" :title="$store.app.themeLightLabel">☀️</button>
-          </div>
-        </div>
         <div class="settings-block">
           <span class="settings-label" x-text="$store.app.fontLabel"></span>
           <div class="font-preset-chips">
