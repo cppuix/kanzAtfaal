@@ -696,10 +696,12 @@ Alpine.store('app', (function() {
     },
     selectMCQChoice: function(choice, el) {
       if (this.quizAnswered) return;
+      var qa = this.currentQuestion;
+      if (!qa) return;
       this.quizAnswered = true;
       choice.selected = true;
       var correct = choice.isCorrect;
-      if (window.__recordAnswer) window.__recordAnswer(this.currentQuestion.id, correct, 'mcq');
+      if (window.__recordAnswer) window.__recordAnswer(qa.id, correct, 'mcq');
       if (correct) {
         this.quizScore++;
         this.quizFeedbackType = 'correct';

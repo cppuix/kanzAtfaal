@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v41'; // dark-only: remove light theme + settings theme toggle
+const CACHE_NAME = 'muntaqaa-v42'; // fix: null-guard selectMCQChoice (fast/stale clicks)
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [
