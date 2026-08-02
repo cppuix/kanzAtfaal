@@ -624,6 +624,18 @@ main { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: calc(80px + env
 .quiz-result h2 { font-family: var(--font-display); font-size: 2.0000rem; color: var(--gold2); }
 .result-score { font-size: 3.4667rem; font-weight: 800; color: var(--gold2); font-family: var(--font-display); text-shadow: 0 2px 14px var(--gold-mid); }
 .quiz-result p { color: var(--text2); font-size: 1.0667rem; max-width: 260px; line-height: 1.6; }
+/* Back to quiz setup — top-start of the result screen (arrow flips in RTL) */
+.quiz-result-back {
+  align-self: flex-start;
+  display: inline-flex; align-items: center; gap: 7px;
+  background: none; border: none; cursor: pointer;
+  color: var(--text3); font-family: var(--font-main); font-size: 0.9rem;
+  padding: 6px 10px; border-radius: 9px;
+  transition: color var(--transition), background var(--transition);
+}
+.quiz-result-back:hover { color: var(--gold2); background: var(--gold-dim); }
+.quiz-result-back svg { flex: 0 0 auto; }
+[dir="rtl"] .quiz-result-back svg { transform: scaleX(-1); }
 
 /* BOTTOM NAV */
 .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--bg2); border-top: 1px solid var(--gold-mid); display: flex; height: calc(62px + env(safe-area-inset-bottom)); padding-bottom: env(safe-area-inset-bottom); z-index: 100; box-shadow: 0 -2px 14px rgba(0,0,0,0.35); }

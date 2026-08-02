@@ -362,6 +362,7 @@ Alpine.store('app', (function() {
     get quizTypeLabel() { return this.lang === 'en' ? 'Type:' : 'النمط:'; },
     get quizChapterLabel() { return this.lang === 'en' ? 'Chapter:' : 'الباب:'; },
     get quizStartLabel() { return this.lang === 'en' ? 'Start' : 'ابدأ'; },
+    get quizResultBackLabel() { return this.lang === 'en' ? 'Back to setup' : 'العودة للإعداد'; },
     // ── Quiz tabs (normal / weak / stats) ──
     get quizTabsLabel() { return this.lang === 'en' ? 'Quiz options' : 'خيارات الاختبار'; },
     get quizTabNormalLabel() { return this.lang === 'en' ? 'Quiz' : 'الاختبار'; },
@@ -873,6 +874,9 @@ Alpine.store('app', (function() {
       this.quizResultScore = this.toArabic(this.quizScore) + ' / ' + this.toArabic(total);
     },
     retryQuiz: function() {
+      this.quizPhase = 'setup';
+    },
+    backToQuizSetup: function() {
       this.quizPhase = 'setup';
     }
   };
