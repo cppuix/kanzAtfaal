@@ -3,229 +3,1192 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kanz Al-Aṭfāl — UI + Palette Preview</title>
+<title>Kanz Al-Aṭfāl — Live CSS Variable Editor</title>
 <style>
   /* ══════════════════════════════════════════════════════════════════
      THE REAL PALETTES (copied verbatim from style.css)
      Theme switching: dark = default ; light = html[data-theme="light"]
      high-contrast = html.high-contrast ; hc-light = [data-theme=light].high-contrast
      ══════════════════════════════════════════════════════════════════ */
-  :root{
-    --bg:#0c1a12; --bg2:#122019; --bg3:#1a2e20;
-    --card:#172a1e; --card2:#1e3326;
-    --gold:#c9982a; --gold2:#e8bf5a; --gold3:#f5d98a;
-    --gold-dim:rgba(201,152,42,.15); --gold-mid:rgba(201,152,42,.35);
-    --green:#2ecc71; --red:#e74c3c;
-    --text:#ecdec4; --text2:#b0a07c; --text3:#6e6048;
-    --shadow:0 6px 24px rgba(0,0,0,.5);
-    --border:rgba(255,255,255,.08); --gold-border:rgba(201,152,42,.2);
-    --font-main:'Tajawal',system-ui,sans-serif; --font-display:'Cinzel','Tajawal',serif;
-    --radius:14px; --radius-sm:9px;
+  :root {
+    --bg: #0c1a12;
+    --bg2: #122019;
+    --bg3: #1a2e20;
+    --card: #172a1e;
+    --card2: #1e3326;
+    --gold: #c9982a;
+    --gold2: #e8bf5a;
+    --gold3: #f5d98a;
+    --gold-dim: rgba(201, 152, 42, 0.15);
+    --gold-mid: rgba(201, 152, 42, 0.35);
+    --green: #2ecc71;
+    --red: #e74c3c;
+    --text: #ecdec4;
+    --text2: #b0a07c;
+    --text3: #6e6048;
+    --shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+    --border: rgba(255, 255, 255, 0.08);
+    --gold-border: rgba(201, 152, 42, 0.2);
+    --font-main: 'Tajawal', system-ui, sans-serif;
+    --font-display: 'Cinzel', 'Tajawal', serif;
+    --radius: 14px;
+    --radius-sm: 9px;
   }
-  [data-theme="light"]{
-    --bg:#f5f4ee; --bg2:#eeede5; --bg3:#e8e6dd;
-    --card:#fcfbf6; --card2:#ffffff;
-    --gold:#5a7d3a; --gold2:#3f5c2d; --gold3:#7fa05f;
-    --gold-dim:#f1efe7; --gold-mid:rgba(90,125,58,.30);
-    --green:#4a7a3a; --red:#b64a32;
-    --text:#23211b; --text2:#5d594c; --text3:#9b958a;
-    --border:#d9d6cb; --gold-border:rgba(90,125,58,.26);
-    --shadow:0 6px 20px rgba(35,32,25,.12);
+  [data-theme="light"] {
+    --bg: #f5f4ee;
+    --bg2: #eeede5;
+    --bg3: #e8e6dd;
+    --card: #fcfbf6;
+    --card2: #ffffff;
+    --gold: #5a7d3a;
+    --gold2: #3f5c2d;
+    --gold3: #7fa05f;
+    --gold-dim: #f1efe7;
+    --gold-mid: rgba(90, 125, 58, 0.30);
+    --green: #4a7a3a;
+    --red: #b64a32;
+    --text: #23211b;
+    --text2: #5d594c;
+    --text3: #9b958a;
+    --border: #d9d6cb;
+    --gold-border: rgba(90, 125, 58, 0.26);
+    --shadow: 0 6px 20px rgba(35, 32, 25, 0.12);
   }
-  [data-theme="light"] .quiz-weak-leaf { background:#dbe5cf; border-color:#a9c290; }
-  .high-contrast{
-    --bg:#000; --bg2:#0a0a0a; --bg3:#111; --card:#0d0d0d; --card2:#1a1a1a;
-    --gold:#ffd700; --gold2:#ffe44d; --gold3:#fff0a0;
-    --gold-dim:rgba(255,215,0,.2); --gold-mid:rgba(255,215,0,.5);
-    --text:#fff; --text2:#ddd; --text3:#999;
-    --border:rgba(255,255,255,.35); --gold-border:rgba(255,215,0,.5);
+  [data-theme="light"] .quiz-weak-leaf {
+    background: #dbe5cf;
+    border-color: #a9c290;
   }
-  [data-theme="light"].high-contrast{
-    --bg:#fff; --bg2:#fff; --bg3:#f0f0f0; --card:#fff; --card2:#f0f0f0;
-    --gold:#000; --gold2:#000; --gold3:#1a1a1a;
-    --gold-dim:rgba(0,0,0,.1); --gold-mid:rgba(0,0,0,.4);
-    --text:#000; --text2:#111; --text3:#333;
-    --border:#999; --gold-border:#555;
+  .high-contrast {
+    --bg: #000;
+    --bg2: #0a0a0a;
+    --bg3: #111;
+    --card: #0d0d0d;
+    --card2: #1a1a1a;
+    --gold: #ffd700;
+    --gold2: #ffe44d;
+    --gold3: #fff0a0;
+    --gold-dim: rgba(255, 215, 0, 0.2);
+    --gold-mid: rgba(255, 215, 0, 0.5);
+    --text: #fff;
+    --text2: #ddd;
+    --text3: #999;
+    --border: rgba(255, 255, 255, 0.35);
+    --gold-border: rgba(255, 215, 0, 0.5);
+  }
+  [data-theme="light"].high-contrast {
+    --bg: #fff;
+    --bg2: #fff;
+    --bg3: #f0f0f0;
+    --card: #fff;
+    --card2: #f0f0f0;
+    --gold: #000;
+    --gold2: #000;
+    --gold3: #1a1a1a;
+    --gold-dim: rgba(0, 0, 0, 0.1);
+    --gold-mid: rgba(0, 0, 0, 0.4);
+    --text: #000;
+    --text2: #111;
+    --text3: #333;
+    --border: #999;
+    --gold-border: #555;
   }
 
   /* ══════════ Preview-page chrome (not part of the app) ══════════ */
-  *{box-sizing:border-box}
-  body{font-family:var(--font-main); background:var(--bg); color:var(--text); margin:0; padding:0 20px 60px; line-height:1.55; transition:background .2s,color .2s}
-  .doc-hdr{max-width:1200px;margin:0 auto;padding:28px 0 6px}
-  .doc-hdr h1{font-family:var(--font-display);font-size:1.5rem;margin:0 0 6px;color:var(--gold2)}
-  .doc-hdr p{margin:0;color:var(--text2);font-size:.9rem}
-  .theme-bar{max-width:1200px;margin:18px auto 0;display:flex;gap:8px;flex-wrap:wrap}
-  .theme-bar button{background:var(--bg3);border:1px solid var(--gold-mid);color:var(--text);border-radius:10px;padding:8px 16px;font-family:var(--font-main);font-size:.85rem;cursor:pointer}
-  .theme-bar button.on{background:var(--gold-dim);border-color:var(--gold);color:var(--gold2);font-weight:700}
-  .section{max-width:1200px;margin:34px auto 0}
-  .section h2{font-family:var(--font-display);font-size:1.05rem;color:var(--gold2);border-bottom:1px solid var(--gold-mid);padding-bottom:8px;margin:0 0 16px}
+  * {
+    box-sizing: border-box;
+  }
+  body {
+    font-family: var(--font-main);
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 0 20px 60px;
+    line-height: 1.55;
+    transition: background 0.2s, color 0.2s;
+  }
+  .doc-hdr {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 28px 0 6px;
+  }
+  .doc-hdr h1 {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    margin: 0 0 6px;
+    color: var(--gold2);
+  }
+  .doc-hdr p {
+    margin: 0;
+    color: var(--text2);
+    font-size: 0.9rem;
+  }
+  .theme-bar {
+    max-width: 1200px;
+    margin: 18px auto 0;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .theme-bar button {
+    background: var(--bg3);
+    border: 1px solid var(--gold-mid);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 8px 16px;
+    font-family: var(--font-main);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .theme-bar button.on {
+    background: var(--gold-dim);
+    border-color: var(--gold);
+    color: var(--gold2);
+    font-weight: 700;
+  }
+  .section {
+    max-width: 1200px;
+    margin: 34px auto 0;
+  }
+  .section h2 {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+    color: var(--gold2);
+    border-bottom: 1px solid var(--gold-mid);
+    padding-bottom: 8px;
+    margin: 0 0 16px;
+  }
 
   /* Palette swatches */
-  #swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
-  .sw{display:grid;grid-template-columns:44px 1fr;grid-template-rows:auto auto;column-gap:12px;align-items:center;background:var(--bg3);border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:10px 12px}
-  .chip{width:40px;height:40px;border-radius:9px;grid-row:1/3;border:1px solid rgba(128,128,128,.35)}
-  .sw code{font-size:.78rem;color:var(--gold2)}
-  .sw .val{font-size:.72rem;color:var(--text3)}
-  .sw .use{grid-column:2;font-size:.72rem;color:var(--text2)}
+  #swatches {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 10px;
+  }
+  .sw {
+    display: grid;
+    grid-template-columns: 44px 1fr;
+    grid-template-rows: auto auto;
+    column-gap: 12px;
+    align-items: center;
+    background: var(--bg3);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+  .chip {
+    width: 40px;
+    height: 40px;
+    border-radius: 9px;
+    grid-row: 1/3;
+    border: 1px solid rgba(128, 128, 128, 0.35);
+  }
+  .sw code {
+    font-size: 0.78rem;
+    color: var(--gold2);
+  }
+  .sw .val {
+    font-size: 0.72rem;
+    color: var(--text3);
+  }
+  .sw .use {
+    grid-column: 2;
+    font-size: 0.72rem;
+    color: var(--text2);
+  }
 
   /* ══════════ FAITHFUL APP-COMPONENT STYLES (mirrors style.css) ══════════ */
-  .phone{max-width:420px;margin:0 auto;background:var(--bg);border:1px solid var(--gold-mid);border-radius:22px;overflow:hidden;box-shadow:var(--shadow);position:relative}
-  .screen{padding:14px 16px;border-bottom:1px dashed var(--gold-mid)}
-  .screen:last-child{border-bottom:none}
-  .screen-cap{font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:12px;font-weight:700}
+  .phone {
+    max-width: 420px;
+    margin: 0 auto;
+    background: var(--bg);
+    border: 1px solid var(--gold-mid);
+    border-radius: 22px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    position: relative;
+  }
+  .screen {
+    padding: 14px 16px;
+    border-bottom: 1px dashed var(--gold-mid);
+  }
+  .screen:last-child {
+    border-bottom: none;
+  }
+  .screen-cap {
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 12px;
+    font-weight: 700;
+  }
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 12px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--gold-mid);
+  }
+  .topbar .h-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text2);
+    border: 1px solid transparent;
+  }
+  .topbar .title {
+    font-family: var(--font-display);
+    font-size: 0.98rem;
+    color: var(--gold2);
+    font-weight: 700;
+  }
+  .topbar .pill {
+    border: 1px solid var(--gold-mid);
+    border-radius: 16px;
+    padding: 4px 12px;
+    font-size: 0.74rem;
+    color: var(--gold2);
+    background: var(--gold-dim);
+  }
+  .bnav {
+    display: flex;
+    background: var(--bg2);
+    border-top: 1px solid var(--gold-mid);
+    padding: 6px 0;
+  }
+  .bnav button {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--text3);
+    font-family: var(--font-main);
+    font-size: 0.7rem;
+    padding: 8px 4px 10px;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    align-items: center;
+  }
+  .bnav button .ico {
+    font-size: 1.05rem;
+  }
+  .bnav button.on {
+    color: var(--gold2);
+  }
+  .bnav button.on::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 22%;
+    right: 22%;
+    height: 2px;
+    border-radius: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .drawer {
+    background: var(--bg2);
+    border: 1px solid var(--gold-mid);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .drawer .d-head {
+    display: flex;
+    gap: 8px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--gold-mid);
+  }
+  .drawer .d-head button {
+    background: none;
+    border: 1px solid var(--gold-mid);
+    border-radius: 9px;
+    padding: 6px 12px;
+    color: var(--text2);
+    font-family: var(--font-main);
+    font-size: 0.78rem;
+  }
+  .s-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 11px 14px;
+    color: var(--text2);
+    font-size: 0.86rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  }
+  .s-item .count {
+    font-size: 0.7rem;
+    background: var(--bg3);
+    padding: 2px 9px;
+    border-radius: 20px;
+    color: var(--text3);
+  }
+  .s-item.on {
+    background: linear-gradient(90deg, var(--gold-dim) 0%, transparent 100%);
+    color: var(--gold2);
+  }
+  .s-item.on .count {
+    background: var(--gold-dim);
+    color: var(--gold);
+  }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-badge {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--gold2);
+    background: var(--gold-dim);
+    border: 1px solid var(--gold-mid);
+    border-radius: 20px;
+    padding: 5px 14px;
+  }
+  .counter-pill {
+    font-size: 0.74rem;
+    color: var(--text3);
+    background: var(--bg3);
+    border-radius: 20px;
+    padding: 4px 10px;
+  }
+  .qa-card {
+    background: var(--card);
+    border: 1px solid rgba(201, 152, 42, 0.2);
+    border-radius: var(--radius);
+    padding: 16px;
+    position: relative;
+  }
+  .qa-card .q-num {
+    font-size: 0.74rem;
+    color: var(--gold);
+    font-family: var(--font-display);
+    opacity: 0.85;
+  }
+  .qa-card .q-text {
+    font-size: 1.02rem;
+    font-weight: 600;
+    line-height: 1.7;
+    color: var(--text);
+    margin: 8px 0 14px;
+  }
+  .qa-card .q-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .qa-card .q-row .q-body {
+    font-size: 0.9rem;
+    color: var(--text2);
+    line-height: 1.6;
+  }
+  .q-toggle {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    border: 1px solid var(--gold-mid);
+    background: var(--gold-dim);
+    color: var(--gold2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    cursor: pointer;
+    margin-inline-start: auto;
+  }
+  .qa-section-tag {
+    font-size: 0.72rem;
+    color: var(--text3);
+    background: var(--bg3);
+    border-radius: 7px;
+    padding: 3px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    align-self: flex-start;
+  }
+  .qa-answer {
+    font-size: 0.9rem;
+    color: var(--text);
+    line-height: 1.65;
+    background: var(--bg3);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-top: 10px;
+    display: none;
+  }
+  .search-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--card);
+    border: 1px solid rgba(201, 152, 42, 0.2);
+    border-radius: 12px;
+    padding: 10px 12px;
+  }
+  .search-row input {
+    flex: 1;
+    background: none;
+    border: none;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 0.9rem;
+    outline: none;
+  }
+  .search-row input::placeholder {
+    color: var(--text3);
+  }
+  .search-chip {
+    border: 1px solid var(--gold-mid);
+    background: var(--gold-dim);
+    color: var(--gold2);
+    border-radius: 16px;
+    padding: 4px 12px;
+    font-size: 0.74rem;
+  }
+  .search-chip.on {
+    background: var(--gold);
+    color: #fff;
+  }
+  .qtabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--gold-mid);
+    padding: 4px 4px 0;
+  }
+  .qtabs button {
+    background: none;
+    border: none;
+    font-family: var(--font-main);
+    font-size: 0.9rem;
+    color: var(--text3);
+    padding: 8px 14px;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+  }
+  .qtabs button.on {
+    color: var(--gold2);
+    font-weight: 700;
+    border-bottom-color: var(--gold);
+  }
+  .qfield {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 18px 0;
+  }
+  .qfield .lbl {
+    color: var(--text2);
+    font-size: 0.9rem;
+  }
+  .qtoken {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--gold-dim);
+    border: 1px solid var(--gold-mid);
+    border-radius: 14px;
+    color: var(--gold2);
+    font-weight: 700;
+    font-family: var(--font-main);
+    font-size: 0.95rem;
+    padding: 7px 14px;
+    cursor: pointer;
+  }
+  .qstart {
+    background: none;
+    border: none;
+    border-bottom: 2px solid var(--gold);
+    color: var(--gold2);
+    font-family: var(--font-main);
+    font-size: 1.05rem;
+    font-weight: 800;
+    padding: 6px 12px;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+  .progress {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .pbar {
+    flex: 1;
+    height: 7px;
+    background: var(--bg3);
+    border-radius: 4px;
+    overflow: hidden;
+    border: 1px solid rgba(201, 152, 42, 0.12);
+  }
+  .pfill {
+    height: 100%;
+    width: 60%;
+    background: linear-gradient(90deg, var(--gold), var(--gold3));
+    border-radius: 4px;
+  }
+  .ptext {
+    font-size: 0.72rem;
+    color: var(--text3);
+  }
+  .score-badge {
+    background: var(--gold-dim);
+    border: 1px solid var(--gold-mid);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    color: var(--gold2);
+    font-weight: 700;
+    display: inline-block;
+    margin-top: 10px;
+  }
+  .quiz-card {
+    background: var(--card);
+    border: 1px solid rgba(201, 152, 42, 0.2);
+    border-radius: var(--radius);
+    padding: 18px;
+    position: relative;
+    margin-top: 12px;
+  }
+  .quiz-card .qq {
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.7;
+    color: var(--text);
+    margin-bottom: 14px;
+  }
+  .choice-btn {
+    display: block;
+    width: 100%;
+    background: var(--bg3);
+    border: 1.5px solid rgba(255, 255, 255, 0.07);
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: var(--font-main);
+    font-size: 0.95rem;
+    text-align: start;
+    margin-bottom: 9px;
+  }
+  .choice-btn.correct {
+    background: rgba(46, 204, 113, 0.12);
+    border-color: #2ecc71;
+    color: #2ecc71;
+  }
+  .choice-btn.wrong {
+    background: rgba(231, 76, 60, 0.12);
+    border-color: #e74c3c;
+    color: #e98070;
+  }
+  .build-answer {
+    min-height: 56px;
+    border: 1.5px dashed rgba(201, 152, 42, 0.3);
+    border-radius: 12px;
+    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    background: var(--card);
+  }
+  .tile {
+    background: var(--bg3);
+    border: 1px solid rgba(201, 152, 42, 0.2);
+    border-radius: 9px;
+    padding: 7px 12px;
+    font-family: var(--font-main);
+    font-size: 0.88rem;
+    color: var(--text);
+  }
+  .build-divider {
+    height: 1px;
+    background: var(--gold-mid);
+    margin: 12px 0;
+  }
+  .build-pool {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .build-check {
+    display: block;
+    margin: 12px auto 0;
+    background: var(--gold-dim);
+    border: 1px solid var(--gold-mid);
+    color: var(--gold2);
+    border-radius: 12px;
+    padding: 10px 28px;
+    font-size: 0.95rem;
+    font-family: var(--font-main);
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .stats-card {
+    background: var(--bg3);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+  }
+  .stats-card .v {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--gold2);
+  }
+  .stats-card .l {
+    font-size: 0.72rem;
+    color: var(--text3);
+  }
+  .stats-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--bg3);
+    margin-top: 8px;
+  }
+  .stats-row .lbl {
+    flex: 0 0 128px;
+    font-size: 0.85rem;
+    color: var(--text);
+  }
+  .stats-row .track {
+    flex: 1;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--bg2);
+    overflow: hidden;
+  }
+  .stats-row .fill {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, var(--gold), var(--gold3));
+    border-radius: 3px;
+  }
+  .stats-row .acc {
+    flex: 0 0 44px;
+    text-align: end;
+    font-family: var(--font-display);
+    font-size: 0.85rem;
+    color: var(--gold2);
+  }
+  .weak-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--bg3);
+    margin-bottom: 8px;
+  }
+  .weak-item .wline {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .weak-item .wq {
+    flex: 1;
+    font-size: 0.86rem;
+    line-height: 1.6;
+    color: var(--text);
+  }
+  .leaf {
+    flex: 0 0 auto;
+    width: 13px;
+    height: 13px;
+    margin-top: 3px;
+    border-radius: 2px 100% 2px 100%;
+    background: var(--gold-dim);
+    border: 1px solid var(--gold-mid);
+    transform: rotate(-8deg);
+  }
+  .leaf.watered {
+    background: var(--gold);
+    border-color: var(--gold3);
+    box-shadow: 0 0 6px rgba(201, 152, 42, 0.35);
+  }
+  .toast {
+    display: inline-block;
+    background: var(--card2);
+    border: 1px solid var(--gold-mid);
+    border-radius: 20px;
+    padding: 9px 18px;
+    font-size: 0.84rem;
+    color: var(--text);
+    box-shadow: var(--shadow);
+  }
+  .hint {
+    font-size: 0.72rem;
+    color: var(--text3);
+    margin-top: 6px;
+  }
+  .note {
+    background: var(--bg3);
+    border-left: 3px solid var(--gold);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 0.82rem;
+    color: var(--text2);
+    margin: 8px 0;
+  }
+  code {
+    background: var(--bg3);
+    padding: 1px 6px;
+    border-radius: 5px;
+    font-size: 0.78rem;
+    color: var(--gold2);
+  }
 
-  /* topbar */
-  .topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;background:var(--bg2);border-bottom:1px solid var(--gold-mid)}
-  .topbar .h-btn{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;color:var(--text2);border:1px solid transparent}
-  .topbar .title{font-family:var(--font-display);font-size:.98rem;color:var(--gold2);font-weight:700}
-  .topbar .pill{border:1px solid var(--gold-mid);border-radius:16px;padding:4px 12px;font-size:.74rem;color:var(--gold2);background:var(--gold-dim)}
-  /* bottom nav */
-  .bnav{display:flex;background:var(--bg2);border-top:1px solid var(--gold-mid);padding:6px 0}
-  .bnav button{flex:1;background:none;border:none;color:var(--text3);font-family:var(--font-main);font-size:.7rem;padding:8px 4px 10px;cursor:pointer;position:relative;display:flex;flex-direction:column;gap:3px;align-items:center}
-  .bnav button .ico{font-size:1.05rem}
-  .bnav button.on{color:var(--gold2)}
-  .bnav button.on::after{content:'';position:absolute;bottom:0;left:22%;right:22%;height:2px;border-radius:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
-  /* drawer list */
-  .drawer{background:var(--bg2);border:1px solid var(--gold-mid);border-radius:14px;overflow:hidden}
-  .drawer .d-head{display:flex;gap:8px;padding:10px 12px;border-bottom:1px solid var(--gold-mid)}
-  .drawer .d-head button{background:none;border:1px solid var(--gold-mid);border-radius:9px;padding:6px 12px;color:var(--text2);font-family:var(--font-main);font-size:.78rem}
-  .s-item{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;color:var(--text2);font-size:.86rem;border-bottom:1px solid rgba(255,255,255,.03)}
-  .s-item .count{font-size:.7rem;background:var(--bg3);padding:2px 9px;border-radius:20px;color:var(--text3)}
-  .s-item.on{background:linear-gradient(90deg,var(--gold-dim) 0%,transparent 100%);color:var(--gold2)}
-  .s-item.on .count{background:var(--gold-dim);color:var(--gold)}
-  /* badge / counter */
-  .badge{display:inline-flex;align-items:center;gap:8px}
-  .section-badge{font-size:.82rem;font-weight:700;color:var(--gold2);background:var(--gold-dim);border:1px solid var(--gold-mid);border-radius:20px;padding:5px 14px}
-  .counter-pill{font-size:.74rem;color:var(--text3);background:var(--bg3);border-radius:20px;padding:4px 10px}
-  /* qa flip card */
-  .qa-card{background:var(--card);border:1px solid rgba(201,152,42,.2);border-radius:var(--radius);padding:16px;position:relative}
-  .qa-card .q-num{font-size:.74rem;color:var(--gold);font-family:var(--font-display);opacity:.85}
-  .qa-card .q-text{font-size:1.02rem;font-weight:600;line-height:1.7;color:var(--text);margin:8px 0 14px}
-  .qa-card .q-row{display:flex;align-items:center;gap:10px}
-  .qa-card .q-row .q-body{font-size:.9rem;color:var(--text2);line-height:1.6}
-  .q-toggle{width:34px;height:34px;border-radius:9px;border:1px solid var(--gold-mid);background:var(--gold-dim);color:var(--gold2);display:flex;align-items:center;justify-content:center;font-size:.9rem;cursor:pointer;margin-inline-start:auto}
-  .qa-section-tag{font-size:.72rem;color:var(--text3);background:var(--bg3);border-radius:7px;padding:3px 10px;border:1px solid rgba(255,255,255,.04);align-self:flex-start}
-  .qa-answer{font-size:.9rem;color:var(--text);line-height:1.65;background:var(--bg3);border-radius:10px;padding:10px 12px;margin-top:10px;display:none}
-  /* search */
-  .search-row{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid rgba(201,152,42,.2);border-radius:12px;padding:10px 12px}
-  .search-row input{flex:1;background:none;border:none;color:var(--text);font-family:var(--font-main);font-size:.9rem;outline:none}
-  .search-row input::placeholder{color:var(--text3)}
-  .search-chip{border:1px solid var(--gold-mid);background:var(--gold-dim);color:var(--gold2);border-radius:16px;padding:4px 12px;font-size:.74rem}
-  .search-chip.on{background:var(--gold);color:#fff}
-  /* quiz tabs + fields */
-  .qtabs{display:flex;gap:4px;border-bottom:1px solid var(--gold-mid);padding:4px 4px 0}
-  .qtabs button{background:none;border:none;font-family:var(--font-main);font-size:.9rem;color:var(--text3);padding:8px 14px;border-bottom:2px solid transparent;cursor:pointer}
-  .qtabs button.on{color:var(--gold2);font-weight:700;border-bottom-color:var(--gold)}
-  .qfield{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:18px 0}
-  .qfield .lbl{color:var(--text2);font-size:.9rem}
-  .qtoken{display:inline-flex;align-items:center;gap:7px;background:var(--gold-dim);border:1px solid var(--gold-mid);border-radius:14px;color:var(--gold2);font-weight:700;font-family:var(--font-main);font-size:.95rem;padding:7px 14px;cursor:pointer}
-  .qstart{background:none;border:none;border-bottom:2px solid var(--gold);color:var(--gold2);font-family:var(--font-main);font-size:1.05rem;font-weight:800;padding:6px 12px;cursor:pointer;margin-top:8px}
-  /* quiz game */
-  .progress{display:flex;align-items:center;gap:10px}
-  .pbar{flex:1;height:7px;background:var(--bg3);border-radius:4px;overflow:hidden;border:1px solid rgba(201,152,42,.12)}
-  .pfill{height:100%;width:60%;background:linear-gradient(90deg,var(--gold),var(--gold3));border-radius:4px}
-  .ptext{font-size:.72rem;color:var(--text3)}
-  .score-badge{background:var(--gold-dim);border:1px solid var(--gold-mid);border-radius:20px;padding:6px 14px;font-size:.8rem;color:var(--gold2);font-weight:700;display:inline-block;margin-top:10px}
-  .quiz-card{background:var(--card);border:1px solid rgba(201,152,42,.2);border-radius:var(--radius);padding:18px;position:relative;margin-top:12px}
-  .quiz-card .qq{font-size:1.05rem;font-weight:600;line-height:1.7;color:var(--text);margin-bottom:14px}
-  .choice-btn{display:block;width:100%;background:var(--bg3);border:1.5px solid rgba(255,255,255,.07);border-radius:var(--radius-sm);padding:12px 16px;color:var(--text);font-family:var(--font-main);font-size:.95rem;text-align:start;margin-bottom:9px}
-  .choice-btn.correct{background:rgba(46,204,113,.12);border-color:#2ecc71;color:#2ecc71}
-  .choice-btn.wrong{background:rgba(231,76,60,.12);border-color:#e74c3c;color:#e98070}
-  /* build zone */
-  .build-answer{min-height:56px;border:1.5px dashed rgba(201,152,42,.3);border-radius:12px;padding:10px;display:flex;flex-wrap:wrap;gap:6px;background:var(--card)}
-  .tile{background:var(--bg3);border:1px solid rgba(201,152,42,.2);border-radius:9px;padding:7px 12px;font-family:var(--font-main);font-size:.88rem;color:var(--text)}
-  .build-divider{height:1px;background:var(--gold-mid);margin:12px 0}
-  .build-pool{display:flex;flex-wrap:wrap;gap:6px}
-  .build-check{display:block;margin:12px auto 0;background:var(--gold-dim);border:1px solid var(--gold-mid);color:var(--gold2);border-radius:12px;padding:10px 28px;font-size:.95rem;font-family:var(--font-main);font-weight:700;cursor:pointer}
-  /* stats */
-  .stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-  .stats-card{background:var(--bg3);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:16px 12px;display:flex;flex-direction:column;align-items:center;gap:5px}
-  .stats-card .v{font-family:var(--font-display);font-size:1.5rem;font-weight:800;color:var(--gold2)}
-  .stats-card .l{font-size:.72rem;color:var(--text3)}
-  .stats-row{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;background:var(--bg3);margin-top:8px}
-  .stats-row .lbl{flex:0 0 128px;font-size:.85rem;color:var(--text)}
-  .stats-row .track{flex:1;height:6px;border-radius:3px;background:var(--bg2);overflow:hidden}
-  .stats-row .fill{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--gold3));border-radius:3px}
-  .stats-row .acc{flex:0 0 44px;text-align:end;font-family:var(--font-display);font-size:.85rem;color:var(--gold2)}
-  /* weak */
-  .weak-item{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border-radius:10px;background:var(--bg3);margin-bottom:8px}
-  .weak-item .wline{display:flex;align-items:flex-start;gap:10px}
-  .weak-item .wq{flex:1;font-size:.86rem;line-height:1.6;color:var(--text)}
-  .leaf{flex:0 0 auto;width:13px;height:13px;margin-top:3px;border-radius:2px 100% 2px 100%;background:var(--gold-dim);border:1px solid var(--gold-mid);transform:rotate(-8deg)}
-  .leaf.watered{background:var(--gold);border-color:var(--gold3);box-shadow:0 0 6px rgba(201,152,42,.35)}
-  /* toast / extras */
-  .toast{display:inline-block;background:var(--card2);border:1px solid var(--gold-mid);border-radius:20px;padding:9px 18px;font-size:.84rem;color:var(--text);box-shadow:var(--shadow)}
-  .hint{font-size:.72rem;color:var(--text3);margin-top:6px}
-  .note{background:var(--bg3);border-left:3px solid var(--gold);border-radius:8px;padding:12px 14px;font-size:.82rem;color:var(--text2);margin:8px 0}
-  code{background:var(--bg3);padding:1px 6px;border-radius:5px;font-size:.78rem;color:var(--gold2)}
+  /* ══════════════════════════════════════════════════════════════════
+     DESIGNER PANEL — slide-out CSS variable editor
+     ══════════════════════════════════════════════════════════════════ */
+  #designer-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 420px;
+    max-width: 94vw;
+    height: 100vh;
+    background: #1a1a1f;
+    color: #e0e0e0;
+    z-index: 99999;
+    box-shadow: -4px 0 30px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 13px;
+    transform: translateX(0);
+    transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  #designer-panel.collapsed {
+    transform: translateX(100%);
+  }
+  #designer-panel * {
+    box-sizing: border-box;
+  }
 
-  /* ══════════ DESIGN STUDIO ══════════ */
-  .studio{max-width:1200px;margin:26px auto 0;display:grid;grid-template-columns:minmax(320px,400px) 1fr;gap:24px;align-items:start}
-  .studio-panel{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow-y:auto;background:var(--bg2);border:1px solid var(--gold-mid);border-radius:16px;padding:16px 16px 22px}
-  .studio-preview{min-width:0}
-  .studio-preview .phone{margin:0;max-width:420px}
-  @media(max-width:960px){.studio{grid-template-columns:1fr}.studio-panel{position:static;max-height:none}}
-  .studio h2{font-family:var(--font-display);font-size:.95rem;color:var(--gold2);border-bottom:1px solid var(--gold-mid);padding-bottom:6px;margin:16px 0 10px}
-  .studio h2:first-child{margin-top:0}
-  .panel-note{font-size:.78rem;color:var(--text2);margin:0 0 14px;line-height:1.55}
-  #controls{display:flex;flex-direction:column;gap:7px}
-  .ctl{background:var(--bg3);border:1px solid var(--gold-border);border-radius:10px;padding:7px 10px}
-  .ctl.dirty{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold-dim)}
-  .ctl-head{display:flex;align-items:center;gap:10px}
-  .ctl-head .chip{width:26px;height:26px;border-radius:6px;border:1px solid rgba(128,128,128,.5);cursor:pointer;flex:0 0 auto;padding:0;background:none}
-  .ctl-head code{font-size:.74rem;color:var(--gold2);white-space:nowrap}
-  .ctl-head .use{font-size:.66rem;color:var(--text3);flex:1;line-height:1.3}
-  .ctl-head .rst{background:none;border:none;color:var(--text3);cursor:pointer;font-size:1rem;opacity:.4;flex:0 0 auto}
-  .ctl.dirty .rst{opacity:1;color:var(--gold)}
-  .ctl-body{display:flex;align-items:center;gap:8px;margin-top:6px}
-  .ctl-body input[type=text]{flex:1;background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:7px;padding:5px 8px;font-family:var(--font-main);font-size:.76rem;min-width:0}
-  .ctl-body input[type=text].bad{border-color:var(--red)}
-  .ctl-body input[type=range]{flex:0 0 64px;accent-color:var(--gold)}
-  .a-label{font-size:.62rem;color:var(--text3);flex:0 0 auto}
-  .bar-sep{width:1px;align-self:stretch;background:var(--gold-mid);margin:0 6px}
-  .copy-btn{background:var(--bg3);border:1px solid var(--gold-mid);color:var(--text);border-radius:10px;padding:8px 16px;font-family:var(--font-main);font-size:.85rem;cursor:pointer}
-  .copy-btn:hover{background:var(--gold-dim);border-color:var(--gold);color:var(--gold2)}
-  .css-out{background:var(--bg);border:1px solid var(--gold-border);border-radius:10px;padding:12px;font-size:.72rem;line-height:1.65;color:var(--text2);overflow:auto;white-space:pre;margin:0 0 10px;max-height:280px}
+  /* Panel header */
+  .dp-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    background: #1e1e24;
+    flex-shrink: 0;
+  }
+  .dp-header h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    color: #f0c060;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .dp-header .dp-badge {
+    font-size: 10px;
+    background: #3a3a44;
+    color: #aaa;
+    padding: 3px 9px;
+    border-radius: 10px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .dp-header .dp-badge.modified {
+    background: #f0c060;
+    color: #1a1a1f;
+    font-weight: 700;
+  }
+  .dp-header button {
+    background: none;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ccc;
+    border-radius: 7px;
+    padding: 6px 11px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.12s;
+    white-space: nowrap;
+  }
+  .dp-header button:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.4);
+  }
+  .dp-header button.dp-close {
+    font-size: 18px;
+    padding: 4px 9px;
+    line-height: 1;
+    border: none;
+  }
+
+  /* Theme tabs within panel */
+  .dp-theme-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0;
+    overflow-x: auto;
+  }
+  .dp-theme-tabs button {
+    flex: 1;
+    background: none;
+    border: none;
+    color: #888;
+    padding: 10px 8px;
+    font-size: 11px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    font-family: inherit;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+  .dp-theme-tabs button:hover {
+    color: #ccc;
+    background: rgba(255, 255, 255, 0.03);
+  }
+  .dp-theme-tabs button.active {
+    color: #f0c060;
+    border-bottom-color: #f0c060;
+    font-weight: 700;
+  }
+
+  /* Scrollable var list */
+  .dp-var-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px 0;
+  }
+  .dp-var-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    transition: background 0.1s;
+    position: relative;
+  }
+  .dp-var-row:hover {
+    background: rgba(255, 255, 255, 0.03);
+  }
+  .dp-var-row.modified {
+    background: rgba(240, 192, 96, 0.06);
+    border-left: 3px solid #f0c060;
+    padding-left: 11px;
+  }
+  .dp-var-row .dp-swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    flex-shrink: 0;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.1s;
+  }
+  .dp-var-row .dp-swatch:hover {
+    transform: scale(1.15);
+    border-color: #fff;
+    z-index: 2;
+  }
+  .dp-var-row .dp-swatch.no-color {
+    border-style: dashed;
+    border-color: rgba(255, 255, 255, 0.12);
+    background: repeating-conic-gradient(rgba(255, 255, 255, 0.04) 0% 25%, transparent 0% 50%) 50% / 8px 8px;
+  }
+  .dp-var-row .dp-info {
+    flex: 1;
+    min-width: 0;
+  }
+  .dp-var-row .dp-name {
+    font-weight: 600;
+    font-size: 12px;
+    color: #e0c080;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .dp-var-row .dp-desc {
+    font-size: 10px;
+    color: #777;
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .dp-var-row .dp-value-input {
+    width: 130px;
+    flex-shrink: 0;
+    background: #2a2a32;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #ddd;
+    border-radius: 6px;
+    padding: 5px 8px;
+    font-family: inherit;
+    font-size: 11px;
+    text-align: right;
+    transition: all 0.15s;
+  }
+  .dp-var-row .dp-value-input:focus {
+    outline: none;
+    border-color: #f0c060;
+    background: #2e2e38;
+    box-shadow: 0 0 0 3px rgba(240, 192, 96, 0.1);
+  }
+  .dp-var-row .dp-color-picker {
+    position: absolute;
+    right: 150px;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .dp-var-row .dp-reset-btn {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: all 0.12s;
+  }
+  .dp-var-row:hover .dp-reset-btn,
+  .dp-var-row.modified .dp-reset-btn {
+    opacity: 1;
+  }
+  .dp-var-row .dp-reset-btn:hover {
+    color: #f0c060;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  /* Footer actions */
+  .dp-footer {
+    padding: 12px 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    background: #1e1e24;
+    flex-shrink: 0;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .dp-footer button {
+    flex: 1;
+    min-width: 70px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: #2a2a32;
+    color: #ddd;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .dp-footer button:hover {
+    background: #34343e;
+    border-color: rgba(255, 255, 255, 0.4);
+  }
+  .dp-footer button.dp-export {
+    background: #f0c060;
+    color: #1a1a1f;
+    border-color: #f0c060;
+    font-weight: 700;
+  }
+  .dp-footer button.dp-export:hover {
+    background: #f5d080;
+  }
+  .dp-footer button.dp-reset-all {
+    border-color: rgba(255, 100, 80, 0.4);
+    color: #f08070;
+  }
+  .dp-footer button.dp-reset-all:hover {
+    background: rgba(255, 80, 60, 0.15);
+    border-color: rgba(255, 100, 80, 0.7);
+  }
+
+  /* Floating toggle button */
+  #dp-toggle-btn {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    z-index: 99998;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #1e1e24;
+    border: 2px solid rgba(240, 192, 96, 0.5);
+    color: #f0c060;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    transition: all 0.2s;
+    line-height: 1;
+  }
+  #dp-toggle-btn:hover {
+    background: #2a2a34;
+    border-color: #f0c060;
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.6);
+    transform: scale(1.06);
+  }
+  #dp-toggle-btn.modified-dot::after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #f0c060;
+    border: 2px solid #1e1e24;
+  }
+  #dp-toggle-btn.hidden {
+    display: none;
+  }
+
+  /* Toast notification */
+  .dp-toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2a2a34;
+    color: #f0c060;
+    padding: 10px 22px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    z-index: 999999;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(240, 192, 96, 0.3);
+    animation: dp-toast-in 0.3s ease, dp-toast-out 0.3s ease 1.8s forwards;
+    pointer-events: none;
+  }
+  @keyframes dp-toast-in {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  }
+  @keyframes dp-toast-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+      transform: translateX(-50%) translateY(-8px);
+    }
+  }
+
+  /* Responsive */
+  @media (max-width: 500px) {
+    #designer-panel {
+      width: 100vw;
+      max-width: 100vw;
+    }
+    .dp-var-row .dp-value-input {
+      width: 90px;
+      font-size: 10px;
+    }
+    .dp-var-row .dp-name {
+      font-size: 10px;
+    }
+    #dp-toggle-btn {
+      top: 8px;
+      right: 8px;
+      width: 36px;
+      height: 36px;
+      font-size: 17px;
+    }
+  }
 </style>
 </head>
 <body>
 
+  <!-- ══════════ FLOATING TOGGLE BUTTON ══════════ -->
+  <button id="dp-toggle-btn" title="Toggle CSS Variable Editor (Ctrl+Shift+E)" aria-label="Open designer panel">🎨</button>
+
+  <!-- ══════════ DESIGNER PANEL ══════════ -->
+  <div id="designer-panel">
+    <div class="dp-header">
+      <h3>🎨 CSS Variable Editor</h3>
+      <span class="dp-badge" id="dp-mod-badge">live</span>
+      <button id="dp-undo-all" title="Undo all changes in current theme">↩ Undo</button>
+      <button class="dp-close" id="dp-close-btn" title="Close panel (Ctrl+Shift+E)">×</button>
+    </div>
+    <div class="dp-theme-tabs" id="dp-theme-tabs">
+      <button data-editor-theme="dark" class="active">🌙 Dark</button>
+      <button data-editor-theme="light">☀️ Light</button>
+      <button data-editor-theme="hc-dark">🌙 HC Dark</button>
+      <button data-editor-theme="hc-light">☀️ HC Light</button>
+    </div>
+    <div class="dp-var-list" id="dp-var-list"></div>
+    <div class="dp-footer">
+      <button class="dp-export" id="dp-export-css" title="Download complete style.css with all themes">⬇ Export CSS</button>
+      <button id="dp-copy-root" title="Copy current theme's :root block to clipboard">📋 Copy :root</button>
+      <button id="dp-copy-all" title="Copy ALL theme blocks to clipboard">📋 Copy All</button>
+      <button class="dp-reset-all" id="dp-reset-all" title="Reset ALL themes to defaults">⟲ Reset All</button>
+    </div>
+  </div>
+
+  <!-- ══════════ ORIGINAL PAGE CONTENT ══════════ -->
   <div class="doc-hdr">
-    <h1>Kanz Al-Aṭfāl — Design Studio</h1>
-    <p>Interactive theme designer: pick a base theme, then edit any palette variable and watch the real UI update live. Export the CSS when you're happy.</p>
+    <h1>Kanz Al-Aṭfāl — UI &amp; Palette Preview</h1>
+    <p>This file renders the app's real components (same class names / palette as <code>style.css</code>) so a designer or LLM can see the UI and how color is applied. Use the buttons to switch themes — the palette swatches update live. <strong>Click 🎨 (top-right) to open the CSS variable editor panel.</strong></p>
   </div>
 
   <div class="theme-bar" id="themeBar">
-    <button data-t="dark" onclick="setTheme('dark')">Dark</button>
+    <button data-t="dark" onclick="setTheme('dark')">Dark (default)</button>
     <button data-t="light" class="on" onclick="setTheme('light')">Light</button>
-    <button data-t="hc-dark" onclick="setTheme('hc-dark')">HC dark</button>
-    <button data-t="hc-light" onclick="setTheme('hc-light')">HC light</button>
-    <span class="bar-sep"></span>
-    <button onclick="resetEdits()" title="Clear edits back to the preset">↺ Reset</button>
-    <button class="copy-btn" onclick="copyCSS()">⧉ Copy CSS</button>
+    <button data-t="hc-dark" onclick="setTheme('hc-dark')">High-contrast dark</button>
+    <button data-t="hc-light" onclick="setTheme('hc-light')">High-contrast light</button>
   </div>
 
-  <div class="studio">
-    <div class="studio-panel">
-      <h2>Design Studio — tweak any variable, the UI updates live</h2>
-      <p class="panel-note">Pick a base theme above, then edit below. The swatch opens the color picker, the slider is alpha, or type a CSS value directly. <b>Copy CSS</b> exports the current theme's full block to paste into <code>style.css</code>.</p>
-      <div id="controls"></div>
-      <h2>Generated CSS</h2>
-      <pre id="cssOut" class="css-out"></pre>
-      <button class="copy-btn" onclick="copyCSS()">⧉ Copy CSS</button>
-    </div>
-    <div class="studio-preview">
-      <h2>Live UI</h2>
-      <div class="phone">
+  <!-- PALETTE -->
+  <div class="section">
+    <h2>Palette — all 16 CSS custom properties (live per theme)</h2>
+    <div id="swatches"></div>
+  </div>
 
-      <!-- TOPBAR -->
+  <!-- UI PREVIEW -->
+  <div class="section">
+    <h2>UI — key screens &amp; components</h2>
+    <div class="phone">
       <div class="topbar">
         <span class="h-btn">☰</span>
         <span class="title">كنز الأطفال / Kanz Al-Aṭfāl</span>
         <span class="pill">اللغة / Language</span>
       </div>
-
-      <!-- SCREEN: BROWSE -->
       <div class="screen">
         <div class="screen-cap">Browse — section badge + flip card</div>
         <div class="badge"><span class="section-badge">Chapter: Prayer / باب الصلاة</span><span class="counter-pill">141</span></div>
@@ -233,33 +1196,21 @@
         <div class="qa-card">
           <div class="q-num">Q 7 / س ٧</div>
           <div class="q-text">When is a child commanded to pray?</div>
-          <div class="q-row">
-            <span class="qa-section-tag">Prayer / الصلاة</span>
-            <button class="q-toggle">⚿</button>
-          </div>
+          <div class="q-row"><span class="qa-section-tag">Prayer / الصلاة</span><button class="q-toggle">⚿</button></div>
         </div>
         <div class="qa-card" style="margin-top:10px">
           <div class="q-num">Q 8 / س ٨</div>
           <div class="q-text">What is the first thing a Muslim is asked about?</div>
-          <div class="q-row">
-            <span class="qa-section-tag">Faith / الإيمان</span>
-            <button class="q-toggle">⚿</button>
-          </div>
+          <div class="q-row"><span class="qa-section-tag">Faith / الإيمان</span><button class="q-toggle">⚿</button></div>
         </div>
         <div class="qa-answer" style="display:block">Answer surface — <code>--card</code> + <code>--bg3</code> body.</div>
       </div>
-
-      <!-- SCREEN: SEARCH -->
       <div class="screen">
         <div class="screen-cap">Search — input + scope chips + highlight</div>
         <div class="search-row"><span style="color:var(--text3)">⌕</span><input placeholder="Search… / بحث…" value="prayer"><span class="search-chip">Q</span><span class="search-chip on">A</span></div>
         <div style="height:12px"></div>
-        <div class="qa-card">
-          <div class="q-text"><span style="background:var(--gold-dim);color:var(--gold2)">Prayer</span> is the second pillar… (matched term highlighted with <code>--gold-dim</code> bg + <code>--gold2</code> text)</div>
-        </div>
+        <div class="qa-card"><div class="q-text"><span style="background:var(--gold-dim);color:var(--gold2)">Prayer</span> is the second pillar… (matched term highlighted)</div></div>
       </div>
-
-      <!-- SCREEN: QUIZ SETUP -->
       <div class="screen">
         <div class="screen-cap">Quiz setup — tabs + label/value rows + chips</div>
         <div class="qtabs"><button class="on">Quiz</button><button>Weak</button><button>Stats</button></div>
@@ -267,10 +1218,7 @@
         <div class="qfield"><span class="lbl">Number of questions:</span><span class="qtoken">5 ▾</span></div>
         <div class="qfield"><span class="lbl">Type:</span><span class="qtoken">Multiple Choice ▾</span></div>
         <div class="qstart">Start</div>
-        <p class="hint">Chips = <code>--gold-dim</code> bg + <code>--gold-mid</code> border + <code>--gold2</code> text. Start = gold underline.</p>
       </div>
-
-      <!-- SCREEN: QUIZ GAME -->
       <div class="screen">
         <div class="screen-cap">Quiz game — progress + MCQ + Order-words</div>
         <div class="progress"><div class="pbar"><div class="pfill"></div></div><span class="ptext">1 / 5</span></div>
@@ -289,8 +1237,6 @@
           <button class="build-check">Check / تحقق</button>
         </div>
       </div>
-
-      <!-- SCREEN: STATS -->
       <div class="screen">
         <div class="screen-cap">Stats — summary band + per-activity rows</div>
         <div class="stats-grid">
@@ -301,12 +1247,9 @@
         </div>
         <div class="stats-row"><span class="lbl">Multiple Choice</span><span class="track"><span class="fill" style="width:50%"></span></span><span class="acc">50%</span></div>
         <div class="stats-row"><span class="lbl">Order Words</span><span class="track"><span class="fill" style="width:100%"></span></span><span class="acc">100%</span></div>
-        <div class="stats-row"><span class="lbl">Fill the Blank</span><span class="track"><span class="fill" style="width:0%"></span></span><span class="acc">—</span></div>
       </div>
-
-      <!-- SCREEN: WEAK -->
       <div class="screen">
-        <div class="screen-cap">Weak spots — young shoots (leaf turns gold once corrected)</div>
+        <div class="screen-cap">Weak spots — young shoots</div>
         <div class="weak-item">
           <div class="wline"><span class="leaf"></span><span class="wq">What are the four issues obligatory upon us to learn?</span></div>
           <span class="qa-section-tag">Faith / الإيمان</span>
@@ -315,245 +1258,743 @@
           <div class="wline"><span class="leaf watered"></span><span class="wq">What are the three principles every Muslim must know?</span></div>
           <span class="qa-section-tag">Faith / الإيمان</span>
         </div>
-        <p class="hint">Left leaf needs water (still weak) — right leaf watered (corrected once).</p>
       </div>
-
-      <!-- SCREEN: DRAWER -->
       <div class="screen">
-        <div class="screen-cap">Drawer — chapters + counts (gold node dots)</div>
+        <div class="screen-cap">Drawer — chapters + counts</div>
         <div class="drawer">
           <div class="d-head"><button>⚙ Settings</button><button>ⓘ About</button></div>
           <div class="s-item">Faith and Religion Levels <span class="count">111</span></div>
           <div class="s-item on">Faith in the Angels <span class="count">56</span></div>
           <div class="s-item">The Belief in the Books <span class="count">11</span></div>
-          <div class="s-item">The Belief in the Messengers <span class="count">198</span></div>
         </div>
       </div>
-
-      <!-- TOAST -->
       <div class="screen">
         <div class="screen-cap">Toast / feedback</div>
         <span class="toast">✓ Added to favorites / أُضيفت للمحفوظات</span>
       </div>
-
-      <!-- BOTTOM NAV -->
       <div class="bnav">
         <button class="on"><span class="ico">⌂</span>Browse</button>
         <button><span class="ico">⌕</span>Search</button>
         <button><span class="ico">★</span>Favorites</button>
         <button><span class="ico">?</span>Quiz</button>
       </div>
-      </div><!-- /phone -->
-    </div><!-- /studio-preview -->
-  </div><!-- /studio -->
-
-  <!-- REMAINING HARDCODED COLORS -->
-  <div class="section">
-    <h2>Still hardcoded (not editable here)</h2>
-    <div class="note"><b>Overlay</b> <code>rgba(0,0,0,.65)</code>, <b>splash gradient</b> <code>#2a4a1e→#0a1a0e</code> (boot screen, always dark), <b>switch knob</b> <code>#0c1a12</code>, and the <b>topbar/logo drop-shadows</b> <code>rgba(0,0,0,.3–.5)</code>. Browser chrome in <code>manifest.json</code>: <code>background_color #0f1f18</code>, <code>theme_color #1a3a2a</code>. Everything else in the app is variable-driven.</div>
+    </div>
   </div>
 
-<script>
-  // ── Preset palettes (exact values from style.css) ──
-  var PRESETS = {
-    dark: {
-      '--bg':'#0c1a12','--bg2':'#122019','--bg3':'#1a2e20','--card':'#172a1e','--card2':'#1e3326',
-      '--gold':'#c9982a','--gold2':'#e8bf5a','--gold3':'#f5d98a',
-      '--gold-dim':'rgba(201,152,42,0.15)','--gold-mid':'rgba(201,152,42,0.35)',
-      '--green':'#2ecc71','--red':'#e74c3c','--text':'#ecdec4','--text2':'#b0a07c','--text3':'#6e6048',
-      '--border':'rgba(255,255,255,0.08)','--gold-border':'rgba(201,152,42,0.2)',
-      '--shadow':'0 6px 24px rgba(0,0,0,0.5)'
-    },
-    light: {
-      '--bg':'#f5f4ee','--bg2':'#eeede5','--bg3':'#e8e6dd','--card':'#fcfbf6','--card2':'#ffffff',
-      '--gold':'#5a7d3a','--gold2':'#3f5c2d','--gold3':'#7fa05f',
-      '--gold-dim':'#f1efe7','--gold-mid':'rgba(90,125,58,0.30)',
-      '--green':'#4a7a3a','--red':'#b64a32','--text':'#23211b','--text2':'#5d594c','--text3':'#9b958a',
-      '--border':'#d9d6cb','--gold-border':'rgba(90,125,58,0.26)',
-      '--shadow':'0 6px 20px rgba(35,32,25,0.12)'
-    },
-    'hc-dark': {
-      '--bg':'#000000','--bg2':'#0a0a0a','--bg3':'#111111','--card':'#0d0d0d','--card2':'#1a1a1a',
-      '--gold':'#ffd700','--gold2':'#ffe44d','--gold3':'#fff0a0',
-      '--gold-dim':'rgba(255,215,0,0.2)','--gold-mid':'rgba(255,215,0,0.5)',
-      '--green':'#2ecc71','--red':'#e74c3c','--text':'#ffffff','--text2':'#dddddd','--text3':'#999999',
-      '--border':'rgba(255,255,255,0.35)','--gold-border':'rgba(255,215,0,0.5)',
-      '--shadow':'0 6px 24px rgba(0,0,0,0.5)'
-    },
-    'hc-light': {
-      '--bg':'#ffffff','--bg2':'#ffffff','--bg3':'#f0f0f0','--card':'#ffffff','--card2':'#f0f0f0',
-      '--gold':'#000000','--gold2':'#000000','--gold3':'#1a1a1a',
-      '--gold-dim':'rgba(0,0,0,0.1)','--gold-mid':'rgba(0,0,0,0.4)',
-      '--green':'#4a7a3a','--red':'#b64a32','--text':'#000000','--text2':'#111111','--text3':'#333333',
-      '--border':'#999999','--gold-border':'#555555',
-      '--shadow':'0 6px 20px rgba(35,32,25,0.12)'
-    }
-  };
-  var VARLIST = [
-    ['--bg','Page background'],
-    ['--bg2','Nav, flyouts, topbar'],
-    ['--bg3','Hover/inset surfaces, chips, stat cards'],
-    ['--card','Card faces'],
-    ['--card2','Raised surfaces (toast, tiles)'],
-    ['--gold','Accent — underlines, active, progress, leaf'],
-    ['--gold2','Accent text — headings, values, score'],
-    ['--gold3','Accent gradient end / highlight'],
-    ['--gold-dim','Surface tint / active fill'],
-    ['--gold-mid','Accent outline'],
-    ['--green','Correct'],
-    ['--red','Wrong'],
-    ['--text','Primary text'],
-    ['--text2','Secondary text'],
-    ['--text3','Tertiary text'],
-    ['--border','Hairline borders'],
-    ['--gold-border','Card / tinted borders'],
-    ['--shadow','Elevation (box-shadow)']
-  ];
-  var activeTheme = 'light';
-  var edits = {};
-  var pickEl = null;
-  var pendingPick = null;
+  <div class="section">
+    <h2>Gotcha — colors that are NOT variables (they fight the theme)</h2>
+    <div class="note"><b>Dark-gold borders/glows</b> hardcoded as <code>rgba(201,152,42,…)</code> (~25 spots) — these stay <i>dark gold</i> on a light theme and read as brown.</div>
+    <div class="note"><b>White hairlines</b> <code>rgba(255,255,255,.03–.1)</code> (~13 spots) — invisible on a light bg.</div>
+    <div class="note"><b>Feedback</b> hardcoded emerald <code>#2ecc71</code> / red <code>#e74c3c</code> — only some use <code>var(--green/--red)</code>.</div>
+  </div>
 
-  function cur(name){ return edits[name] !== undefined ? edits[name] : PRESETS[activeTheme][name]; }
-  function parseColor(v){
-    var m;
-    if (m = v.match(/^#([0-9a-fA-F]{6})$/)) return {r:parseInt(m[1].slice(0,2),16),g:parseInt(m[1].slice(2,4),16),b:parseInt(m[1].slice(4,6),16),a:1};
-    if (m = v.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s*)?\)$/)) return {r:+m[1],g:+m[2],b:+m[3],a:m[4]!==undefined?+m[4]:1};
-    return null;
-  }
-  function hex(r,g,b){ return '#'+[r,g,b].map(function(x){ return ('0'+Math.max(0,Math.min(255,Math.round(x))).toString(16)).slice(-2); }).join(''); }
-  function fmt(c){ return c.a>=0.999 ? hex(c.r,c.g,c.b) : 'rgba('+Math.round(c.r)+', '+Math.round(c.g)+', '+Math.round(c.b)+', '+(Math.round(c.a*100)/100)+')'; }
+  <script>
+    /* ══════════════════════════════════════════════════════════════════
+       CSS VARIABLE EDITOR — DESIGNER PANEL ENGINE
+       Self-contained. Can be extracted & reused in any HTML/CSS project.
+       ══════════════════════════════════════════════════════════════════ */
 
-  function applyEdit(name, val){
-    edits[name] = val;
-    document.documentElement.style.setProperty(name, val);
-    var row = document.querySelector('.ctl[data-var="'+name+'"]');
-    if (row){
-      var chip = row.querySelector('.chip');
-      var a = parseColor(val);
-      if (a) chip.style.background = fmt(a); else chip.style.background = val;
-      var alphaEl = row.querySelector('.alpha');
-      if (a && alphaEl) alphaEl.value = Math.round(a.a*100);
-      row.classList.add('dirty');
-    }
-    renderCss();
-  }
-  function onText(input, name){
-    var val = input.value.trim();
-    if (name === '--shadow'){ input.classList.remove('bad'); applyEdit(name, val); return; }
-    var a = parseColor(val);
-    if (a){ input.classList.remove('bad'); applyEdit(name, fmt(a)); }
-    else input.classList.add('bad');
-  }
-  function onAlpha(range, name){
-    var a = parseColor(cur(name));
-    if (!a) return;
-    a.a = (+range.value)/100;
-    applyEdit(name, fmt(a));
-  }
-  function onPick(pick, name){
-    var a = parseColor(cur(name)) || {a:1};
-    var h = pick.value;
-    a.r = parseInt(h.slice(1,3),16); a.g = parseInt(h.slice(3,5),16); a.b = parseInt(h.slice(5,7),16);
-    applyEdit(name, fmt(a));
-  }
-  function resetVar(name){
-    delete edits[name];
-    document.documentElement.style.removeProperty(name);
-    var row = document.querySelector('.ctl[data-var="'+name+'"]');
-    if (row){
-      row.classList.remove('dirty');
-      var val = cur(name), a = parseColor(val);
-      row.querySelector('input[type=text]').value = val;
-      if (a){ row.querySelector('.chip').style.background = fmt(a); row.querySelector('.alpha').value = Math.round(a.a*100); }
-      else row.querySelector('.chip').style.background = val;
-    }
-    renderCss();
-  }
+    (function () {
+      'use strict';
 
-  function renderControls(){
-    var el = document.getElementById('controls');
-    el.innerHTML = VARLIST.map(function(v){
-      var name = v[0], use = v[1], val = cur(name), a = parseColor(val);
-      var isColor = !!a;
-      var alpha = a ? Math.round(a.a*100) : 100;
-      return (
-        '<div class="ctl'+(edits[name]!==undefined?' dirty':'')+'" data-var="'+name+'">'+
-          '<div class="ctl-head">'+
-            (isColor
-              ? '<button type="button" class="chip" style="background:'+fmt(a)+'" title="Pick a color"></button>'
-              : '<button type="button" class="chip" style="box-shadow:'+val+'" title="box-shadow"></button>')+
-            '<code>'+name+'</code>'+
-            '<span class="use">'+use+'</span>'+
-            '<button type="button" class="rst" title="Reset to preset">↺</button>'+
-          '</div>'+
-          '<div class="ctl-body">'+
-            '<input type="text" value="'+val+'" spellcheck="false">'+
-            (isColor ? '<input type="range" class="alpha" min="0" max="100" value="'+alpha+'" title="Alpha"><span class="a-label">α</span>' : '')+
-          '</div>'+
-        '</div>'
-      );
-    }).join('');
-    Array.prototype.forEach.call(el.querySelectorAll('.ctl'), function(row){
-      var name = row.getAttribute('data-var');
-      row.querySelector('input[type=text]').addEventListener('input', function(){ onText(this, name); });
-      row.querySelector('.chip').addEventListener('click', function(){
-        var a = parseColor(cur(name));
-        pendingPick = name;
-        pickEl.value = a ? hex(a.r,a.g,a.b) : '#000000';
-        pickEl.click();
+      // ── VARIABLE DEFINITIONS ──────────────────────────────────────
+      const VAR_DEFS = [
+        ['--bg', 'Page background'],
+        ['--bg2', 'Bottom nav, flyout panels, topbar'],
+        ['--bg3', 'Hover/inset surfaces, chips, stat cards, choice buttons'],
+        ['--card', 'Card faces (QA card, quiz card, search card)'],
+        ['--card2', 'Raised surfaces (toast, next button, tiles)'],
+        ['--gold', 'Primary accent — underlines, active states, borders, progress, leaf'],
+        ['--gold2', 'Gold text — headings, values, score'],
+        ['--gold3', 'Gold gradient end / highlight'],
+        ['--gold-dim', 'Accent tint (chips, tokens, badges)'],
+        ['--gold-mid', 'Accent border (tokens, rail, bottom-nav rule)'],
+        ['--green', 'Correct'],
+        ['--red', 'Wrong'],
+        ['--text', 'Primary text'],
+        ['--text2', 'Secondary text'],
+        ['--text3', 'Tertiary text'],
+        ['--border', 'Hairline borders (card/btn outlines)'],
+        ['--gold-border', 'Card/gold-tinted borders'],
+        ['--shadow', 'Box shadow'],
+        ['--font-main', 'Main font stack'],
+        ['--font-display', 'Display/heading font stack'],
+        ['--radius', 'Large border radius'],
+        ['--radius-sm', 'Small border radius'],
+      ];
+
+      // ── THEME DEFINITIONS & CSS SELECTOR MAP ──────────────────────
+      const THEME_MAP = {
+        dark: { selector: ':root', attr: null, class: null },
+        light: { selector: '[data-theme="light"]', attr: 'data-theme', attrVal: 'light',
+        class: null },
+        'hc-dark': { selector: '.high-contrast', attr: null, class: 'high-contrast' },
+        'hc-light': { selector: '[data-theme="light"].high-contrast', attr: 'data-theme',
+          attrVal: 'light', class: 'high-contrast' },
+      };
+
+      // Map our editor theme keys to the page's theme system
+      const EDITOR_TO_PAGE_THEME = {
+        dark: 'dark',
+        light: 'light',
+        'hc-dark': 'hc-dark',
+        'hc-light': 'hc-light',
+      };
+
+      // ── STATE ─────────────────────────────────────────────────────
+      let currentEditorTheme = 'light'; // which theme tab is active in the editor
+      // changes[themeKey][varName] = newValue (or undefined if not changed)
+      let changes = { dark: {}, light: {}, 'hc-dark': {}, 'hc-light': {} };
+      // originals[themeKey][varName] = original computed value
+      let originals = { dark: {}, light: {}, 'hc-dark': {}, 'hc-light': {} };
+      let panelVisible = true;
+
+      // ── DOM REFS ──────────────────────────────────────────────────
+      const panel = document.getElementById('designer-panel');
+      const toggleBtn = document.getElementById('dp-toggle-btn');
+      const varList = document.getElementById('dp-var-list');
+      const modBadge = document.getElementById('dp-mod-badge');
+      const themeTabs = document.getElementById('dp-theme-tabs');
+
+      // ── UTILITY: read a CSS variable from a specific theme state ──
+      function readVarFromTheme(varName, themeKey) {
+        const root = document.documentElement;
+        const tm = THEME_MAP[themeKey];
+
+        // Save current state
+        const prevAttr = root.getAttribute('data-theme');
+        const prevClass = root.className;
+
+        // Apply the theme
+        if (tm.attr) root.setAttribute(tm.attr, tm.attrVal || '');
+        else root.removeAttribute('data-theme');
+
+        if (tm.class) root.classList.add(tm.class);
+        else root.classList.remove('high-contrast');
+
+        // Read
+        const val = getComputedStyle(root).getPropertyValue(varName).trim();
+
+        // Restore
+        if (prevAttr) root.setAttribute('data-theme', prevAttr);
+        else root.removeAttribute('data-theme');
+        root.className = prevClass;
+
+        return val;
+      }
+
+      // ── CAPTURE ALL ORIGINALS ─────────────────────────────────────
+      function captureOriginals() {
+        for (const themeKey of Object.keys(THEME_MAP)) {
+          for (const [varName] of VAR_DEFS) {
+            originals[themeKey][varName] = readVarFromTheme(varName, themeKey);
+          }
+        }
+      }
+
+      // ── SET A CSS VARIABLE ON THE CURRENT THEME ───────────────────
+      function setCSSVar(varName, value) {
+        // We always write to :root (or the currently active theme selector)
+        // For simplicity, we use a style element that overrides
+        const root = document.documentElement;
+        // Apply to the appropriate selector based on current page theme
+        const pageTheme = getCurrentPageTheme();
+        const tm = THEME_MAP[pageTheme] || THEME_MAP['dark'];
+
+        // Use a dedicated style element for overrides
+        let overrideStyle = document.getElementById('dp-override-style');
+        if (!overrideStyle) {
+          overrideStyle = document.createElement('style');
+          overrideStyle.id = 'dp-override-style';
+          document.head.appendChild(overrideStyle);
+        }
+
+        // Build CSS rule
+        let selector = tm.selector;
+        let rule = `${selector} { ${varName}: ${value}; }\n`;
+
+        // Store in our override map
+        if (!overrideStyle._rules) overrideStyle._rules = {};
+        overrideStyle._rules[varName + '|' + pageTheme] = rule;
+
+        // Rebuild the entire override stylesheet
+        overrideStyle.textContent = Object.values(overrideStyle._rules).join('\n');
+
+        // Track change
+        if (!changes[pageTheme]) changes[pageTheme] = {};
+        if (value === originals[pageTheme][varName]) {
+          delete changes[pageTheme][varName];
+        } else {
+          changes[pageTheme][varName] = value;
+        }
+      }
+
+      function getCurrentPageTheme() {
+        const root = document.documentElement;
+        const hasLight = root.getAttribute('data-theme') === 'light';
+        const hasHC = root.classList.contains('high-contrast');
+        if (hasLight && hasHC) return 'hc-light';
+        if (hasLight) return 'light';
+        if (hasHC) return 'hc-dark';
+        return 'dark';
+      }
+
+      // ── SYNC PAGE THEME TO EDITOR TAB ─────────────────────────────
+      function syncEditorTabToPageTheme() {
+        const pt = getCurrentPageTheme();
+        currentEditorTheme = pt;
+        updateThemeTabUI();
+        renderVarList();
+      }
+
+      function updateThemeTabUI() {
+        const buttons = themeTabs.querySelectorAll('button');
+        buttons.forEach(b => {
+          b.classList.toggle('active', b.getAttribute('data-editor-theme') === currentEditorTheme);
+        });
+      }
+
+      // ── RENDER THE VARIABLE LIST ──────────────────────────────────
+      function renderVarList() {
+        varList.innerHTML = '';
+        const themeKey = currentEditorTheme;
+
+        for (const [varName, desc] of VAR_DEFS) {
+          const originalVal = originals[themeKey] && originals[themeKey][varName] ?
+            originals[themeKey][varName] : '';
+          const changedVal = changes[themeKey] && changes[themeKey][varName] !== undefined ?
+            changes[themeKey][varName] : null;
+          const currentVal = changedVal !== null ? changedVal : originalVal;
+          const isModified = changedVal !== null && changedVal !== originalVal;
+
+          const row = document.createElement('div');
+          row.className = 'dp-var-row' + (isModified ? ' modified' : '');
+          row.dataset.varname = varName;
+          row.dataset.theme = themeKey;
+
+          // Color swatch
+          const isColor = looksLikeColor(currentVal);
+          const swatch = document.createElement('div');
+          swatch.className = 'dp-swatch' + (isColor ? '' : ' no-color');
+          if (isColor) {
+            swatch.style.background = currentVal;
+          }
+          swatch.title = isColor ? 'Click to open color picker' : 'Not a color value';
+          if (isColor) {
+            swatch.addEventListener('click', () => {
+              const picker = row.querySelector('.dp-color-picker');
+              if (picker) {
+                // Convert rgba to hex for the native picker
+                const hex = rgbaToHex(currentVal);
+                picker.value = hex || '#000000';
+                picker.click();
+              }
+            });
+          }
+          row.appendChild(swatch);
+
+          // Hidden color picker
+          const colorPicker = document.createElement('input');
+          colorPicker.type = 'color';
+          colorPicker.className = 'dp-color-picker';
+          colorPicker.addEventListener('input', () => {
+            const hexVal = colorPicker.value;
+            input.value = hexVal;
+            applyChange(varName, hexVal, themeKey, row);
+          });
+          row.appendChild(colorPicker);
+
+          // Info
+          const info = document.createElement('div');
+          info.className = 'dp-info';
+          info.innerHTML =
+            `<div class="dp-name">${varName}</div><div class="dp-desc">${desc}</div>`;
+          row.appendChild(info);
+
+          // Value input
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.className = 'dp-value-input';
+          input.value = currentVal;
+          input.addEventListener('input', () => {
+            applyChange(varName, input.value, themeKey, row);
+            // Update swatch
+            if (looksLikeColor(input.value)) {
+              swatch.style.background = input.value;
+              swatch.classList.remove('no-color');
+            }
+          });
+          input.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+              input.value = originalVal;
+              applyChange(varName, originalVal, themeKey, row);
+              input.blur();
+            }
+          });
+          input.addEventListener('focus', () => {
+            input.select();
+          });
+          row.appendChild(input);
+
+          // Reset button
+          const resetBtn = document.createElement('button');
+          resetBtn.className = 'dp-reset-btn';
+          resetBtn.innerHTML = '↺';
+          resetBtn.title = 'Reset to original: ' + originalVal;
+          resetBtn.addEventListener('click', () => {
+            input.value = originalVal;
+            applyChange(varName, originalVal, themeKey, row);
+            if (looksLikeColor(originalVal)) {
+              swatch.style.background = originalVal;
+              swatch.classList.remove('no-color');
+            } else {
+              swatch.style.background = '';
+              swatch.classList.add('no-color');
+            }
+          });
+          row.appendChild(resetBtn);
+
+          varList.appendChild(row);
+        }
+
+        updateModBadge();
+      }
+
+      function applyChange(varName, value, themeKey, row) {
+        // Set on the page (only if this is the currently visible theme)
+        const pageTheme = getCurrentPageTheme();
+        if (themeKey === pageTheme) {
+          setCSSVar(varName, value);
+        }
+        // Always track in changes
+        if (!changes[themeKey]) changes[themeKey] = {};
+        if (value === originals[themeKey][varName]) {
+          delete changes[themeKey][varName];
+        } else {
+          changes[themeKey][varName] = value;
+        }
+        // Update row
+        if (row) {
+          const isModified = value !== originals[themeKey][varName];
+          row.classList.toggle('modified', isModified);
+        }
+        updateModBadge();
+        saveToStorage();
+        updateSwatchesIfVisible();
+      }
+
+      function updateModBadge() {
+        let totalMods = 0;
+        for (const tk of Object.keys(changes)) {
+          totalMods += Object.keys(changes[tk]).length;
+        }
+        modBadge.textContent = totalMods > 0 ? `${totalMods} modified` : 'live';
+        modBadge.classList.toggle('modified', totalMods > 0);
+        toggleBtn.classList.toggle('modified-dot', totalMods > 0);
+      }
+
+      // ── UPDATE THE SWATCH GRID ────────────────────────────────────
+      function updateSwatchesIfVisible() {
+        const swatchesEl = document.getElementById('swatches');
+        if (!swatchesEl || swatchesEl.offsetParent === null) return; // not visible
+        const cs = getComputedStyle(document.documentElement);
+        swatchesEl.innerHTML = VAR_DEFS.map(function (v) {
+          const val = cs.getPropertyValue(v[0]).trim();
+          return '<div class="sw"><div class="chip" style="background:' + val +
+            '"></div><code>' + v[0] + '</code><span class="val">' + val +
+            '</span><span class="use">' + v[1] + '</span></div>';
+        }).join('');
+      }
+
+      // ── COLOR DETECTION ───────────────────────────────────────────
+      function looksLikeColor(val) {
+        if (!val || typeof val !== 'string') return false;
+        const v = val.trim();
+        if (v.startsWith('#') && (v.length === 4 || v.length === 5 || v.length === 7 || v
+            .length === 9)) return true;
+        if (/^rgb\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*\)$/.test(v)) return true;
+        if (/^rgba\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*[\d.]+\)$/.test(v)) return true;
+        if (/^hsl\(/.test(v) || /^hsla\(/.test(v)) return true;
+        const namedColors = ['transparent', 'currentColor', 'inherit', 'white', 'black', 'red',
+          'green', 'blue', 'gold', 'silver', 'gray', 'grey', 'orange', 'yellow', 'purple',
+          'pink', 'brown', 'navy', 'teal', 'cyan', 'magenta', 'lime', 'maroon', 'olive',
+          'coral', 'crimson', 'indigo', 'ivory', 'khaki', 'lavender', 'plum', 'salmon',
+          'tan', 'tomato', 'turquoise', 'violet', 'wheat'
+        ];
+        if (namedColors.includes(v.toLowerCase())) return true;
+        return false;
+      }
+
+      function rgbaToHex(val) {
+        const v = val.trim();
+        // hex already
+        if (v.startsWith('#') && v.length === 7) return v;
+        if (v.startsWith('#') && v.length === 4) {
+          return '#' + v[1] + v[1] + v[2] + v[2] + v[3] + v[3];
+        }
+        // rgb/rgba
+        const match = v.match(
+          /rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*(?:,\s*[\d.]+)?\s*\)/);
+        if (match) {
+          const r = parseInt(match[1]).toString(16).padStart(2, '0');
+          const g = parseInt(match[2]).toString(16).padStart(2, '0');
+          const b = parseInt(match[3]).toString(16).padStart(2, '0');
+          return '#' + r + g + b;
+        }
+        return null;
+      }
+
+      // ── EXPORT CSS ────────────────────────────────────────────────
+      function generateFullCSS() {
+        let css = '/* ═══════════════════════════════════════════════════\n';
+        css += '   Generated by CSS Variable Editor\n';
+        css += '   ' + new Date().toISOString() + '\n';
+        css += '   ═══════════════════════════════════════════════════ */\n\n';
+
+        const themeOrder = ['dark', 'light', 'hc-dark', 'hc-light'];
+        const themeComments = {
+          dark: '/* Dark theme (default) */',
+          light: '/* Light theme */',
+          'hc-dark': '/* High-contrast dark */',
+          'hc-light': '/* High-contrast light */',
+        };
+
+        for (const tk of themeOrder) {
+          const tm = THEME_MAP[tk];
+          css += themeComments[tk] + '\n';
+          css += tm.selector + ' {\n';
+          for (const [varName] of VAR_DEFS) {
+            let val;
+            if (changes[tk] && changes[tk][varName] !== undefined) {
+              val = changes[tk][varName];
+            } else {
+              val = originals[tk][varName] || '';
+            }
+            css += '  ' + varName + ': ' + val + ';\n';
+          }
+          css += '}\n\n';
+        }
+        return css;
+      }
+
+      function exportCSSFile() {
+        const css = generateFullCSS();
+        const blob = new Blob([css], { type: 'text/css' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'style-exported.css';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('✅ CSS file downloaded — style-exported.css');
+      }
+
+      function copyCurrentTheme() {
+        const tk = currentEditorTheme;
+        const tm = THEME_MAP[tk];
+        let css = tm.selector + ' {\n';
+        for (const [varName] of VAR_DEFS) {
+          let val;
+          if (changes[tk] && changes[tk][varName] !== undefined) {
+            val = changes[tk][varName];
+          } else {
+            val = originals[tk][varName] || '';
+          }
+          css += '  ' + varName + ': ' + val + ';\n';
+        }
+        css += '}';
+        navigator.clipboard.writeText(css).then(() => {
+          showToast('📋 Copied ' + tm.selector + ' block to clipboard');
+        }).catch(() => {
+          showToast('⚠️ Failed to copy — check clipboard permissions');
+        });
+      }
+
+      function copyAllThemes() {
+        const css = generateFullCSS();
+        navigator.clipboard.writeText(css).then(() => {
+          showToast('📋 All theme blocks copied to clipboard');
+        }).catch(() => {
+          showToast('⚠️ Failed to copy — check clipboard permissions');
+        });
+      }
+
+      function resetAllThemes() {
+        if (!confirm(
+            'Reset ALL themes to their original values? This cannot be undone unless you have saved a copy.'
+            )) return;
+        changes = { dark: {}, light: {}, 'hc-dark': {}, 'hc-light': {} };
+        // Remove override styles
+        const overrideStyle = document.getElementById('dp-override-style');
+        if (overrideStyle) overrideStyle.textContent = '';
+        // Re-apply current page theme
+        applyPageTheme(getCurrentPageTheme());
+        saveToStorage();
+        renderVarList();
+        updateSwatchesIfVisible();
+        showToast('⟲ All themes reset to defaults');
+      }
+
+      function undoCurrentTheme() {
+        const tk = currentEditorTheme;
+        changes[tk] = {};
+        // Remove overrides for this theme
+        rebuildOverrides();
+        saveToStorage();
+        renderVarList();
+        updateSwatchesIfVisible();
+        showToast('↩ ' + tk + ' theme changes undone');
+      }
+
+      function rebuildOverrides() {
+        const overrideStyle = document.getElementById('dp-override-style');
+        if (!overrideStyle) return;
+        overrideStyle._rules = {};
+        const pageTheme = getCurrentPageTheme();
+        const tk = pageTheme;
+        if (changes[tk]) {
+          for (const [varName, val] of Object.entries(changes[tk])) {
+            if (val !== undefined && val !== originals[tk][varName]) {
+              const tm = THEME_MAP[tk];
+              overrideStyle._rules[varName + '|' + tk] =
+                `${tm.selector} { ${varName}: ${val}; }\n`;
+            }
+          }
+        }
+        overrideStyle.textContent = Object.values(overrideStyle._rules).join('\n');
+      }
+
+      // ── APPLY PAGE THEME ──────────────────────────────────────────
+      function applyPageTheme(t) {
+        const root = document.documentElement;
+        root.removeAttribute('data-theme');
+        root.classList.remove('high-contrast');
+        if (t === 'light') root.setAttribute('data-theme', 'light');
+        else if (t === 'hc-dark') root.classList.add('high-contrast');
+        else if (t === 'hc-light') {
+          root.setAttribute('data-theme', 'light');
+          root.classList.add('high-contrast');
+        }
+        // Apply overrides
+        rebuildOverrides();
+        // Sync editor
+        syncEditorTabToPageTheme();
+        updateSwatchesIfVisible();
+      }
+
+      // ── STORAGE ───────────────────────────────────────────────────
+      function saveToStorage() {
+        try {
+          const data = { changes, originals };
+          localStorage.setItem('css-var-editor-state', JSON.stringify(data));
+        } catch (e) {
+          // localStorage may be full or unavailable
+        }
+      }
+
+      function loadFromStorage() {
+        try {
+          const raw = localStorage.getItem('css-var-editor-state');
+          if (raw) {
+            const data = JSON.parse(raw);
+            if (data.changes) changes = data.changes;
+            if (data.originals) {
+              // Merge with captured originals (in case vars were added)
+              for (const tk of Object.keys(data.originals)) {
+                if (!originals[tk]) originals[tk] = {};
+                Object.assign(originals[tk], data.originals[tk]);
+              }
+            }
+            return true;
+          }
+        } catch (e) {
+          // ignore
+        }
+        return false;
+      }
+
+      // ── TOAST ─────────────────────────────────────────────────────
+      function showToast(msg) {
+        const existing = document.querySelector('.dp-toast');
+        if (existing) existing.remove();
+        const toast = document.createElement('div');
+        toast.className = 'dp-toast';
+        toast.textContent = msg;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2200);
+      }
+
+      // ── PANEL TOGGLE ──────────────────────────────────────────────
+      function togglePanel() {
+        panelVisible = !panelVisible;
+        panel.classList.toggle('collapsed', !panelVisible);
+        toggleBtn.classList.toggle('hidden', panelVisible);
+        if (panelVisible) {
+          syncEditorTabToPageTheme();
+          renderVarList();
+        }
+        try { localStorage.setItem('css-var-editor-panel-visible', panelVisible ? '1' : '0'); } catch (
+          e) {}
+      }
+
+      // ── INIT ──────────────────────────────────────────────────────
+      function init() {
+        // Capture all original values
+        captureOriginals();
+
+        // Load saved state
+        const hadSaved = loadFromStorage();
+
+        // Apply saved changes to the current page theme
+        rebuildOverrides();
+
+        // Panel visibility
+        try {
+          const pv = localStorage.getItem('css-var-editor-panel-visible');
+          if (pv === '0') {
+            panelVisible = false;
+            panel.classList.add('collapsed');
+            toggleBtn.classList.remove('hidden');
+          }
+        } catch (e) {}
+
+        // Render
+        syncEditorTabToPageTheme();
+        renderVarList();
+        updateSwatchesIfVisible();
+
+        // Event: toggle button
+        toggleBtn.addEventListener('click', togglePanel);
+
+        // Event: close button
+        document.getElementById('dp-close-btn').addEventListener('click', togglePanel);
+
+        // Event: keyboard shortcut
+        document.addEventListener('keydown', function (e) {
+          if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'E') {
+            e.preventDefault();
+            togglePanel();
+          }
+        });
+
+        // Event: theme tabs in editor
+        themeTabs.addEventListener('click', function (e) {
+          const btn = e.target.closest('button');
+          if (!btn) return;
+          const editorTheme = btn.getAttribute('data-editor-theme');
+          if (editorTheme && editorTheme !== currentEditorTheme) {
+            currentEditorTheme = editorTheme;
+            updateThemeTabUI();
+            renderVarList();
+            // Also switch the page theme so the user sees the changes live
+            applyPageTheme(editorTheme);
+            // Update page theme buttons
+            syncPageThemeButtons();
+          }
+        });
+
+        // Event: export button
+        document.getElementById('dp-export-css').addEventListener('click', exportCSSFile);
+        document.getElementById('dp-copy-root').addEventListener('click', copyCurrentTheme);
+        document.getElementById('dp-copy-all').addEventListener('click', copyAllThemes);
+        document.getElementById('dp-reset-all').addEventListener('click', resetAllThemes);
+        document.getElementById('dp-undo-all').addEventListener('click', undoCurrentTheme);
+
+        // Expose for page theme buttons
+        window._dpApplyPageTheme = applyPageTheme;
+        window._dpSyncEditorTab = syncEditorTabToPageTheme;
+        window._dpRenderVarList = renderVarList;
+        window._dpUpdateSwatches = updateSwatchesIfVisible;
+
+        if (hadSaved && Object.values(changes).some(c => Object.keys(c).length > 0)) {
+          setTimeout(() => showToast('💾 Loaded saved edits from localStorage'), 600);
+        }
+
+        console.log(
+          '🎨 CSS Variable Editor ready. Press Ctrl+Shift+E to toggle the panel. Changes auto-save to localStorage.'
+        );
+        console.log('   Export → downloads a complete style.css file with all theme blocks.');
+        console.log('   The editor can be extracted and reused in any HTML/CSS project.');
+      }
+
+      function syncPageThemeButtons() {
+        const pt = getCurrentPageTheme();
+        const buttons = document.querySelectorAll('#themeBar button');
+        buttons.forEach(b => {
+          const t = b.getAttribute('data-t');
+          b.classList.toggle('on', t === pt);
+        });
+      }
+
+      // ── START ─────────────────────────────────────────────────────
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
+
+    /* ══════════════════════════════════════════════════════════════════
+       ORIGINAL PAGE SCRIPTS (swatches + theme switching)
+       ══════════════════════════════════════════════════════════════════ */
+    var VARS = [
+      ['--bg', 'Page background'],
+      ['--bg2', 'Bottom nav, flyout panels, topbar'],
+      ['--bg3', 'Hover/inset surfaces, chips, stat cards, choice buttons'],
+      ['--card', 'Card faces (QA card, quiz card, search card)'],
+      ['--card2', 'Raised surfaces (toast, next button, tiles)'],
+      ['--gold', 'Primary accent — underlines, active states, borders, progress, leaf'],
+      ['--gold2', 'Gold text — headings, values, score'],
+      ['--gold3', 'Gold gradient end / highlight'],
+      ['--gold-dim', 'Accent tint (chips, tokens, badges)'],
+      ['--gold-mid', 'Accent border (tokens, rail, bottom-nav rule)'],
+      ['--green', 'Correct'],
+      ['--red', 'Wrong'],
+      ['--text', 'Primary text'],
+      ['--text2', 'Secondary text'],
+      ['--text3', 'Tertiary text'],
+      ['--border', 'Hairline borders (card/btn outlines)'],
+      ['--gold-border', 'Card/gold-tinted borders'],
+    ];
+
+    function renderSwatches() {
+      var cs = getComputedStyle(document.documentElement);
+      var el = document.getElementById('swatches');
+      if (!el) return;
+      el.innerHTML = VARS.map(function (v) {
+        var val = cs.getPropertyValue(v[0]).trim();
+        return '<div class="sw"><div class="chip" style="background:' + val + '"></div><code>' + v[
+          0] + '</code><span class="val">' + val + '</span><span class="use">' + v[1] +
+          '</span></div>';
+      }).join('');
+    }
+
+    function setTheme(t) {
+      // Use the designer panel's apply function if available
+      if (window._dpApplyPageTheme) {
+        window._dpApplyPageTheme(t);
+        if (window._dpSyncEditorTab) window._dpSyncEditorTab();
+        if (window._dpRenderVarList) window._dpRenderVarList();
+        if (window._dpUpdateSwatches) window._dpUpdateSwatches();
+      } else {
+        var root = document.documentElement;
+        root.removeAttribute('data-theme');
+        root.classList.remove('high-contrast');
+        if (t === 'light') root.setAttribute('data-theme', 'light');
+        else if (t === 'hc-dark') root.classList.add('high-contrast');
+        else if (t === 'hc-light') {
+          root.setAttribute('data-theme', 'light');
+          root.classList.add('high-contrast');
+        }
+      }
+      Array.prototype.forEach.call(document.querySelectorAll('#themeBar button'), function (b) {
+        b.classList.toggle('on', b.getAttribute('data-t') === t);
       });
-      var alpha = row.querySelector('.alpha');
-      if (alpha) alpha.addEventListener('input', function(){ onAlpha(this, name); });
-      row.querySelector('.rst').addEventListener('click', function(){ resetVar(name); });
-    });
-  }
-
-  function selectorFor(t){
-    if (t==='dark') return ':root';
-    if (t==='light') return '[data-theme="light"]';
-    if (t==='hc-dark') return '.high-contrast';
-    return '[data-theme="light"].high-contrast';
-  }
-  function buildCss(){
-    return selectorFor(activeTheme)+' {\n'+
-      VARLIST.map(function(v){ return '  '+v[0]+': '+cur(v[0])+';'; }).join('\n')+
-      '\n}';
-  }
-  function renderCss(){ document.getElementById('cssOut').textContent = buildCss(); }
-  function copyCSS(){
-    var t = buildCss();
-    function done(){ var b=document.querySelector('#themeBar .copy-btn'); var o=b.textContent; b.textContent='✓ Copied'; setTimeout(function(){b.textContent=o;},1200); }
-    function fallback(){ var ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');}catch(e){} document.body.removeChild(ta); }
-    if (navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(t).then(done, function(){ fallback(); done(); }); }
-    else fallback();
-  }
-
-  function setTheme(t){
-    activeTheme = t;
-    var root = document.documentElement;
-    root.removeAttribute('data-theme');
-    root.classList.remove('high-contrast');
-    if (t === 'light') root.setAttribute('data-theme','light');
-    else if (t === 'hc-dark') root.classList.add('high-contrast');
-    else if (t === 'hc-light'){ root.setAttribute('data-theme','light'); root.classList.add('high-contrast'); }
-    edits = {};
-    VARLIST.forEach(function(v){ root.style.removeProperty(v[0]); });
-    Array.prototype.forEach.call(document.querySelectorAll('#themeBar button[data-t]'), function(b){
-      b.classList.toggle('on', b.getAttribute('data-t') === t);
-    });
-    renderControls();
-    renderCss();
-  }
-  function resetEdits(){ setTheme(activeTheme); }
-
-  // hidden color picker + boot
-  pickEl = document.createElement('input');
-  pickEl.type = 'color';
-  pickEl.style.cssText = 'position:fixed;left:-9999px;top:0;width:1px;height:1px;opacity:0;';
-  pickEl.addEventListener('change', function(){ if (pendingPick){ onPick(this, pendingPick); pendingPick = null; } });
-  document.body.appendChild(pickEl);
-  setTheme('light');
-</script>
+      renderSwatches();
+    }
+    renderSwatches();
+  </script>
 </body>
 </html>
