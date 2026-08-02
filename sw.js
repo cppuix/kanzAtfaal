@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v43'; // quiz result: back-to-setup button
+const CACHE_NAME = 'muntaqaa-v44'; // dark text2/text3: lighter + cooler sage (better contrast on bg3)
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [
