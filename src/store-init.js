@@ -380,6 +380,10 @@ Alpine.store('app', (function() {
     get buildCheckLabel() {
       return this.CFG?.ui?.checkAnswer || (this.lang === 'en' ? 'Check' : 'تحقق');
     },
+    // Share-card teaser hint when a very long answer overflows the height cap
+    get shareTeaserHint() {
+      return this.lang === 'en' ? '✦ full answer inside — open the link' : '✦ الإجابة كاملة في التطبيق — افتح الرابط';
+    },
     get statsSummary() {
       var correct = 0, wrong = 0, answered = 0;
       Object.values(this.quizHistory || {}).forEach(function(h) {

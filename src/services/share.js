@@ -35,13 +35,34 @@ export async function shareAsImage(qa) {
   await document.fonts.ready;
 
   const canvas = document.createElement('canvas');
-  const W = 1080, H = 1080;
-  canvas.width = W; canvas.height = H;
+  const W = 1080;
+  canvas.width = W;
   const ctx = canvas.getContext('2d');
   const st = Alpine.store('app');
   const BODY = st?.mainFontStack || 'Tajawal, sans-serif';
   const DISPLAY = st?.displayFontStack || 'Cinzel, serif';
   const MONO = 'Fira Code, monospace';
+
+  const MAX_W = W - 300;                 // centered text measure
+  const qLineH = 66, aLineH = 56;        // question / answer line heights
+  const CAP = 2160;                      // max card height (~2× square); beyond it → teaser
+
+  // ---- Pass 1: measure wrapped lines so the card can grow to fit its content ----
+  const qLines = wrapLines(ctx, qa.q, MAX_W, `48px ${BODY}`);
+  const aLines = wrapLines(ctx, qa.a, MAX_W, `44px ${BODY}`);
+
+  const divY = 264;                                      // divider below pill + section label
+  const qStart = divY + 68;                              // first question baseline
+  const qBottom = qStart + (qLines.length - 1) * qLineH; // last question baseline
+  const aLabelY0 = qBottom + 82;                        // answer-label baseline (pass-1 estimate)
+  const aStart = aLabelY0 + 66;                         // first answer baseline
+  const aBottom = aStart + (aLines.length - 1) * aLineH; // last answer baseline
+
+  let H = Math.max(1080, aBottom + 44 + 196);            // grow so the footer always clears the answer
+  const capped = H > CAP;
+  if (capped) H = CAP;
+  canvas.height = H;
+  const fy = H - 196;                                    // footer pinned to the card's bottom edge
 
   // Background
   ctx.fillStyle = '#0c1a12';
@@ -88,16 +109,17 @@ export async function shareAsImage(qa) {
   ctx.fillText(qa.section, W / 2, pillY + pillH + 48);
 
   // Divider
-  const divY = pillY + pillH + 88;
   fadeLine(ctx, pad + 50, divY, W - pad - 50, 'rgba(201,152,42,0.5)');
 
-  // Question — centered, generous; returns end Y so the answer follows tightly
+  // Question — centered, generous; always rendered in full
   ctx.fillStyle = '#ecdec4';
-  const qStart = divY + 68;
-  const qEnd = wrapText(ctx, qa.q, W / 2, qStart, W - 300, 66, 'center', `48px ${BODY}`, H - 360);
+  ctx.font = `48px ${BODY}`;
+  // In capped mode keep the answer label + ≥1 answer line + teaser clear of the question
+  const qMaxY = capped ? (fy - 34 - aLineH * 2 - 148) : 0;
+  const qEnd = drawLines(ctx, qLines, W / 2, qStart, qLineH, 'center', MAX_W, qMaxY, true);
 
   // Answer — label with side rules, then text (no big panel, no dead space)
-  const aLabelY = qEnd + 82;
+  const aLabelY = (qEnd == null ? qStart : qEnd) + 82;
   const aLabel = CFG.ui.answerLabel;
   ctx.font = `bold 30px ${BODY}`;
   const aLabelW = ctx.measureText(aLabel).width;
@@ -112,10 +134,30 @@ export async function shareAsImage(qa) {
   ctx.fillText(aLabel, W / 2, aLabelY);
 
   ctx.fillStyle = '#f5d98a';
-  wrapText(ctx, qa.a, W / 2, aLabelY + 66, W - 300, 56, 'center', `44px ${BODY}`, H - 250);
+  ctx.font = `44px ${BODY}`;
+  const aStart2 = aLabelY + 66;
+  if (!capped) {
+    drawLines(ctx, aLines, W / 2, aStart2, aLineH, 'center', MAX_W, 0, false);
+  } else {
+    // Very long answer: show what fits, fade the tail into the card, point to the app
+    const teaserY = fy - 34;
+    const lastBaseline = drawLines(ctx, aLines, W / 2, aStart2, aLineH, 'center', MAX_W, teaserY - aLineH - 10, true);
+    if (lastBaseline != null) {
+      const fadeTop = lastBaseline - aLineH * 2;
+      const fadeBottom = lastBaseline + aLineH;
+      const fg = ctx.createLinearGradient(0, fadeTop, 0, fadeBottom);
+      fg.addColorStop(0, 'rgba(23,42,30,0)');
+      fg.addColorStop(1, 'rgba(23,42,30,1)');
+      ctx.fillStyle = fg;
+      ctx.fillRect(pad, fadeTop, W - pad * 2, fadeBottom - fadeTop);
+    }
+    ctx.fillStyle = 'rgba(198,208,193,0.9)';
+    ctx.font = `26px ${BODY}`;
+    ctx.textAlign = 'center';
+    ctx.fillText(st?.shareTeaserHint || '✦ full answer inside — open the link', W / 2, teaserY);
+  }
 
   // Footer — pinned inside the card with clear spacing; URL in Fira Code
-  const fy = H - 196;
   fadeLine(ctx, pad + 50, fy, W - pad - 50, 'rgba(201,152,42,0.4)');
   const brand = CFG.about?.title || CFG.ui?.appTitle || '';
   const appUrl = buildDeepLink().replace(/^https?:\/\//, '').replace(/\/$/, '');
@@ -165,23 +207,45 @@ function fadeLine(ctx, x1, y, x2, color) {
   ctx.beginPath(); ctx.moveTo(x1, y); ctx.lineTo(x2, y); ctx.stroke();
 }
 
-function wrapText(ctx, text, x, y, maxW, lineH, align, font, maxY) {
+// Split text into wrapped lines (measurement only — no drawing). Must stay in
+// sync with drawLines so pass-1 sizing and pass-2 drawing produce identical layout.
+function wrapLines(ctx, text, maxW, font) {
   ctx.font = font;
-  ctx.textAlign = align;
   const words = text.split(' ');
+  const lines = [];
   let line = '';
-  let cy = y;
   for (let i = 0; i < words.length; i++) {
     const test = line ? line + ' ' + words[i] : words[i];
     if (ctx.measureText(test).width > maxW && line) {
-      ctx.fillText(line, x, cy);
+      lines.push(line);
       line = words[i];
-      cy += lineH;
-      if (maxY && cy > maxY) { ctx.fillText('…', x, cy); return cy; }
     } else {
       line = test;
     }
   }
-  if (line) ctx.fillText(line, x, cy);
-  return cy;
+  if (line) lines.push(line);
+  return lines;
+}
+
+// Draw pre-wrapped lines centered on x; stops at maxY (baseline limit) and, when
+// ellipsize is set, trims the last visible line with '…'. Returns the last
+// baseline drawn (or null if nothing fit).
+function drawLines(ctx, lines, x, y, lineH, align, maxW, maxY, ellipsize) {
+  ctx.textAlign = align;
+  let cy = y;
+  let drawn = 0;
+  for (let i = 0; i < lines.length; i++) {
+    if (maxY && cy > maxY) break;
+    ctx.fillText(lines[i], x, cy);
+    cy += lineH;
+    drawn++;
+  }
+  if (drawn === 0) return null;
+  if (ellipsize && drawn < lines.length) {
+    const ell = '…';
+    let last = lines[drawn - 1];
+    while (last.length > 0 && ctx.measureText(last + ell).width > maxW) last = last.slice(0, -1);
+    ctx.fillText(last + ell, x, y + (drawn - 1) * lineH);
+  }
+  return y + (drawn - 1) * lineH;
 }

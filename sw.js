@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v46'; // share card overhaul: centered pill, app fonts, Fira Code URL, no answer panel
+const CACHE_NAME = 'muntaqaa-v47'; // share card: variable height (grows to fit), footer pinned, 2x cap + teaser fade for long answers
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [
