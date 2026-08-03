@@ -137,6 +137,9 @@ Alpine.store('app', (function() {
     // ── Favorites & open cards ──
     favorites: [],
     openCards: [],
+    // Search → main-view jump (pending confirm + card to reveal/flash)
+    pendingJumpId: null,
+    revealCardId: null,
 
     // ── Quiz state ──
     quizMode: 'mcq',
@@ -258,7 +261,7 @@ Alpine.store('app', (function() {
       if (p > max) p = max;
       if (p === this.currentPage) return;
       this.currentPage = p;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Scroll-to-top is handled by the <main> x-effect watching currentPage
     },
     nextPage: function() { this.goToPage(this.currentPage + 1); },
     prevPage: function() { this.goToPage(this.currentPage - 1); },
@@ -344,6 +347,10 @@ Alpine.store('app', (function() {
         ? 'Type to search — or a card number (e.g. 784) to jump straight to it'
         : 'اكتب كلمة للبحث — أو رقم سؤال (مثل ٧٨٤) للانتقال إليه مباشرة';
     },
+    // Search-result → main-view jump confirmation
+    get jumpConfirmLabel() { return this.lang === 'en' ? 'Open this card in the main view?' : 'فتح هذه البطاقة في العرض الرئيسي؟'; },
+    get jumpConfirmGoLabel() { return this.lang === 'en' ? 'Open' : 'فتح'; },
+    get jumpConfirmCancelLabel() { return this.lang === 'en' ? 'Cancel' : 'إلغاء'; },
     get searchInputLabel() { return this.lang === 'en' ? 'Search questions and answers' : 'ابحث في الأسئلة والأجوبة'; },
     fontSizeLabel: function(size) {
       var m = { sm: ['Small', 'صغير'], md: ['Medium', 'متوسط'], lg: ['Large', 'كبير'], xl: ['Extra large', 'كبير جدًا'] };
@@ -559,6 +566,34 @@ Alpine.store('app', (function() {
       var idx = this.openCards.indexOf(id);
       if (idx !== -1) this.openCards.splice(idx, 1);
       else this.openCards.push(id);
+    },
+    // Search → main view: ask, then jump to the card's page
+    askJumpToCard: function(id) { this.pendingJumpId = id; },
+    cancelJumpToCard: function() { this.pendingJumpId = null; },
+    confirmJumpToCard: function() {
+      var id = this.pendingJumpId;
+      this.pendingJumpId = null;
+      if (id != null) this.jumpToCardInBrowse(id);
+    },
+    // Open a card in the main Browse view, on the page that contains it, then
+    // scroll to + flash it (the reveal scroll is a template-level side effect).
+    jumpToCardInBrowse: function(id) {
+      this.section = 'all';
+      this.search = '';
+      this.searchScope = 'both';
+      this.searchSection = 'all';
+      this.openCards = [];
+      this.switchView('browse'); // closes drawer; may reset search + pagination
+      var idx = this.filteredCards.findIndex(function(x) { return x.qa.id === id; });
+      if (idx === -1) return;
+      var page = Math.floor(idx / this.pageSize) + 1;
+      var self = this;
+      // Defer the page set to a rAF so the search-input $watch (which calls
+      // resetPagination on the reactive tick) can't clobber it back to page 1.
+      requestAnimationFrame(function() {
+        self.currentPage = page;
+        self.revealCardId = id;
+      });
     },
     toArabic: function(n) { return this.CFG.meta?.numerals === 'arabic' ? String(n).replace(/[0-9]/g, function(d) { return '٠١٢٣٤٥٦٧٨٩'[d]; }) : String(n); },
     // O(1) card lookup (Map rebuilt only when QA_DATA identity changes)

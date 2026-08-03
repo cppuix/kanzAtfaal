@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v49'; // drawer chapter → Browse; safePage clamp; search jump-to-card by number
+const CACHE_NAME = 'muntaqaa-v50'; // pager clicks scroll to top; search result → confirm → jump to card page + flash
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [

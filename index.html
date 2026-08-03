@@ -98,10 +98,10 @@
   </nav>
 
   <!-- MAIN CONTENT -->
-  <main id="mainContent" x-effect="$store.app.view; $store.app.section; $el.scrollTop = 0">
+  <main id="mainContent" x-effect="$store.app.view; $store.app.section; $store.app.currentPage; $el.scrollTop = 0">
 
     <!-- BROWSE VIEW -->
-    <div id="viewBrowse" class="view" :class="{ active: $store.app.view === 'browse' }">
+    <div id="viewBrowse" class="view" :class="{ active: $store.app.view === 'browse' }" x-effect="if ($store.app.revealCardId) { $nextTick(() => { const el = document.getElementById('qa-' + $store.app.revealCardId); if (el) el.scrollIntoView({ block: 'center' }); const rid = $store.app.revealCardId; setTimeout(() => { if ($store.app.revealCardId === rid) $store.app.revealCardId = null; }, 1600); }); }">
       <div class="view-header">
         <button class="section-badge" id="currentSectionLabel" @click="$store.app.setSection('all')" :class="{ 'tappable': $store.app.section !== 'all' }" :title="$store.app.section !== 'all' ? ($store.app.CFG.ui?.allSections || 'الكل') : ''" x-text="$store.app.section === 'all' ? $store.app.CFG.ui?.allSections : $store.app.section">جميع الأسئلة</button>
         <div class="counter-pill" id="counterPill" x-text="$store.app.toArabic($store.app.filteredCards.length) + ' ' + ($store.app.CFG.ui?.counterSuffix || '')">٣٠٨ سؤال</div>
@@ -109,7 +109,7 @@
       <!-- CARD LIST -->
       <div id="cardList" class="card-list">
         <template x-for="(item, idx) in $store.app.browseCards" :key="item.qa.id">
-          <div class="qa-card-wrap" :class="{ open: $store.app.openCards.includes(item.qa.id) }" x-data="qaCard(item.qa.id)">
+          <div class="qa-card-wrap" :id="'qa-' + item.qa.id" :class="{ open: $store.app.openCards.includes(item.qa.id), 'reveal-flash': $store.app.revealCardId === item.qa.id }" x-data="qaCard(item.qa.id)">
             <div class="qa-card-flipper">
               <!-- FRONT FACE -->
               <div class="qa-face qa-face-front" :inert="isOpen" :aria-hidden="isOpen ? 'true' : 'false'">
@@ -227,7 +227,7 @@
           <div class="counter-pill search-count" x-text="$store.app.toArabic($store.app.filteredCards.length) + ' ' + ($store.app.CFG.ui?.counterSuffix || '')"></div>
           <div class="search-result-list">
             <template x-for="item in $store.app.browseCards" :key="item.qa.id">
-              <div class="search-result-card" :class="{ open: $store.app.openCards.includes(item.qa.id) }" role="button" tabindex="0" :aria-expanded="$store.app.openCards.includes(item.qa.id) ? 'true' : 'false'" @click="$store.app.toggleCard(item.qa.id)" @keydown.enter="$store.app.toggleCard(item.qa.id)" @keydown.space.prevent="$store.app.toggleCard(item.qa.id)">
+              <div class="search-result-card" role="button" tabindex="0" @click="$store.app.askJumpToCard(item.qa.id)" @keydown.enter="$store.app.askJumpToCard(item.qa.id)" @keydown.space.prevent="$store.app.askJumpToCard(item.qa.id)">
                 <div class="search-result-q" x-html="$store.app.buildHighlight(item.qa.q, $store.app.search)"></div>
                 <div class="search-result-a" x-html="$store.app.buildHighlight(item.qa.a, $store.app.search)"></div>
                 <div class="search-result-meta">
@@ -588,6 +588,17 @@
 
   <!-- TOAST (reactive — CSS owns the animation via .show) -->
   <div class="toast" role="status" :class="{ show: $store.app.toastVisible }" x-text="$store.app.toastMessage"></div>
+
+  <!-- JUMP CONFIRM (search result → main view) -->
+  <div class="jump-confirm" x-show="$store.app.pendingJumpId != null" role="dialog" aria-modal="true" :aria-label="$store.app.jumpConfirmLabel">
+    <div class="jump-confirm-card">
+      <p class="jump-confirm-text" x-text="$store.app.jumpConfirmLabel"></p>
+      <div class="jump-confirm-actions">
+        <button class="jump-confirm-go" @click="$store.app.confirmJumpToCard()" x-text="$store.app.jumpConfirmGoLabel"></button>
+        <button class="jump-confirm-cancel" @click="$store.app.cancelJumpToCard()" x-text="$store.app.jumpConfirmCancelLabel"></button>
+      </div>
+    </div>
+  </div>
 
   <!-- SPARKLE LAYER (reactive effect owner — renders particles from store trigger) -->
   <div class="sparkle-layer" x-data="sparkleLayer()" aria-hidden="true"></div>

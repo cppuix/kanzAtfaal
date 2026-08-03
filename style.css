@@ -661,6 +661,45 @@ main { flex: 1; min-height: 0; overflow-y: auto; padding-bottom: calc(80px + env
 .toast { position: fixed; bottom: 76px; left: 50%; transform: translateX(-50%) translateY(10px); background: var(--card2); border: 1px solid var(--gold-mid); border-radius: 20px; padding: 9px 18px; font-size: 0.8667rem; color: var(--text); z-index: 999; opacity: 0; transition: opacity 0.3s, transform 0.3s; white-space: nowrap; box-shadow: 0 4px 16px rgba(0,0,0,0.4); }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+/* JUMP CONFIRM (search result → main view) */
+.jump-confirm {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.55);
+}
+.jump-confirm-card {
+  background: var(--card);
+  border: 1px solid var(--gold-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 22px 20px 18px;
+  max-width: 340px;
+  width: 100%;
+  text-align: center;
+}
+.jump-confirm-text { margin: 0 0 16px; color: var(--text); font-size: 1.05rem; line-height: 1.5; }
+.jump-confirm-actions { display: flex; gap: 10px; justify-content: center; }
+.jump-confirm-actions button {
+  border-radius: var(--radius-sm);
+  padding: 9px 18px;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.jump-confirm-go { background: var(--gold); border: 1px solid var(--gold); color: #1a1204; }
+.jump-confirm-cancel { background: transparent; border: 1px solid var(--border); color: var(--text2); }
+/* Reveal flash — briefly ring the card we jumped to */
+@keyframes jump-reveal {
+  0%   { box-shadow: 0 0 0 0 rgba(201, 152, 42, 0.6); }
+  100% { box-shadow: 0 0 0 16px rgba(201, 152, 42, 0); }
+}
+.qa-card-wrap.reveal-flash { animation: jump-reveal 1.2s ease-out 2; }
+
 @media (min-width: 600px) {
   .card-list  { max-width: 640px; margin: 0 auto; }
   .quiz-game  { max-width: 600px; margin: 0 auto; }
