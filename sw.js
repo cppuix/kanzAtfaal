@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v48'; // share card: book-scale type (40/34), answer section divider, wider gaps
+const CACHE_NAME = 'muntaqaa-v49'; // drawer chapter → Browse; safePage clamp; search jump-to-card by number
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [
@@ -43,10 +43,20 @@ const AUDIO_ASSETS = Array.from({ length: AUDIO_COUNT }, (_, i) => `./audios/${i
 const SHELL_SET = new Set(SHELL_ASSETS.map(u => new URL(u, self.location).href));
 const INDEX_URL = new URL('./index.html', self.location).href;
 
-// ── Install: cache shell immediately ─────────────────────────────────
+// ── Install: cache shell immediately (revalidated — never stale) ──────
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(SHELL_ASSETS))
+    caches.open(CACHE_NAME).then(cache =>
+      Promise.all(SHELL_ASSETS.map(async url => {
+        try {
+          // cache: 'no-cache' revalidates against the server, so a version
+          // bump always installs fresh assets even if the browser HTTP cache
+          // is serving a heuristically-stale copy.
+          const res = await fetch(url, { cache: 'no-cache' });
+          if (res && res.ok) await cache.put(url, res);
+        } catch (err) { /* optional/missing asset — skip, don't fail install */ }
+      }))
+    )
   );
   self.skipWaiting();
 });

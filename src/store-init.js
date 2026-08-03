@@ -25,6 +25,18 @@ Alpine.store('app', (function() {
   }
   const FUZZY_THRESHOLD = 0.5;
 
+  // Jump-to-card: a pure number (optionally #/س/Q-prefixed; Latin or Arabic-Indic
+  // digits) means "open card #n". Returns the integer, or null when not numeric.
+  function parseCardNumber(s) {
+    if (!s) return null;
+    const t = s.trim().replace(/^[#سQ]\s*/i, '');
+    if (!t) return null;
+    const latin = t
+      .replace(/[٠-٩]/g, d => String('٠١٢٣٤٥٦٧٨٩'.indexOf(d)))
+      .replace(/[۰-۹]/g, d => String('۰۱۲۳۴۵۶۷۸۹'.indexOf(d)));
+    return /^\d+$/.test(latin) ? parseInt(latin, 10) : null;
+  }
+
   // Longest contiguous substring of the query that actually appears in the text,
   // mirroring fuzzyScore's partial-match rules so highlighting is consistent
   // with what the filter actually matched.
@@ -178,8 +190,15 @@ Alpine.store('app', (function() {
       var activeSection = this.search.trim() ? this.searchSection : this.section;
       if (activeSection !== 'all') data = data.filter(function(q) { return q.section === activeSection; });
       var result;
-      if (!this.search.trim()) {
+      var q = this.search.trim();
+      var idNum = parseCardNumber(q);
+      if (!q) {
         result = data.map(function(qa) { return { qa: qa, matchIn: 'q' }; });
+      } else if (idNum != null) {
+        // Jump-to-card: "784", "س ٧٨٤" or "#784" opens that exact card
+        result = data
+          .filter(function(qa) { return qa.id === idNum; })
+          .map(function(qa) { return { qa: qa, matchIn: 'q', score: 1 }; });
       } else {
         var scope = this.searchScope;
         result = data
@@ -205,14 +224,18 @@ Alpine.store('app', (function() {
     get pageCount() {
       return Math.max(1, Math.ceil(this.filteredCards.length / this.pageSize));
     },
+    // currentPage clamped to a valid page — the pager never shows/renders out of range
+    get safePage() {
+      return Math.min(this.currentPage, this.pageCount);
+    },
     get browseCards() {
-      var start = (this.currentPage - 1) * this.pageSize;
+      var start = (this.safePage - 1) * this.pageSize;
       return this.filteredCards.slice(start, start + this.pageSize);
     },
     // Pre-computed page strip for the pager (first / prev / pages / next / last)
     get pagerItems() {
       var total = this.pageCount;
-      var cur = this.currentPage;
+      var cur = this.safePage;
       if (total <= 1) return [];
       var items = [];
       items.push({ type: 'first', label: '«', page: 1, disabled: cur === 1 });
@@ -316,7 +339,11 @@ Alpine.store('app', (function() {
     // Localized chrome labels (app UI, not content) — used for title tooltips + aria-labels ──
     get contentSwitchLabel() { return this.lang === 'en' ? 'Language' : 'اللغة'; },
     get searchNavLabel() { return this.lang === 'en' ? 'Search' : 'بحث'; },
-    get searchEmptyHint() { return this.lang === 'en' ? 'Type to search questions & answers' : 'اكتب كلمة للبحث في الأسئلة والأجوبة'; },
+    get searchEmptyHint() {
+      return this.lang === 'en'
+        ? 'Type to search — or a card number (e.g. 784) to jump straight to it'
+        : 'اكتب كلمة للبحث — أو رقم سؤال (مثل ٧٨٤) للانتقال إليه مباشرة';
+    },
     get searchInputLabel() { return this.lang === 'en' ? 'Search questions and answers' : 'ابحث في الأسئلة والأجوبة'; },
     fontSizeLabel: function(size) {
       var m = { sm: ['Small', 'صغير'], md: ['Medium', 'متوسط'], lg: ['Large', 'كبير'], xl: ['Extra large', 'كبير جدًا'] };
@@ -514,6 +541,9 @@ Alpine.store('app', (function() {
       this.drawerOpen = false;
       this.resetPagination();
       this.closeDrawer();
+      // Picking a chapter always lands on Browse showing that chapter — never
+      // leaves you stranded on Favorites/Search/Quiz with the drawer just closed
+      if (this.view !== 'browse') this.switchView('browse');
     },
     setSearchScope: function(scope) { this.searchScope = scope; this.resetPagination(); this.renderCards(); },
     setSearchSection: function(sec) { this.searchSection = sec; this.resetPagination(); this.renderCards(); },

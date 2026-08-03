@@ -180,7 +180,7 @@
           <button
             class="page-btn"
             type="button"
-            :class="{ active: pg.type === 'page' && pg.page === $store.app.currentPage, disabled: pg.disabled, 'is-ellipsis': pg.type === 'ellipsis' }"
+            :class="{ active: pg.type === 'page' && pg.page === $store.app.safePage, disabled: pg.disabled, 'is-ellipsis': pg.type === 'ellipsis' }"
             :disabled="pg.disabled"
             @click="$store.app.goToPage(pg.page)"
             x-text="pg.label"
@@ -239,7 +239,7 @@
           </div>
           <nav class="pagination" x-show="$store.app.pageCount > 1" :aria-label="$store.app.paginationLabel">
             <template x-for="(pg, idx) in $store.app.pagerItems" :key="idx + '-' + pg.type">
-              <button class="page-btn" type="button" :class="{ active: pg.type === 'page' && pg.page === $store.app.currentPage, disabled: pg.disabled, 'is-ellipsis': pg.type === 'ellipsis' }" :disabled="pg.disabled" @click="$store.app.goToPage(pg.page)" x-text="pg.label"></button>
+              <button class="page-btn" type="button" :class="{ active: pg.type === 'page' && pg.page === $store.app.safePage, disabled: pg.disabled, 'is-ellipsis': pg.type === 'ellipsis' }" :disabled="pg.disabled" @click="$store.app.goToPage(pg.page)" x-text="pg.label"></button>
             </template>
           </nav>
         </div>
