@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v47'; // share card: variable height (grows to fit), footer pinned, 2x cap + teaser fade for long answers
+const CACHE_NAME = 'muntaqaa-v48'; // share card: book-scale type (40/34), answer section divider, wider gaps
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [

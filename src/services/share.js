@@ -44,21 +44,27 @@ export async function shareAsImage(qa) {
   const MONO = 'Fira Code, monospace';
 
   const MAX_W = W - 300;                 // centered text measure
-  const qLineH = 66, aLineH = 56;        // question / answer line heights
+  // Book-scale type: smaller than before (40/34 vs 48/44) so long cards stay compact
+  const qLineH = 54, aLineH = 46;        // question / answer line heights
+  const GAP_DIV_Q = 72;                  // top divider → question
+  const GAP_Q_ADIV = 46;                 // question → answer divider
+  const GAP_ADIV_LABEL = 46;             // answer divider → answer label
+  const GAP_LABEL_A = 48;                // answer label → answer text
+  const GAP_A_FOOT = 56;                 // answer → footer rule
   const CAP = 2160;                      // max card height (~2× square); beyond it → teaser
 
   // ---- Pass 1: measure wrapped lines so the card can grow to fit its content ----
-  const qLines = wrapLines(ctx, qa.q, MAX_W, `48px ${BODY}`);
-  const aLines = wrapLines(ctx, qa.a, MAX_W, `44px ${BODY}`);
+  const qLines = wrapLines(ctx, qa.q, MAX_W, `40px ${BODY}`);
+  const aLines = wrapLines(ctx, qa.a, MAX_W, `34px ${BODY}`);
 
   const divY = 264;                                      // divider below pill + section label
-  const qStart = divY + 68;                              // first question baseline
+  const qStart = divY + GAP_DIV_Q;                       // first question baseline
   const qBottom = qStart + (qLines.length - 1) * qLineH; // last question baseline
-  const aLabelY0 = qBottom + 82;                        // answer-label baseline (pass-1 estimate)
-  const aStart = aLabelY0 + 66;                         // first answer baseline
+  const aLabelY0 = qBottom + GAP_Q_ADIV + GAP_ADIV_LABEL; // answer-label baseline (pass-1 estimate)
+  const aStart = aLabelY0 + GAP_LABEL_A;                 // first answer baseline
   const aBottom = aStart + (aLines.length - 1) * aLineH; // last answer baseline
 
-  let H = Math.max(1080, aBottom + 44 + 196);            // grow so the footer always clears the answer
+  let H = Math.max(1080, aBottom + GAP_A_FOOT + 196);    // grow so the footer always clears the answer
   const capped = H > CAP;
   if (capped) H = CAP;
   canvas.height = H;
@@ -111,17 +117,21 @@ export async function shareAsImage(qa) {
   // Divider
   fadeLine(ctx, pad + 50, divY, W - pad - 50, 'rgba(201,152,42,0.5)');
 
-  // Question — centered, generous; always rendered in full
+  // Question — book-scale, centered, always rendered in full
   ctx.fillStyle = '#ecdec4';
-  ctx.font = `48px ${BODY}`;
-  // In capped mode keep the answer label + ≥1 answer line + teaser clear of the question
-  const qMaxY = capped ? (fy - 34 - aLineH * 2 - 148) : 0;
+  ctx.font = `40px ${BODY}`;
+  // In capped mode keep the answer divider + label + ≥1 answer line + teaser clear of the question
+  const qMaxY = capped ? ((fy - 34) - GAP_Q_ADIV - GAP_ADIV_LABEL - GAP_LABEL_A - aLineH * 2) : 0;
   const qEnd = drawLines(ctx, qLines, W / 2, qStart, qLineH, 'center', MAX_W, qMaxY, true);
 
+  // Answer divider — a section break mirroring the one under the pill
+  const ansDivY = (qEnd == null ? qStart : qEnd) + GAP_Q_ADIV;
+  fadeLine(ctx, pad + 50, ansDivY, W - pad - 50, 'rgba(201,152,42,0.5)');
+
   // Answer — label with side rules, then text (no big panel, no dead space)
-  const aLabelY = (qEnd == null ? qStart : qEnd) + 82;
+  const aLabelY = ansDivY + GAP_ADIV_LABEL;
   const aLabel = CFG.ui.answerLabel;
-  ctx.font = `bold 30px ${BODY}`;
+  ctx.font = `bold 28px ${BODY}`;
   const aLabelW = ctx.measureText(aLabel).width;
   const ruleGap = 34, ruleW = 120;
   ctx.strokeStyle = 'rgba(201,152,42,0.35)';
@@ -134,8 +144,8 @@ export async function shareAsImage(qa) {
   ctx.fillText(aLabel, W / 2, aLabelY);
 
   ctx.fillStyle = '#f5d98a';
-  ctx.font = `44px ${BODY}`;
-  const aStart2 = aLabelY + 66;
+  ctx.font = `34px ${BODY}`;
+  const aStart2 = aLabelY + GAP_LABEL_A;
   if (!capped) {
     drawLines(ctx, aLines, W / 2, aStart2, aLineH, 'center', MAX_W, 0, false);
   } else {
@@ -152,7 +162,7 @@ export async function shareAsImage(qa) {
       ctx.fillRect(pad, fadeTop, W - pad * 2, fadeBottom - fadeTop);
     }
     ctx.fillStyle = 'rgba(198,208,193,0.9)';
-    ctx.font = `26px ${BODY}`;
+    ctx.font = `24px ${BODY}`;
     ctx.textAlign = 'center';
     ctx.fillText(st?.shareTeaserHint || '✦ full answer inside — open the link', W / 2, teaserY);
   }
