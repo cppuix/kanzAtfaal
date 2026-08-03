@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muntaqaa-v44'; // dark text2/text3: lighter + cooler sage (better contrast on bg3)
+const CACHE_NAME = 'muntaqaa-v45'; // share card: current-URL footer (not hardcoded) + polish (answer panel, brand)
 const AUDIO_CACHE = 'muntaqaa-audio-v1'; // separate cache, never busted on app updates
 
 const SHELL_ASSETS = [

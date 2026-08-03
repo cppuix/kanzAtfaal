@@ -95,29 +95,42 @@ export async function shareAsImage(qa) {
   ctx.beginPath(); ctx.moveTo(100, 198); ctx.lineTo(W-100, 198); ctx.stroke();
 
   ctx.fillStyle = '#ecdec4';
-  wrapText(ctx, qa.q, X, 258, W-200, 50, ALIGN, `38px ${FONT}`);
+  wrapText(ctx, qa.q, X, 262, W-220, 54, ALIGN, `40px ${FONT}`);
 
-  const midY = 530;
-  const grd2 = ctx.createLinearGradient(100, 0, W-100, 0);
-  grd2.addColorStop(0, 'transparent');
-  grd2.addColorStop(0.5, 'rgba(201,152,42,0.5)');
-  grd2.addColorStop(1, 'transparent');
-  ctx.strokeStyle = grd2;
+  // Answer panel — a distinct rounded block
+  const aTop = 556, aBottom = 872, aX = 100, aW = W - 200;
+  ctx.fillStyle = 'rgba(18,32,25,0.92)';
+  roundRect(ctx, aX, aTop, aW, aBottom - aTop, 26); ctx.fill();
+  ctx.strokeStyle = 'rgba(201,152,42,0.28)';
   ctx.lineWidth = 2;
-  ctx.beginPath(); ctx.moveTo(100, midY); ctx.lineTo(W-100, midY); ctx.stroke();
+  roundRect(ctx, aX, aTop, aW, aBottom - aTop, 26); ctx.stroke();
 
   ctx.fillStyle = '#c9982a';
-  ctx.font = `bold 26px ${FONT}`;
+  ctx.font = `bold 28px ${FONT}`;
   ctx.textAlign = ALIGN;
-  ctx.fillText(CFG.ui.answerLabel, X, midY + 52);
+  ctx.fillText(CFG.ui.answerLabel, X, aTop + 56);
 
   ctx.fillStyle = '#f5d98a';
-  wrapText(ctx, qa.a, X, midY + 108, W-200, 46, ALIGN, `36px ${FONT}`);
+  wrapText(ctx, qa.a, X, aTop + 118, aW - 60, 48, ALIGN, `38px ${FONT}`);
 
-  ctx.fillStyle = 'rgba(110,96,72,0.6)';
-  ctx.font = '20px monospace';
+  // Footer — brand + current URL (never hardcoded)
+  const fy = 952;
+  const grd3 = ctx.createLinearGradient(100, 0, W-100, 0);
+  grd3.addColorStop(0, 'transparent');
+  grd3.addColorStop(0.5, 'rgba(201,152,42,0.45)');
+  grd3.addColorStop(1, 'transparent');
+  ctx.strokeStyle = grd3; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(100, fy); ctx.lineTo(W-100, fy); ctx.stroke();
+
+  const brand = CFG.about?.title || CFG.ui?.appTitle || '';
+  const appUrl = buildDeepLink().replace(/^https?:\/\//, '').replace(/\/$/, '');
   ctx.textAlign = 'center';
-  ctx.fillText('cppuix.github.io/kanzAtfaal', W/2, H-82);
+  ctx.fillStyle = '#e8bf5a';
+  ctx.font = `bold 28px ${FONT}`;
+  if (brand) ctx.fillText(brand, W/2, fy + 46);
+  ctx.fillStyle = 'rgba(236,222,196,0.72)';
+  ctx.font = `21px ${FONT}`;
+  ctx.fillText(appUrl, W/2, fy + (brand ? 88 : 60));
 
   ctx.fillStyle = 'rgba(201,152,42,0.25)';
   ctx.font = `44px ${FONT}`;
