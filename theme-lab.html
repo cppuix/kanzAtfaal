@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kanz Al-Aṭfāl — Theme Lab</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+  /* Handjet — pixel font (Latin + Arabic) for the pixel theme's chrome */
+  @font-face {
+    font-family: 'Handjet';
+    src: url('fonts/Handjet-VariableFont_ELGR,ELSH,wght.ttf') format('truetype');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  /* ── App palette (dark, from style.css) ── */
+  :root{
+    --bg:#0c1a12; --bg2:#122019; --bg3:#1a2e20; --card:#172a1e; --card2:#1e3326;
+    --gold:#c9982a; --gold2:#e8bf5a; --gold3:#f5d98a;
+    --gold-dim:rgba(201,152,42,.15); --gold-mid:rgba(201,152,42,.35);
+    --green:#2ecc71; --red:#e74c3c;
+    --text:#ecdec4; --text2:#c6d0c1; --text3:#98a698;
+    --border:rgba(255,255,255,.08); --gold-border:rgba(201,152,42,.2);
+    --radius:14px; --radius-sm:9px; --shadow:0 6px 24px rgba(0,0,0,.5);
+    --font-main:'Tajawal',system-ui,sans-serif;
+    --font-display:'Cinzel','Tajawal',serif;
+    --font-pixel:'Handjet','Tajawal',sans-serif;
+  }
+  /* ── PIXEL theme: flattened palette + hard chrome ── */
+  .tlab.pixel{
+    --bg:#191c20; --bg2:#21252a; --bg3:#2a2f36; --card:#262b31; --card2:#31373f;
+    --gold:#e0b23c; --gold2:#f2d175; --gold3:#fff0b0;
+    --gold-dim:rgba(224,178,60,.16); --gold-mid:rgba(224,178,60,.45);
+    --green:#7bc47f; --red:#e06a5a;
+    --text:#f3eee2; --text2:#cbd3c7; --text3:#98a29a;
+    --border:#0a0c0e; --gold-border:#0a0c0e;
+    --radius:0; --radius-sm:0; --shadow:4px 4px 0 #0a0c0e;
+    --font-display:var(--font-pixel);
+  }
+  .tlab.pixel .qa-q, .tlab.pixel .qa-a, .tlab.pixel .weak-q,
+  .tlab.pixel .qq, .tlab.pixel .blank-text { font-family:var(--font-main); } /* content stays Tajawal/Amiri */
+
+  *{box-sizing:border-box}
+  body{font-family:var(--font-main);background:#081109;color:var(--text);margin:0;padding:0 0 50px}
+  .toolbar{position:sticky;top:0;z-index:50;background:#101a12;border-bottom:1px solid var(--gold-mid);display:flex;align-items:center;gap:8px;padding:10px 14px;flex-wrap:wrap}
+  .toolbar .tt{font-family:var(--font-display);font-weight:700;color:var(--gold2);font-size:.95rem;margin-inline-end:auto}
+  .toolbar button{background:var(--bg3);border:1px solid var(--gold-mid);color:var(--text);border-radius:9px;padding:7px 14px;font-family:var(--font-main);font-size:.82rem;cursor:pointer}
+  .toolbar button.on{background:var(--gold-dim);border-color:var(--gold);color:var(--gold2);font-weight:700}
+  .hint{max-width:440px;margin:14px auto 0;font-size:.74rem;color:var(--text3);line-height:1.5;padding:0 6px}
+
+  /* ── Mini-app frame ── */
+  .tlab{max-width:440px;margin:14px auto 0;background:var(--bg);border:1px solid var(--gold-mid);border-radius:20px;overflow:hidden;box-shadow:var(--shadow)}
+  .tlab.pixel{border-radius:6px;border-width:3px}
+
+  /* topbar */
+  .topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;background:var(--bg2);border-bottom:1px solid var(--gold-mid)}
+  .topbar .h-btn{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;color:var(--text2);border:1px solid transparent}
+  .topbar .title{font-family:var(--font-display);font-size:.98rem;color:var(--gold2);font-weight:700}
+  .topbar .pill{border:1px solid var(--gold-mid);border-radius:16px;padding:4px 12px;font-size:.74rem;color:var(--gold2);background:var(--gold-dim)}
+
+  /* screens */
+  .screen{display:none;padding:14px 14px}
+  .screen.show{display:block}
+  .screen-cap{font-size:.68rem;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:12px;font-weight:700}
+
+  /* browse */
+  .view-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}
+  .section-badge{font-size:.82rem;font-weight:700;color:var(--gold2);background:var(--gold-dim);border:1px solid var(--gold-mid);border-radius:20px;padding:5px 14px;font-family:var(--font-display)}
+  .counter-pill{font-size:.74rem;color:var(--text3);background:var(--bg3);border-radius:20px;padding:4px 10px}
+  .qa-card{background:var(--card);border:1px solid var(--gold-border);border-radius:var(--radius);padding:14px;margin-bottom:10px;cursor:pointer}
+  .qa-card .q-num{font-size:.72rem;color:var(--gold);font-family:var(--font-display);opacity:.85}
+  .qa-card .qa-q{font-size:.98rem;font-weight:600;line-height:1.7;color:var(--text);margin:7px 0 10px}
+  .qa-card .qa-a{font-size:.9rem;line-height:1.75;color:var(--text);background:var(--bg3);border:1px solid var(--border);border-radius:9px;padding:10px 12px;display:none;margin-top:2px}
+  .qa-card.open .qa-a{display:block}
+  .qa-card .q-row{display:flex;align-items:center;gap:8px}
+  .qa-section-tag{font-size:.7rem;color:var(--text3);background:var(--bg3);border-radius:7px;padding:3px 9px;border:1px solid var(--border)}
+  .q-toggle{margin-inline-start:auto;background:var(--gold-dim);border:1px solid var(--gold-mid);color:var(--gold2);border-radius:9px;width:30px;height:30px;cursor:pointer}
+
+  /* search */
+  .search-row{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--gold-border);border-radius:12px;padding:9px 12px}
+  .search-row input{flex:1;background:none;border:none;color:var(--text);font-family:var(--font-main);font-size:.88rem;outline:none}
+  .search-row input::placeholder{color:var(--text3)}
+  .search-chip{border:1px solid var(--gold-mid);background:var(--gold-dim);color:var(--gold2);border-radius:14px;padding:4px 10px;font-size:.7rem;font-family:var(--font-pixel)}
+  mark{background:var(--gold-dim);color:var(--gold2);font-weight:700;padding:0 2px}
+
+  /* quiz setup */
+  .qtabs{display:flex;gap:4px;border-bottom:1px solid var(--gold-mid);padding:4px 4px 0}
+  .qtabs button{background:none;border:none;font-family:var(--font-display);font-size:.88rem;color:var(--text3);padding:8px 13px;border-bottom:2px solid transparent;cursor:pointer}
+  .qtabs button.on{color:var(--gold2);font-weight:700;border-bottom-color:var(--gold)}
+  .qfield{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:16px 0}
+  .qfield .lbl{color:var(--text2);font-size:.9rem}
+  .qtoken{display:inline-flex;align-items:center;gap:7px;background:var(--gold-dim);border:1px solid var(--gold-mid);border-radius:14px;color:var(--gold2);font-weight:700;font-family:var(--font-pixel);font-size:.92rem;padding:7px 14px}
+  .qstart{background:none;border:none;border-bottom:2px solid var(--gold);color:var(--gold2);font-family:var(--font-pixel);font-size:1.02rem;font-weight:800;padding:6px 10px;cursor:pointer;margin-top:6px}
+
+  /* quiz game */
+  .progress{display:flex;align-items:center;gap:10px}
+  .pbar{flex:1;height:8px;background:var(--bg3);border-radius:4px;overflow:hidden;border:1px solid var(--gold-border)}
+  .pfill{height:100%;width:60%;background:var(--gold)}
+  .ptext{font-size:.7rem;color:var(--text3);font-family:var(--font-pixel)}
+  .score-badge{background:var(--gold-dim);border:1px solid var(--gold-mid);border-radius:20px;padding:6px 13px;font-size:.78rem;color:var(--gold2);font-weight:700;display:inline-block;margin-top:10px;font-family:var(--font-pixel)}
+  .quiz-card{background:var(--card);border:1px solid var(--gold-border);border-radius:var(--radius);padding:16px;margin-top:12px}
+  .quiz-card .qq{font-size:1rem;font-weight:600;line-height:1.7;color:var(--text);margin-bottom:12px}
+  .choice-btn{display:block;width:100%;background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:11px 14px;color:var(--text);font-family:var(--font-main);font-size:.92rem;text-align:start;margin-bottom:8px}
+  .choice-btn.correct{border-color:var(--green);color:var(--green)}
+  .build-check{display:block;margin:10px auto 0;background:var(--gold-dim);border:1px solid var(--gold-mid);color:var(--gold2);border-radius:12px;padding:9px 24px;font-size:.9rem;font-family:var(--font-pixel);font-weight:700;cursor:pointer}
+
+  /* stats */
+  .stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  .stats-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:13px 10px;display:flex;flex-direction:column;align-items:center;gap:4px}
+  .stats-card .v{font-family:var(--font-display);font-size:1.35rem;font-weight:800;color:var(--gold2)}
+  .stats-card .l{font-size:.68rem;color:var(--text3)}
+  .stats-row{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;background:var(--bg3);margin-top:7px}
+  .stats-row .lbl{flex:0 0 118px;font-size:.82rem;color:var(--text);font-family:var(--font-pixel)}
+  .stats-row .track{flex:1;height:7px;border-radius:3px;background:var(--bg2);overflow:hidden;border:1px solid var(--border)}
+  .stats-row .fill{display:block;height:100%;background:var(--gold)}
+  .stats-row .acc{flex:0 0 40px;text-align:end;font-family:var(--font-pixel);font-size:.82rem;color:var(--gold2)}
+
+  /* weak */
+  .weak-item{display:flex;flex-direction:column;gap:6px;padding:10px 12px;border-radius:10px;background:var(--bg3);border:1px solid var(--border);margin-bottom:8px}
+  .weak-item .wline{display:flex;align-items:flex-start;gap:10px}
+  .weak-item .weak-q{flex:1;font-size:.85rem;line-height:1.6;color:var(--text)}
+  .leaf{flex:0 0 auto;width:13px;height:13px;margin-top:3px;border-radius:2px 100% 2px 100%;background:var(--gold-dim);border:1px solid var(--gold-mid);transform:rotate(-8deg)}
+  .leaf.watered{background:var(--gold);border-color:var(--gold3)}
+
+  /* drawer */
+  .drawer{background:var(--bg2);border:1px solid var(--gold-mid);border-radius:14px;overflow:hidden}
+  .d-head{display:flex;gap:8px;padding:10px 12px;border-bottom:1px solid var(--gold-mid)}
+  .d-head button{background:none;border:1px solid var(--gold-mid);border-radius:9px;padding:6px 12px;color:var(--text2);font-family:var(--font-pixel);font-size:.76rem}
+  .s-item{display:flex;justify-content:space-between;align-items:center;padding:11px 13px;color:var(--text2);font-size:.84rem;border-bottom:1px solid var(--border);font-family:var(--font-pixel)}
+  .s-item .count{font-size:.68rem;background:var(--bg3);padding:2px 8px;border-radius:20px;color:var(--text3)}
+  .s-item.on{background:linear-gradient(90deg,var(--gold-dim),transparent);color:var(--gold2)}
+
+  /* settings */
+  .set-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 2px;border-bottom:1px solid var(--border)}
+  .set-row .lbl{font-size:.84rem;color:var(--text2);font-family:var(--font-pixel)}
+  .set-btns{display:flex;gap:6px}
+  .set-btns button{background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text2);padding:7px 11px;font-size:.78rem;cursor:pointer}
+  .set-btns button.on{background:var(--gold-dim);border-color:var(--gold);color:var(--gold2)}
+
+  /* bottom nav */
+  .bnav{display:flex;background:var(--bg2);border-top:1px solid var(--gold-mid);padding:6px 0}
+  .bnav button{flex:1;background:none;border:none;color:var(--text3);font-family:var(--font-pixel);font-size:.72rem;padding:8px 4px 10px;cursor:pointer;position:relative;display:flex;flex-direction:column;gap:3px;align-items:center}
+  .bnav button .ico{font-size:1rem;line-height:1}
+  .bnav button.on{color:var(--gold2)}
+  .bnav button.on::after{content:'';position:absolute;bottom:0;left:22%;right:22%;height:2px;border-radius:1px;background:var(--gold)}
+
+  /* ── PIXEL chrome overrides ── */
+  .tlab.pixel .qa-card, .tlab.pixel .quiz-card, .tlab.pixel .stats-card,
+  .tlab.pixel .drawer, .tlab.pixel .search-row { border:3px solid var(--border); box-shadow:4px 4px 0 var(--border) }
+  .tlab.pixel .choice-btn, .tlab.pixel .qtoken, .tlab.pixel .build-check,
+  .tlab.pixel .section-badge { border:3px solid var(--border) }
+  .tlab.pixel .qa-card.open { box-shadow:2px 2px 0 var(--border) }
+  .tlab.pixel .choice-btn.correct{border-color:var(--green);box-shadow:2px 2px 0 var(--border)}
+  .tlab.pixel .qtabs button.on{border-bottom-width:4px}
+  .tlab.pixel .bnav button.on::after{height:3px}
+  .tlab.pixel img,.tlab.pixel .result-logo{image-rendering:pixelated;image-rendering:crisp-edges}
+  .tlab.pixel .topbar .title,.tlab.pixel .topbar .pill,.tlab.pixel .qstart,
+  .tlab.pixel .qtabs button,.tlab.pixel .stats-card .v,.tlab.pixel .counter-pill,
+  .tlab.pixel .qfield .lbl,.tlab.pixel .screen-cap{font-family:var(--font-pixel)}
+</style>
+</head>
+<body>
+
+  <div class="toolbar">
+    <span class="tt">Theme Lab</span>
+    <button id="thDark" class="on" onclick="setTheme('dark')">Dark</button>
+    <button id="thPixel" onclick="setTheme('pixel')">Pixel</button>
+    <button id="lgEn" class="on" onclick="setLang('en')">EN</button>
+    <button id="lgAr" onclick="setLang('ar')">عربي</button>
+  </div>
+  <p class="hint">Sample data from the real app. In the Pixel theme, the chrome (buttons/badges/headings/numerals) uses <b>Handjet</b>; the reading content stays in <b>Tajawal</b>/<b>Amiri</b>. Toggle EN/عربي to see both scripts.</p>
+
+  <div class="tlab" id="tlab">
+    <div class="topbar">
+      <span class="h-btn">☰</span>
+      <span class="title" data-en="Kanz Al-Aṭfāl" data-ar="كنز الأطفال">Kanz Al-Aṭfāl</span>
+      <span class="pill" data-en="Language" data-ar="اللغة">Language</span>
+    </div>
+
+    <div class="screen show" data-view="browse">
+      <div class="view-head"><span class="section-badge" data-en="All Questions" data-ar="جميع الأسئلة">All Questions</span><span class="counter-pill" id="counter">6</span></div>
+      <div id="cardList"></div>
+    </div>
+
+    <div class="screen" data-view="search">
+      <div class="screen-cap" data-en="Search" data-ar="بحث">Search</div>
+      <div class="search-row"><span style="color:var(--text3)">⌕</span><input id="searchInput" data-ph-en="Search…" data-ph-ar="بحث…" placeholder="Search…"></div>
+      <div style="height:10px"></div>
+      <div id="searchResults"></div>
+    </div>
+
+    <div class="screen" data-view="quiz">
+      <div class="qtabs">
+        <button class="on" data-t="setup" onclick="qtab('setup')" data-en="Quiz" data-ar="الاختبار">Quiz</button>
+        <button data-t="weak" onclick="qtab('weak')" data-en="Weak" data-ar="نقاط الضعف">Weak</button>
+        <button data-t="stats" onclick="qtab('stats')" data-en="Stats" data-ar="الإحصائيات">Stats</button>
+      </div>
+      <div data-pane="setup">
+        <div class="qfield"><span class="lbl" data-en="Chapter:" data-ar="الباب:"></span><span class="qtoken"><span data-en="All Chapters" data-ar="جميع الأبواب"></span> ▾</span></div>
+        <div class="qfield"><span class="lbl" data-en="Number of questions:" data-ar="عدد الأسئلة:"></span><span class="qtoken">5 ▾</span></div>
+        <div class="qfield"><span class="lbl" data-en="Type:" data-ar="النمط:"></span><span class="qtoken" data-en="Multiple Choice" data-ar="اختيار من متعدد"></span></div>
+        <button class="qstart" data-en="Start" data-ar="ابدأ">Start</button>
+      </div>
+      <div data-pane="weak" style="display:none;padding-top:12px" id="weakList"></div>
+      <div data-pane="stats" style="display:none;padding-top:12px" id="statsPane"></div>
+    </div>
+
+    <div class="screen" data-view="settings">
+      <div class="set-row"><span class="lbl" data-en="Font" data-ar="الخط"></span><div class="set-btns"><button class="on">Tajawal</button><button>Amiri</button><button>Lateef</button></div></div>
+      <div class="set-row"><span class="lbl" data-en="Font size" data-ar="حجم الخط"></span><div class="set-btns"><button>A</button><button class="on">A</button><button>A</button><button>A</button></div></div>
+      <div class="set-row"><span class="lbl" data-en="High contrast" data-ar="وضع التباين"></span><button class="set-btns" style="border:none;background:none">🔘</button></div>
+      <div class="set-row"><span class="lbl" data-en="Share app link" data-ar="مشاركة الرابط"></span><button class="set-btns" style="border:none;background:none">⧉</button></div>
+    </div>
+
+    <div class="bnav">
+      <button class="on" data-v="browse" onclick="show('browse')"><span class="ico">⌂</span><span data-en="Browse" data-ar="تصفح">Browse</span></button>
+      <button data-v="search" onclick="show('search')"><span class="ico">⌕</span><span data-en="Search" data-ar="بحث">Search</span></button>
+      <button data-v="quiz" onclick="show('quiz')"><span class="ico">?</span><span data-en="Quiz" data-ar="اختبار">Quiz</span></button>
+      <button data-v="settings" onclick="show('settings')"><span class="ico">⚙</span><span data-en="Settings" data-ar="الإعدادات">Settings</span></button>
+    </div>
+  </div>
+
+<script>
+  var DATA = {
+    en: [
+      { id:1, q:"When is a child commanded to pray?", a:"At the age of seven", section:"Chapter: Prayer" },
+      { id:2, q:"What are the five pillars of Islam?", a:"Shahada, prayer, zakat, fasting, and Hajj", section:"Faith and Religion Levels" },
+      { id:3, q:"How many obligatory prayers are there each day?", a:"Five prayers", section:"Chapter: Prayer" },
+      { id:4, q:"Who is the best of creation?", a:"The Prophet Muhammad ﷺ", section:"The Companions" },
+      { id:5, q:"What is the first thing a Muslim is asked about?", a:"His Lord, his religion, and his Prophet", section:"Faith and Religion Levels" },
+      { id:6, q:"What does Bismillah mean?", a:"In the name of Allah", section:"The Book of Allah" }
+    ],
+    ar: [
+      { id:1, q:"متى يُؤمر الطفل بالصلاة؟", a:"عند بلوغه سبع سنين", section:"باب الصلاة" },
+      { id:2, q:"ما هي أركان الإسلام الخمسة؟", a:"الشهادتان والصلاة والزكاة والصيام والحج", section:"باب الإيمان، ومراتب الدين" },
+      { id:3, q:"كم عدد الصلوات المفروضة في اليوم؟", a:"خمس صلوات", section:"باب الصلاة" },
+      { id:4, q:"من هو خير الخلق؟", a:"النبي محمد ﷺ", section:"الصحابة رضي الله عنهم" },
+      { id:5, q:"ما أول ما يُسأل عنه العبد؟", a:"عن ربه ودينه ونبيه", section:"باب الإيمان، ومراتب الدين" },
+      { id:6, q:"ما معنى بسم الله؟", a:"باسم الله نبدأ", section:"القرآن الكريم" }
+    ]
+  };
+  var state = { lang:'en', theme:'dark', view:'browse' };
+
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function cardsHtml(){
+    return DATA[state.lang].map(function(q){
+      return '<div class="qa-card" onclick="this.classList.toggle(\'open\')">'+
+        '<div class="q-num">Q '+q.id+'</div>'+
+        '<div class="qa-q">'+esc(q.q)+'</div>'+
+        '<div class="qa-a">'+esc(q.a)+'</div>'+
+        '<div class="q-row"><span class="qa-section-tag">'+esc(q.section)+'</span><button class="q-toggle">⚿</button></div>'+
+      '</div>';
+    }).join('');
+  }
+  function searchHtml(){
+    var term = state.lang==='en' ? 'prayer' : 'صلاة';
+    var re = new RegExp('('+term+')','gi');
+    var out = DATA[state.lang].filter(function(q){ return q.q.toLowerCase().indexOf(term.toLowerCase())!==-1; }).slice(0,3);
+    return out.map(function(q){
+      var hiq = q.q.replace(re,'<mark>$1</mark>');
+      return '<div class="qa-card"><div class="q-num">Q '+q.id+'</div><div class="qa-q">'+hiq+'</div><div class="q-row"><span class="qa-section-tag">'+esc(q.section)+'</span></div></div>';
+    }).join('') || '<div class="qa-card"><div class="qa-q">—</div></div>';
+  }
+  function weakHtml(){
+    return '<div class="weak-item"><div class="wline"><span class="leaf"></span><span class="weak-q">'+esc(DATA[state.lang][4].q)+'</span></div><span class="qa-section-tag">'+esc(DATA[state.lang][4].section)+'</span></div>'+
+           '<div class="weak-item"><div class="wline"><span class="leaf watered"></span><span class="weak-q">'+esc(DATA[state.lang][0].q)+'</span></div><span class="qa-section-tag">'+esc(DATA[state.lang][0].section)+'</span></div>';
+  }
+  function statsHtml(){
+    return '<div class="stats-grid">'+
+      '<div class="stats-card"><span class="v">75%</span><span class="l" data-en="Accuracy" data-ar="الدقة">Accuracy</span></div>'+
+      '<div class="stats-card"><span class="v">4</span><span class="l" data-en="Answered" data-ar="أجاب">Answered</span></div>'+
+      '<div class="stats-card"><span class="v">3</span><span class="l" data-en="Correct" data-ar="صحيح">Correct</span></div>'+
+      '<div class="stats-card"><span class="v">1</span><span class="l" data-en="Wrong" data-ar="خطأ">Wrong</span></div>'+
+    '</div>'+
+    '<div class="stats-row"><span class="lbl" data-en="Multiple Choice" data-ar="اختيار من متعدد">Multiple Choice</span><span class="track"><span class="fill" style="width:50%"></span></span><span class="acc">50%</span></div>'+
+    '<div class="stats-row"><span class="lbl" data-en="Order Words" data-ar="ترتيب الكلمات">Order Words</span><span class="track"><span class="fill" style="width:100%"></span></span><span class="acc">100%</span></div>'+
+    '<div class="stats-row"><span class="lbl" data-en="Fill the Blank" data-ar="أكمل الفراغ">Fill the Blank</span><span class="track"><span class="fill" style="width:0%"></span></span><span class="acc">—</span></div>';
+  }
+  function applyLang(){
+    var ar = state.lang==='ar';
+    document.documentElement.lang = state.lang;
+    document.documentElement.dir = ar ? 'rtl' : 'ltr';
+    document.querySelectorAll('[data-en]').forEach(function(el){
+      el.textContent = ar ? (el.getAttribute('data-ar')||'') : el.getAttribute('data-en');
+    });
+    document.querySelectorAll('[data-ph-en]').forEach(function(el){
+      el.placeholder = ar ? el.getAttribute('data-ph-ar') : el.getAttribute('data-ph-en');
+    });
+    document.getElementById('lgEn').classList.toggle('on', !ar);
+    document.getElementById('lgAr').classList.toggle('on', ar);
+    renderLists();
+  }
+  function renderLists(){
+    document.getElementById('cardList').innerHTML = cardsHtml();
+    document.getElementById('searchResults').innerHTML = searchHtml();
+    document.getElementById('weakList').innerHTML = weakHtml();
+    document.getElementById('statsPane').innerHTML = statsHtml();
+    applyLangStatic();
+  }
+  function applyLangStatic(){
+    var ar = state.lang==='ar';
+    document.querySelectorAll('[data-en]').forEach(function(el){
+      el.textContent = ar ? (el.getAttribute('data-ar')||'') : el.getAttribute('data-en');
+    });
+  }
+  function setTheme(t){
+    state.theme = t;
+    document.getElementById('tlab').classList.toggle('pixel', t==='pixel');
+    document.getElementById('thDark').classList.toggle('on', t==='dark');
+    document.getElementById('thPixel').classList.toggle('on', t==='pixel');
+  }
+  function setLang(l){
+    state.lang = l;
+    applyLang();
+  }
+  function show(v){
+    state.view = v;
+    document.querySelectorAll('.screen').forEach(function(s){ s.classList.toggle('show', s.getAttribute('data-view')===v); });
+    document.querySelectorAll('.bnav button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-v')===v); });
+    renderLists();
+  }
+  function qtab(t){
+    document.querySelectorAll('.qtabs button').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-t')===t); });
+    document.querySelectorAll('[data-pane]').forEach(function(p){ p.style.display = p.getAttribute('data-pane')===t ? 'block' : 'none'; });
+    if (t!=='setup') renderLists();
+  }
+  setTheme('dark'); applyLang();
+</script>
+</body>
+</html>
